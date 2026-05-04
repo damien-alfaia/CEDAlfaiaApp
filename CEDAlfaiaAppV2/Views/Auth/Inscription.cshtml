@@ -1,0 +1,40 @@
+﻿@model CEDAlfaiaAppV2.Models.InscriptionModel
+@{
+    Layout = "~/Views/Shared/_LayoutPublic.cshtml";
+    ViewBag.Title = "Inscrivez-vous";
+
+}
+
+
+
+<div class="panel-heading">
+    <h3 class="panel-title">@ViewBag.Title</h3>
+</div>
+<div class="panel-body">
+    @Html.ValidationSummary(false, "", new { @style = "color:red;" })
+    @using (Html.BeginForm())
+    {
+        <fieldset>
+            <div class="form-group"> 
+                @Html.TextBoxFor(m => m.Email, new { @class = "form-control", placeholder = "E-mail", autofocus = "true", type = "email" })
+            </div>
+            <div class="form-group">
+                @Html.PasswordFor(m => m.Password)
+                @Html.TextBoxFor(m => m.Password, new { @class = "form-control", placeholder = "Password", type = "password" })
+            </div>
+            <div class="form-group">
+                @Html.TextBoxFor(m => m.Password2, new { @class = "form-control", placeholder = "Répetez votre mot de passe", type = "password" })
+            </div>
+            <div class="form-group">
+                @Html.TextBoxFor(m => m.Nom, new { @class = "form-control", placeholder = "Nom" })
+            </div>
+            <div class="form-group">
+                @Html.TextBoxFor(m => m.Prenom, new { @class = "form-control", placeholder = "Prénom" })
+            </div>
+            <!-- Change this to a button or input when using this as a form -->
+            <button class="btn btn-md btn-success" type="submit">Enregistrer</button>
+            <button class="btn btn-md btn-default" type="reset">Annuler</button>
+            @Html.ActionLink("Retour", "LogIn", null, new { @class= "btn btn-md btn-primary pull-right" })
+        </fieldset>
+    }
+</div>

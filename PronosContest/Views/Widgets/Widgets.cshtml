@@ -1,0 +1,197 @@
+﻿@model List<CEDAlfaiaApp.DAL.Widgets.WidgetUtilisateur>
+
+@{
+    ViewBag.Title = "Tableau de bord";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .widgetPanel {
+        background: #F9F9FA;
+        border: solid 1px #D3D6DA;
+        padding: 12px 15px 9px;
+        margin: 0 0 5px 0;
+        -moz-box-shadow: inset 0px 1px 4px rgba(0, 0, 0, 0.117188);
+        -webkit-box-shadow: inset 0px 1px 4px rgba(0, 0, 0, 0.117188);
+        box-shadow: inset 0px 1px 4px rgba(0, 0, 0, 0.117188);
+        -moz-border-radius: 5px;
+        -webkit-border-radius: 5px;
+        border-radius: 5px;
+        margin-top: 20px;
+    }
+
+        .widgetPanel img {
+            margin-right: 11px;
+        }
+
+        .widgetPanel .disabled {
+            -moz-opacity: 0.2;
+            filter: alpha(opacity=20);
+            opacity: 0.2;
+            cursor: default !important;
+        }
+
+    .leftZone,
+    .rightZone {
+        float: left;
+    }
+
+    .rightZone {
+        width: 50%;
+    }
+
+    .leftZone {
+        width: 50%;
+        margin-right: 5px;
+    }
+</style>
+
+<script type="text/javascript">
+    function ShowWidgetPanel(widgetPanelUID) {
+        var panel = dockManager.GetPanelByUID(widgetPanelUID);
+        panel.Show();
+    }
+    function SetWidgetButtonVisible(widgetName, visible) {
+        if (!visible)
+            $('#widgetButton_' + widgetName).addClass('disabled')
+        else
+            $('#widgetButton_' + widgetName).removeClass();
+    }
+    function SaveWidget(s, e) {
+        var name = s.name;
+        var zone = "";
+        if (s.zone !== undefined)
+            zone = s.zone.name;
+        var top = s.top;
+        var left = s.left;
+
+        $.ajax({
+            url: '@Url.Action("SaveWidgetUtilisateur")',
+            data: JSON.stringify({ nameWidget : name, zone: zone, top : top, left : left }),
+            contentType: 'application/json; charset=utf-8',
+            type: 'POST',
+            success: function (result) {
+
+            },
+            error: function (err) {
+                alert(err);
+            }
+        });
+    }
+    function RemoveWidget(s, e) {
+        var name = s.name;
+
+        $.ajax({
+            url: '@Url.Action("ResetWidgetUtilisateur")',
+            data: JSON.stringify({ nameWidget : name }),
+            contentType: 'application/json; charset=utf-8',
+            type: 'POST',
+            success: function (result) {
+
+            },
+            error: function (err) {
+                alert(err);
+            }
+        });
+    }
+</script>
+
+<div style="text-align:right;height:35px;">
+    @Html.DevExtreme().Button().Text("Gérer le tableau de bord").OnClick("function(e) { window.location.href = '/Widgets/Liste';  }")
+</div>
+
+@Html.DevExpress().DockManager(
+    settings =>
+    {
+        settings.Name = "dockManager";
+        settings.ClientSideEvents.PanelShown = "function(s, e) { SetWidgetButtonVisible(e.panel.panelUID, false) }";
+        settings.ClientSideEvents.PanelCloseUp = "function(s, e) { SetWidgetButtonVisible(e.panel.panelUID, true) }";
+    }
+).GetHtml()
+
+@{
+    foreach (var widget in this.Model.Where(m => m.WidgetID != null))
+    {
+        Html.DevExpress().DockPanel(settings =>
+        {
+            settings.Name = widget.Widget.HtmlName + "_" + widget.ID;
+            settings.PanelUID = widget.Widget.HtmlPanelUID + "_" + widget.ID;
+            if (!string.IsNullOrEmpty(widget.HtmlOwnerZoneUID))
+                settings.OwnerZoneUID = widget.HtmlOwnerZoneUID;
+            if (widget.HtmlIndex != null)
+                settings.VisibleIndex = widget.HtmlIndex.Value;
+            if (widget.Widget.HtmlWidth != null)
+                settings.Width = System.Web.UI.WebControls.Unit.Parse(widget.Widget.HtmlWidth);
+            if (!string.IsNullOrEmpty(widget.HtmlTop))
+                settings.Top = int.Parse(widget.HtmlTop);
+            if (!string.IsNullOrEmpty(widget.HtmlLeft))
+                settings.Left = int.Parse(widget.HtmlLeft);
+            
+            if (string.IsNullOrEmpty(widget.HtmlLeft) && string.IsNullOrEmpty(widget.HtmlTop) && string.IsNullOrEmpty(widget.HtmlOwnerZoneUID))
+                settings.ShowOnPageLoad = false;
+
+            settings.HeaderText = widget.Titre;
+            settings.ClientSideEvents.EndDragging = "function(s, e) { SaveWidget(s,e); }";
+            settings.ClientSideEvents.CloseButtonClick = "function (s,e) { RemoveWidget(s,e); }";
+
+            settings.SetContent(() =>
+            {
+                Html.RenderPartial(widget.Widget.HtmlPartialWidget, widget);
+            });
+        }).GetHtml();
+    }
+}
+
+
+<div class="widgetPanel">
+    @{
+        foreach (var widget in this.Model.Where(m => m.WidgetID != null))
+        {
+            Html.DevExpress().Button(
+                settings =>
+                {
+                    settings.Name = "widgetButton_" + widget.Widget.HtmlName + "_" + widget.ID;
+                    settings.Text = widget.Titre;
+                    settings.ControlStyle.Cursor = "pointer";
+                    settings.ClientSideEvents.Click = string.Format("function(s, e) {{ ShowWidgetPanel('{0}') }}", widget.Widget.HtmlName + "_" + widget.ID);
+                }
+            ).GetHtml();
+        }
+    }
+</div>
+
+<div class="row">
+    @Html.DevExpress().DockZone(
+        settings =>
+        {
+            settings.Name = "dockZone1";
+            settings.ZoneUID = "dockZone1";
+            settings.Style.Add("display", "inline-block");
+            settings.Style.Add("width", "25%");
+            settings.ControlStyle.CssClass = "col-xs-12 col-md-3";
+            settings.Width = System.Web.UI.WebControls.Unit.Percentage(25);
+            settings.PanelSpacing = 3;
+        }
+    ).GetHtml()
+    @Html.DevExpress().DockZone(
+        settings =>
+        {
+            settings.Name = "dockZone2";
+            settings.ZoneUID = "dockZone2";
+            settings.ControlStyle.CssClass = "col-xs-12 col-md-3";
+            settings.Width = System.Web.UI.WebControls.Unit.Percentage(25);
+            settings.PanelSpacing = 3;
+        }
+    ).GetHtml()
+    @Html.DevExpress().DockZone(
+        settings =>
+        {
+            settings.Name = "dockZone3";
+            settings.ZoneUID = "dockZone3";
+            settings.ControlStyle.CssClass = "col-xs-12 col-md-6";
+            settings.Width = System.Web.UI.WebControls.Unit.Percentage(50);
+            settings.PanelSpacing = 3;
+        }
+    ).GetHtml()
+
+</div>

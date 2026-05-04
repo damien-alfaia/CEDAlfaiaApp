@@ -1,0 +1,106 @@
+@model IQueryable<CEDAlfaiaApp.DAL.Garage.PieceVente>
+
+@{
+    var grid = Html.DevExpress().GridView(settings =>
+    {
+        settings.Name = "GridViewListeDevis";
+        settings.Width = System.Web.UI.WebControls.Unit.Percentage(100);
+        settings.CallbackRouteValues = new { Controller = "Devis", Action = "GridViewListeDevisPartial" };
+        settings.SettingsBehavior.AllowGroup = true;
+        settings.SettingsBehavior.FilterRowMode = GridViewFilterRowMode.Auto;
+        settings.Settings.ShowColumnHeaders = true;
+        settings.Settings.ShowFooter = true;
+        settings.Settings.ShowGroupPanel = true;
+        settings.EnableRowsCache = true;
+        settings.SettingsCookies.Enabled = true;
+        settings.ClientLayout = (s, e) =>
+        {
+            switch (e.LayoutMode)
+            {
+                case ClientLayoutMode.Loading:
+                    if (Session["LayoutDevis"] != null)
+                    {
+                        e.LayoutData = Session["LayoutDevis"].ToString();
+                    }
+                    break;
+                case ClientLayoutMode.Saving:
+                    Session["LayoutDevis"] = e.LayoutData;
+                    break;
+            }
+        };
+
+        settings.SettingsExport.EnableClientSideExportAPI = true;
+        settings.SettingsExport.ExcelExportMode = DevExpress.Export.ExportType.WYSIWYG;
+        settings.Toolbars.Add(t =>
+        {
+            t.EnableAdaptivity = true;
+            t.Items.Add(GridViewToolbarCommand.ExportToPdf);
+            t.Items.Add(GridViewToolbarCommand.ExportToXls);
+            t.Items.Add(GridViewToolbarCommand.ExportToXlsx);
+            t.Items.Add(GridViewToolbarCommand.ExportToDocx);
+        });
+        settings.SettingsExport.RenderBrick = (sender, e) =>
+        {
+            if (e.RowType == GridViewRowType.Data && e.VisibleIndex % 2 == 0)
+                e.BrickStyle.BackColor = System.Drawing.Color.FromArgb(0xEE, 0xEE, 0xEE);
+        };
+
+        settings.Width = System.Web.UI.WebControls.Unit.Percentage(100);
+        settings.CommandColumn.Visible = false;
+        settings.KeyFieldName = "ID";
+
+        settings.SettingsPager.Visible = true;
+        settings.Settings.ShowFilterRow = true;
+        settings.SettingsBehavior.AllowSelectByRowClick = true;
+
+        settings.ClientSideEvents.RowDblClick = "function(s, e) { s.GetRowValues(e.visibleIndex, 'ID', function (value) { ouvrirDevis(value); }); }";
+
+        settings.Columns.Add(column => { column.FieldName = "NumDevis"; column.Caption = "N° devis"; column.Settings.AutoFilterCondition = AutoFilterCondition.Contains; });
+        settings.Columns.Add(column => { column.FieldName = "DateDevis"; column.Caption = "Date"; column.PropertiesEdit.DisplayFormatString = "dd/MM/yyyy"; });
+        settings.Columns.Add(column => { column.FieldName = "Client"; column.Caption = "Client"; column.Settings.AutoFilterCondition = AutoFilterCondition.Contains; });
+        settings.Columns.Add(column => { column.FieldName = "Voiture"; column.Caption = "Voiture"; column.Settings.AutoFilterCondition = AutoFilterCondition.Contains; });
+        settings.Columns.Add(column => { column.FieldName = "Kilometrage"; column.Caption = "Kilométrage"; });
+        settings.Columns.Add(column => { column.FieldName = "TotalHT"; column.Caption = "Total HT"; column.PropertiesEdit.DisplayFormatString = "c2"; });
+        settings.Columns.Add(column => { column.FieldName = "TotalTTC"; column.Caption = "Total TTC"; column.PropertiesEdit.DisplayFormatString = "c2"; });
+        settings.Columns.Add(column => { column.FieldName = "BeneficeTTC"; column.Caption = "Bénéfice TTC"; column.PropertiesEdit.DisplayFormatString = "c2"; });
+        settings.Columns.Add(column =>
+        {
+            column.SetDataItemTemplateContent(c =>
+            {
+                var objectList = c.Grid.GetRow(c.VisibleIndex);
+                Type myType = objectList.GetType();
+                IList<System.Reflection.PropertyInfo> props = new List<System.Reflection.PropertyInfo>(myType.GetProperties());
+
+                System.Reflection.PropertyInfo prop = props.Where(p => p.Name == "ID").FirstOrDefault();
+                if (prop != null)
+                {
+                    object id = prop.GetValue(objectList, null);
+                    ViewContext.Writer.Write(Html.Partial("Menu", id));
+                }
+            });
+        });
+
+        settings.TotalSummary.Add(DevExpress.Data.SummaryItemType.Sum, "BeneficeTTC").DisplayFormat = "<b>{0:c2}</b>";
+        settings.TotalSummary.Add(DevExpress.Data.SummaryItemType.Sum, "TotalTTC").DisplayFormat = "<b>{0:c2}</b>";
+        settings.TotalSummary.Add(DevExpress.Data.SummaryItemType.Sum, "TotalHT").DisplayFormat = "<b>{0:c2}</b>";
+        settings.TotalSummary.Add(DevExpress.Data.SummaryItemType.Count, "NumDevis").DisplayFormat = "<b>{0}</b>";
+
+        settings.ClientSideEvents.Init = "function(s, e) { s.PerformCallback(); }";
+        settings.SettingsPager.PageSize = 30;
+        settings.SettingsPager.NumericButtonCount = 6;
+        settings.Styles.Cell.Wrap = DefaultBoolean.False;
+    });
+    if (ViewData["EditError"] != null)
+    {
+        grid.SetEditErrorText((string)ViewData["EditError"]);
+    }
+}
+@grid.BindToLINQ(string.Empty, string.Empty, (s, e) =>
+{
+    e.KeyExpression = "ID";
+    e.QueryableSource = this.Model.Select(d => new { ID = d.ID, NumDevis = d.NumDevis, Client = d.Client.Nom +" " + d.Client.Prenom, Voiture = d.Voiture.Modele.Marque.Libelle + " " + d.Voiture.Modele.Libelle, BeneficeTTC = d.BeneficeTTC, DateDevis = d.DateDevis, Kilometrage = d.Kilometrage, MontantTVA = d.MontantTVA, Remise = d.Remise, ResteAPayer = d.ResteAPayer, TotalHT = d.TotalHT, TotalTTC = d.TotalTTC });
+}, (s, e) =>
+{
+    var ex = e.Exception;
+
+}).GetHtml()

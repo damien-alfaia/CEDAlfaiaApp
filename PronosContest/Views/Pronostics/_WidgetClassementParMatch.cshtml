@@ -1,0 +1,79 @@
+﻿@model string
+
+@{
+    <div class="row">
+        <div class="col-xs-12">
+            <div id="chartGraphiqueClassement" style="width:100%;height:300px;"></div>
+            <p id="choicesGraphiqueClassement"></p>
+        </div>
+    </div>
+}
+
+<script type="text/javascript">
+
+    $(function () {
+        $.getJSON("/Pronostics/GetStatsClassementConcours?pIdConcours=" + @this.Model, function (data) {
+            var jsonParsed = JSON.parse(data);
+            var model = "{";
+            $(jsonParsed).each(function(){
+                model += "\"" + this.label + "\":";
+                model += JSON.stringify(this);
+                if ($(jsonParsed).last()[0].label != this.label){
+                    model += ",";
+                }
+            });
+            model += "}";
+
+            var datasets = JSON.parse(model);
+            var i = 0;
+            $.each(datasets, function (key, val) {
+                val.color = i;
+                ++i;
+            });
+
+            // insert checkboxes 
+            var choiceContainer = $("#choicesGraphiqueClassement");
+            choiceContainer.append("<div class='row'>");
+            $.each(datasets, function (key, val) {
+                choiceContainer.append("<div class='col-xs-6 col-md-2'><input type='checkbox' name='" + key +
+                    "' checked='checked' id='id" + key + "'></input>" +
+                    "<label for='id" + key + "'>"
+                    + val.label + "</label></div>");
+            });
+            choiceContainer.append("</div>");
+
+            choiceContainer.find("input").click(plotAccordingToChoices);
+
+            function plotAccordingToChoices() {
+
+                var data = [];
+
+                choiceContainer.find("input:checked").each(function () {
+                    var key = $(this).attr("name");
+                    if (key && datasets[key]) {
+                        data.push(datasets[key]);
+                    }
+                });
+
+                if (data.length > 0) {
+                    $.plot("#chartGraphiqueClassement", data, {
+                        yaxis: {
+                            min: 0,
+                            max: 14,
+                            ticks: 15,
+                            tickdecimals: 0,
+                            transform: function (v) { return -v; },  
+                            inverseTransform: function (v) { return -v; }  
+                        },
+                        xaxis: {
+                            tickDecimals: 0
+                        }
+                    });
+                }
+            }
+
+            plotAccordingToChoices();
+        }); 
+    });
+
+</script>

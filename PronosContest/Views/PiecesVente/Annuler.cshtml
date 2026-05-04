@@ -1,0 +1,53 @@
+﻿@model CEDAlfaiaApp.Models.AnnulerFactureModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<section class="content-header">
+    <h1>
+        Annuler facture
+    </h1>
+    <ol class="breadcrumb">
+        <li><a href="#"><i class="fa fa-dashboard"></i> CEDAlfaia</a></li>
+        <li><a href="@Url.Action("Liste", "Factures")">Factures</a></li>
+        <li class="active">Annuler facture</li>
+    </ol>
+</section>
+
+@{
+    string titleFormulaire = "Annuler la facture";
+    if (this.Model != null && this.Model.IDFacture > 0)
+    {
+        titleFormulaire += " " + this.Model.Numero;
+    }
+}
+
+<section class="content">
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="box box-danger">
+                <div class="box-header with-border">
+                    <h3 class="box-title">@titleFormulaire</h3>
+                </div>
+
+                @Html.ValidationSummary(false, "", new { @style = "color:red;" })
+                @using (Html.BeginForm())
+                {
+                    @Html.HiddenFor(m => m.IDFacture)
+
+                    <div class="box-body">
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.CommentaireAnnulation)
+                            @Html.TextAreaFor(m => m.CommentaireAnnulation, new { @class = "form-control" })
+                        </div>
+                    </div>
+
+                    <div class="box-footer">
+                        <button class="btn btn-md btn-default" type="reset">Annuler</button>
+                        <button type="submit" class="btn btn-primary">Enregistrer</button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</section>

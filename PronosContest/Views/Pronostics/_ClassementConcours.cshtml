@@ -1,0 +1,329 @@
+﻿@model CEDAlfaiaApp.Models.ConcoursClassementViewModel
+
+@{
+    if (this.Model != null && this.Model.Classement.Any())
+    {
+        <div class="table-responsive hidden-xs hidden-sm">
+            <table class="table table-bordered table-hover">
+                <thead style="vertical-align:text-top;">
+                    <tr>
+                        <th rowspan="2"></th>
+                        <th rowspan="2">Nom</th>
+                        <th colspan="6">Groupes</th>
+                        <th colspan="7">Phases finales - Nouveaux</th>
+                        <th colspan="8">Phases finales - Anciens</th>
+                        <th rowspan="2">Pts</th>
+                    </tr>
+                    <tr>
+						@{
+							if (this.Model.ShowGroupes)
+							{
+								<th title="Pronostics gagnés">G</th>
+								<th title="Pronostics perdus">P</th>
+								<th title="Scores exacts">SE</th>
+								<th title="Equipes qualifiées en Huitièmes">EQ</th>
+								<th title="Bonnes positions dans les classements des groupes">BP</th>
+								<th title="Poule complète">PC</th>
+							}
+							if (this.Model.ShowNouveauxPronos)
+							{
+								<th title="Bonnes équipes qualifiées">BE</th>
+								<th title="Pronostics gagnés">G</th>
+								<th title="Pronostics perdus">P</th>
+								<th title="Scores exacts">SE</th>
+								<th title="Penaltys gagnés">PG</th>
+								<th title="Penaltys perdus">PP</th>
+								<th title="Scores exacts penaltys">PC</th>
+							}
+							if (this.Model.ShowNouveauxPronos)
+							{
+								<th title="Bonnes équipes qualifiées pour les quarts">BE 1/4</th>
+								<th title="Bon match et bon score - huitièmes">MS 1/8</th>
+								<th title="Bonnes équipes qualifiées pour les demis">BE 1/2</th>
+								<th title="Bon match et bon score - quarts">MS 1/4</th>
+								<th title="Bonnes équipes qualifiées pour la finale">BE Finale</th>
+								<th title="Bon match et bon score - demis">MS 1/2</th>
+								<th title="Bon gagnant de la compétition">BG</th>
+								<th title="Bon match et bon score - finale">MS Finale</th>
+							}
+						}
+                    </tr>
+                </thead>
+                @{
+                    int i = 1;
+                    foreach (var c in this.Model.Classement)
+                    {
+                        string classLigne = "";
+                        if (i <= 3)
+                        {
+                            classLigne = "success";
+                        }
+                        else if (i >= (this.Model.Classement.Count - 2))
+                        {
+                            classLigne = "danger";
+                        }
+                        else
+                        {
+                            classLigne = "warning";
+                        }
+                        <tr class="@classLigne">
+                            <td>@i°</td>
+                            <td>
+                                @c.NomComplet <span class="pull-right"><a href="@Url.Action("Pronostics", "Pronostics", new { pConcoursID = this.Model.ConcoursID, pUserID = c.CompteUtilisateurID })"><i class="fa fa-info-circle text-primary"></i></a></span>
+								@{
+									if (c.DernierePlace != i)
+									{
+										if ((c.DernierePlace - i) > 0)
+										{
+											<span class="pull-right">
+												<b>@(c.DernierePlace - i)<span class="fa fa-arrow-up"></span>&nbsp;</b>
+											</span>
+										}
+										else
+										{
+											<span class="pull-right">
+												<b>@(c.DernierePlace - i)<span class="fa fa-arrow-down"></span>&nbsp;</b>
+											</span>
+										}
+
+									}
+								}
+							</td>
+							@{
+								if (this.Model.ShowGroupes)
+								{
+									<td>
+										@c.NombrePronosGagnes
+									</td>
+									<td>
+										@c.NombrePronosPerdus
+									</td>
+									<td>
+										@c.NombreScoreExact
+									</td>
+									<td>
+										@c.NombreBonneEquipeQualifiee
+									</td>
+									<td>
+										@c.NombreBonnePositionPoule
+									</td>
+									<td>
+										@c.NombrePouleComplete
+									</td>
+								}
+								if (this.Model.ShowNouveauxPronos)
+								{
+									<td>
+										@c.NombreBonneEquipeQualifieeNouveauProno
+									</td>
+									<td>
+										@c.NombrePronosGagnesNouveauProno
+									</td>
+									<td>
+										@c.NombrePronosPerdusNouveauProno
+									</td>
+									<td>
+										@c.NombreScoreExactNouveauProno
+									</td>
+									<td>
+										@c.NombrePronosGagnesPenaltyNouveauProno
+									</td>
+									<td>
+										@c.NombrePronosPerdusPenaltyNouveauProno
+									</td>
+									<td>
+										@c.NombreScoreExactPenaltyNouveauProno
+									</td>
+								}
+								if (this.Model.ShowAnciensPronos)
+								{
+									<td>
+										@c.NombreBonneEquipeQualifieePourQuartsAncienProno
+									</td>
+									<td>
+										@c.NombreBonMatchEtBonScoreHuitiemesAncienProno
+									</td>
+									<td>
+										@c.NombreBonneEquipeQualifieePourDemisAncienProno
+									</td>
+									<td>
+										@c.NombreBonMatchEtBonScoreQuartsAncienProno
+									</td>
+									<td>
+										@c.NombreBonneEquipeQualifieePourFinaleAncienProno
+									</td>
+									<td>
+										@c.NombreBonMatchEtBonScoreDemisAncienProno
+									</td>
+									<td>
+										@c.NombreBonGagnantCompetitionAncienProno
+									</td>
+									<td>
+										@c.NombreBonMatchEtBonScoreFinaleAncienProno
+									</td>
+								}
+							}
+                            <td>
+                                @c.Points
+                            </td>
+                        </tr>
+                        i++;
+                    }
+                }
+            </table>
+        </div>
+        <div class="panel-group hidden-md hidden-lg" id="accordion" role="tablist" aria-multiselectable="true">
+            
+            @{
+                i = 1;
+                foreach (var c in this.Model.Classement)
+                {
+                    string classLigne = "";
+                    if (i <= 3)
+                    {
+                        classLigne = "panel-success";
+                    }
+                    else if (i >= (this.Model.Classement.Count - 2))
+                    {
+                        classLigne = "panel-danger";
+                    }
+                    else
+                    {
+                        classLigne = "panel-warning";
+                    }
+                    <div class="panel @classLigne">
+                        <div class="panel-heading" role="tab" id="headingOne">
+                            <h4 class="panel-title">
+                                <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse@(i)" aria-expanded="true" aria-controls="collapse@(i)">
+                                    @i° @c.NomComplet 
+									<span class="label label-info pull-right">@c.Points</span>
+									@{
+										if (c.DernierePlace != i)
+										{
+											if ((c.DernierePlace - i) > 0)
+											{
+                                                <span class="pull-right">
+                                                    <b>@(c.DernierePlace - i)<span class="fa fa-arrow-up"></span>&nbsp;</b> 
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="pull-right">
+                                                    <b>@(c.DernierePlace - i)<span class="fa fa-arrow-down"></span>&nbsp;</b>
+                                                </span>
+                                            }
+
+                                        }
+                                    }
+                                </a>
+                                <a href="@Url.Action("Pronostics", "Pronostics", new { pConcoursID = this.Model.ConcoursID, pUserID = c.CompteUtilisateurID })"><span class="fa fa-info-circle"></span></a>
+                            </h4>
+                        </div>
+                        <div id="collapse@(i)" class="panel-collapse collapse text-center" role="tabpanel" aria-labelledby="headingOne">
+                            <div class="panel-body">
+                                
+								@{
+									if (this.Model.ShowGroupes)
+									{
+										<div class="row">
+											<div class="col-xs-12">
+												<h5>Groupes</h5>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-xs-6">
+												<span class="label label-success">Pronos gagnés: @c.NombrePronosGagnes</span>
+											</div>
+											<div class="col-xs-6">
+												<span class="label label-danger">Pronos perdus: @c.NombrePronosPerdus</span>
+											</div>
+											<div class="col-xs-6">
+												<span class="label label-primary">Scores exacts: @c.NombreScoreExact</span>
+											</div>
+											<div class="col-xs-6">
+												<span class="label label-info">Equipes qualifiées: @c.NombreBonneEquipeQualifiee</span>
+											</div>
+											<div class="col-xs-6">
+												<span class="label label-info">Bonnes positions: @c.NombreBonnePositionPoule</span>
+											</div>
+											<div class="col-xs-6">
+												<span class="label label-info">Poules complètes: @c.NombrePouleComplete</span>
+											</div>
+										</div>
+									}
+									if (this.Model.ShowNouveauxPronos)
+									{
+
+										<div class="row">
+											<div class="col-xs-12">
+												<h5>Phases finales - Nouveaux</h5>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-xs-12">
+												<span class="label label-success">Equipes qualifiées: @c.NombreBonneEquipeQualifieeNouveauProno</span>
+											</div>
+											<div class="col-xs-6">
+												<span class="label label-success">Pronos gagnés: @c.NombrePronosGagnesNouveauProno</span>
+											</div>
+											<div class="col-xs-6">
+												<span class="label label-danger">Pronos perdus: @c.NombrePronosPerdusNouveauProno</span>
+											</div>
+											<div class="col-xs-6">
+												<span class="label label-primary">Scores exacts: @c.NombreScoreExactNouveauProno</span>
+											</div>
+											<div class="col-xs-6">
+												<span class="label label-success">Pronos gagnés - TAB: @c.NombrePronosGagnesPenaltyNouveauProno</span>
+											</div>
+											<div class="col-xs-6">
+												<span class="label label-danger">Pronos perdus - TAB: @c.NombrePronosPerdusPenaltyNouveauProno</span>
+											</div>
+											<div class="col-xs-6">
+												<span class="label label-primary">Scores exacts - TAB: @c.NombreScoreExactPenaltyNouveauProno</span>
+											</div>
+										</div>
+									}
+									if (this.Model.ShowAnciensPronos)
+									{
+										<div class="row">
+											<div class="col-xs-12">
+												<h5>Phases finales - Anciens</h5>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-xs-12">
+												<span class="label label-success">Equipes qualifiées en 1/4: @c.NombreBonneEquipeQualifieePourQuartsAncienProno</span>
+											</div>
+											<div class="col-xs-12">
+												<span class="label label-danger">Bon match et bon score 1/8: @c.NombreBonMatchEtBonScoreHuitiemesAncienProno</span>
+											</div>
+											<div class="col-xs-12">
+												<span class="label label-primary">Equipes qualifiées en 1/2: @c.NombreBonneEquipeQualifieePourDemisAncienProno</span>
+											</div>
+											<div class="col-xs-12">
+												<span class="label label-success">Bon match et bon score 1/4: @c.NombreBonMatchEtBonScoreQuartsAncienProno</span>
+											</div>
+											<div class="col-xs-12">
+												<span class="label label-danger">Equipes qualifiées en finale: @c.NombreBonneEquipeQualifieePourFinaleAncienProno</span>
+											</div>
+											<div class="col-xs-12">
+												<span class="label label-primary">Bon match et bon score en 1/2: @c.NombreBonMatchEtBonScoreDemisAncienProno</span>
+											</div>
+											<div class="col-xs-12">
+												<span class="label label-danger">Bon gagnant de la compétition: @c.NombreBonGagnantCompetitionAncienProno</span>
+											</div>
+											<div class="col-xs-12">
+												<span class="label label-primary">Bon match et bon score en finale: @c.NombreBonMatchEtBonScoreFinaleAncienProno</span>
+											</div>
+										</div>
+									}
+								}
+                            </div>
+                        </div>
+                    </div>
+                    i++;
+                }
+            }
+        </div>
+	}
+}

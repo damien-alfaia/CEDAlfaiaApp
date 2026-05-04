@@ -1,0 +1,167 @@
+﻿@model CEDAlfaiaApp.Models.FinancierModel
+@{
+    ViewBag.Title = "Financier";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    $(function () {
+        $('#tableFactures').DataTable({
+            'paging': true,
+            'lengthChange': true,
+            'searching': true,
+            'ordering': true,
+            'info': true,
+            'autoWidth': true,
+            'aoColumns': [
+                null,
+                null,
+                { "sType": "date-uk" },
+                null,
+                null,
+                { "sType": "num-fmt" },
+                null,
+                null
+            ],
+            'language': {
+                "lengthMenu": "Afficher _MENU_ factures par page",
+                "zeroRecords": "Aucune facture trouvée",
+                "info": "Page _PAGE_ sur _PAGES_",
+                "infoEmpty": "Aucune facture trouvée",
+                "paginate": {
+                    "previous": "Précédent",
+                    "next": "Suivant"
+                },
+                "search": "Rechercher"
+            }
+        });
+
+        $('#btnImprimer').click(function () {
+            var ids = [];
+            $("[role='IsAImprimer']:checked").each(function () {
+                ids.push($(this).closest('[data-idFacture]').attr('data-idFacture'));
+                if (this == $("[role='IsAImprimer']")[$("[role='IsAImprimer']:checked").length - 1])
+                    window.location = '@Url.Action("ImprimerParLot")?ids=' + JSON.stringify(ids);
+            });
+        });
+    })
+
+    jQuery.extend(jQuery.fn.dataTableExt.oSort, {
+        "date-uk-pre": function (a) {
+            var ukDatea = a.split('/');
+            return (ukDatea[2] + ukDatea[1] + ukDatea[0]) * 1;
+        },
+
+        "date-uk-asc": function (a, b) {
+            return ((a < b) ? -1 : ((a > b) ? 1 : 0));
+        },
+
+        "date-uk-desc": function (a, b) {
+            return ((a < b) ? 1 : ((a > b) ? -1 : 0));
+        }
+    });
+
+</script>
+
+<section class="content-header">
+    <h1>
+        Financier
+    </h1>
+    <ol class="breadcrumb">
+        <li><a href="#"><i class="fa fa-dashboard"></i> CEDAlfaia</a></li>
+        <li>Financier</li>
+    </ol>
+</section>
+
+<section class="content">
+    @{
+        <div class="box box-danger hidden-xs hidden-sm">
+            <div class="box-header">
+                <h3 class="box-title">Liste des factures</h3>
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body">
+                @using (Html.BeginForm("Liste", "Financier", FormMethod.Post))
+                {
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-xs-6">
+                                @Html.LabelFor(m => m.DateDebut)
+                                @Html.TextBoxFor(m => m.DateDebut, new { @class = "form-control", data_role = "datetimepicker" })
+                            </div>
+                            <div class="col-xs-6">
+                                @Html.LabelFor(m => m.DateFin)
+                                @Html.TextBoxFor(m => m.DateFin, new { @class = "form-control", data_role = "datetimepicker" })
+                            </div>
+                        </div>
+                    </div>
+                        <button type="submit" class="btn btn-primary pull-right">Rechercher</button>
+                }
+
+                @if (this.Model != null && this.Model.Factures != null && this.Model.Factures.Any())
+                {
+                    <div style="margin-top: 70px;">
+                        <table id="tableFactures" class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Numéro</th>
+                                    <th>Date</th>
+                                    <th>Client</th>
+                                    <th>Main d'oeuvre</th>
+                                    <th>Garage TTC</th>
+                                    <th>Client TTC</th>
+                                    <th>Bénéfice</th>
+                                    <th>Reste à payer</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var d in this.Model.Factures)
+                                {
+                                    <tr>
+                                        <td>
+                                            @d.Numero
+                                        </td>
+                                        <td>
+                                            @d.Date.ToShortDateString()
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(m => d.Client, "Client")
+                                        </td>
+                                        <td>
+                                            @(d.MainDOeuvre.ToString("F") + "€")
+                                        </td>
+                                        <td>
+                                            @(d.GarageTTC.ToString("F") + "€")
+                                        </td>
+                                        <td>
+                                            @(d.ClientTTC.ToString("F") + "€")
+                                        </td>
+                                        <td>
+                                            @(d.Benefice.ToString("F") + "€")
+                                        </td>
+                                        <td>
+                                            @(d.ResteAPayer.ToString("F") + "€")
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th>Numéro</th>
+                                    <th>Date</th>
+                                    <th>Client</th>
+                                    <th>Main d'oeuvre</th>
+                                    <th>Garage TTC</th>
+                                    <th>Client TTC</th>
+                                    <th>Bénéfice</th>
+                                    <th>Reste à payer</th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                }
+            </div>
+            <!-- /.box-body -->
+        </div>
+    }
+</section>

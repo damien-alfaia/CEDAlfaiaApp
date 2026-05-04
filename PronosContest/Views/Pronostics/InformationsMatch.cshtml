@@ -1,0 +1,20 @@
+﻿@model CEDAlfaiaApp.DAL.Pronos.Match
+@{ 
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script language="javascript" type="text/javascript">
+    $(document).ready(function () {
+    	$('iframe').attr('height', parseInt($(window).height() - 100) + 'px');
+    });
+</script>
+@{
+	if (this.Model != null && this.Model.InformationsMatchURL != null)
+	{
+		<div class="embed-responsive embed-responsive-4by3">
+			<iframe class="embed-responsive-item" id="iframeMatch" src="@Model.InformationsMatchURL" frameborder="0" scrolling="yes" width="100%" style="width: 1px;min-width:100%; *width:100%;"></iframe>
+		</div>
+	}
+}
+    
+

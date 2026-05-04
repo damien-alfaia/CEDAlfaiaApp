@@ -1,0 +1,71 @@
+﻿@model CEDAlfaiaApp.Models.DashboardModel
+@{
+    ViewBag.Title = "Tableau de bord";
+}
+
+<section class="content-header">
+    <h1>
+        Tableau de bord
+    </h1>
+    <ol class="breadcrumb">
+        <li><a href="#"><i class="fa fa-dashboard"></i> CEDAlfaia</a></li>
+        <li class="active">Tableau de bord</li>
+    </ol>
+</section>
+
+<section class="content">
+    <div class="row">
+        <div class="col-xs-12 col-md-6 col-lg-3">
+            <div class="small-box bg-aqua">
+                <div class="inner">
+                    <h3>@Model.NombreClients</h3>
+
+                    <p>Clients</p>
+                </div>
+                <div class="icon">
+                    <i class="ion ion-person-stalker"></i>
+                </div>
+                <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+            </div>
+        </div>
+        <div class="col-xs-12 col-md-6 col-lg-3">
+            <div class="small-box bg-orange">
+                <div class="inner">
+                    <h3>@Model.ChiffreAffaireAnnuel.ToString("c")</h3>
+
+                    <p>de CA en 2018</p>
+                </div>
+                <div class="icon">
+                    <i class="ion ion-cash"></i>
+                </div>
+                <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+            </div>
+        </div>
+        <div class="col-xs-12 col-md-6 col-lg-3">
+            <div class="small-box bg-purple">
+                <div class="inner">
+                    <h3>@Model.BeneficeAnnuel.ToString("c")</h3>
+
+                    <p>de bénéfices en 2018</p>
+                </div>
+                <div class="icon">
+                    <i class="ion ion-arrow-graph-up-right"></i>
+                </div>
+                <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+            </div>
+        </div>
+        <div class="col-xs-12 col-md-6 col-lg-3">
+            <div class="small-box bg-green">
+                <div class="inner">
+                    <h3>@Model.BeneficeMoisEnCours.ToString("c")</h3>
+
+                    <p>de bénéfices 09/2018</p>
+                </div>
+                <div class="icon">
+                    <i class="ion ion-thumbsup"></i>
+                </div>
+                <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+            </div>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,293 @@
+﻿@model IQueryable<CEDAlfaiaApp.DAL.Garage.Client>
+
+@{
+    ViewBag.Title = "Liste des clients";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    function onRowClick(e) {
+        var component = e.component;
+        var data = e.data;
+
+        function initialClick() {
+            component.clickCount = 1;
+            component.clickKey = e.key;
+            component.clickDate = new Date();
+        }
+
+        function doubleClick() {
+            component.clickCount = 0;
+            component.clickKey = 0;
+            component.clickDate = null;
+
+            modifierClient(data.ID);
+        }
+
+        if ((!component.clickCount) || (component.clickCount != 1) || (component.clickKey != e.key)) {
+            initialClick();
+        }
+        else if (component.clickKey == e.key) {
+            if (((new Date()) - component.clickDate) <= 300)
+                doubleClick();
+            else
+                initialClick();
+        }
+    }
+
+    function menuOnItemClick(e) {
+        if (e.itemData.action !== undefined) {
+            switch (e.itemData.action) {
+                case 'Modifier':
+                    modifierClient(e.itemData.idClient);
+                    break;
+                case 'Supprimer':
+                    supprimerClient(e.itemData.idClient, e.itemElement);
+                    break;
+            }
+        }
+    }
+
+    function modifierVoiture(idVoiture) {
+        window.location.href = '/Clients/SaisirVoiture?idVoiture=' + idVoiture;
+    }
+
+    function modifierClient(id) {
+        window.location.href = '/Clients/Saisir?idClient=' + id;
+    }
+
+    function supprimerVoiture(idVoiture) {
+        var result = DevExpress.ui.dialog.confirm("Voulez-vous vraiment supprimer cette voiture ?", "Suppression voiture");
+        result.done(function (dialogResult) {
+            if (dialogResult) {
+                $.ajax({
+                    url: '@Url.Action("SupprimerVoiture")',
+                    data: JSON.stringify({ idVoiture: idVoiture }),
+                    contentType: 'application/json; charset=utf-8',
+                    context: { element: element },
+                    type: 'POST',
+                    success: function (result) {
+                        if (result == "OK")
+                            $(this.element).closest('tr').remove();
+                        else
+                            alert(result);
+                    },
+                    error: function (err) {
+                        alert(err);
+                    }
+                });
+            }
+        });
+    }
+
+    function supprimerClient(id, element) {
+        var result = DevExpress.ui.dialog.confirm("Voulez-vous vraiment supprimer ce client ?", "Suppression client");
+        result.done(function (dialogResult) {
+            if (dialogResult) {
+                $.ajax({
+                    url: '@Url.Action("SupprimerClient")',
+                    data: JSON.stringify({ idClient: id }),
+                    contentType: 'application/json; charset=utf-8',
+                    type: 'POST',
+                    context: { element : element },
+                    success: function (result) {
+                        if (result == "OK") {
+                            $(this.element).closest('tr').remove();
+                        }
+                        else
+                            alert(result);
+                    },
+                    error: function (err) {
+                        alert(err);
+                    }
+                });
+            }
+        });
+    }
+
+    function onToolbarPreparing(e) {
+        var toolbarItems = e.toolbarOptions.items;
+
+        // Adds a new item
+        toolbarItems.push({
+            widget: "dxButton",
+            options: {
+                icon: "add", onClick: function () {
+                    window.location.href = '/Clients/Saisir';
+                }
+            },
+            location: "after"
+        });
+    }
+
+    function onToolbarVoituresPreparing(e, idClient) {
+        var toolbarItems = e.toolbarOptions.items;
+        toolbarItems.push({
+            widget: "dxButton",
+            options: {
+                icon: "add", onClick: function () {
+                    window.location.href = '/Clients/SaisirVoiture?idClient=' + idClient;
+                }
+            },
+            location: "after"
+        });
+    }
+</script>
+
+<section class="content-header">
+    <h1>
+        Liste des clients
+    </h1>
+</section>
+
+<section class="content">
+
+@helper RenderGridVoitures()
+{
+    @(Html.DevExtreme().DataGrid()
+        .ColumnAutoWidth(true)
+        .ShowBorders(true)
+        .OnToolbarPreparing("function (e){ onToolbarVoituresPreparing(e, " + new JS("data.ID") + "); }")
+        .Columns(columns =>
+        {
+            columns.Add().DataField("Marque").Caption("Marque");
+            columns.Add().DataField("Modele").Caption("Modèle");
+            columns.Add().DataField("Immatriculation").Caption("Immatriculation");
+            columns.Add()
+                .Caption("")
+                .Width(100)
+                .AllowFiltering(false)
+                .AllowSorting(false)
+                .HidingPriority(0)
+                .CellTemplate(@<text>
+                        @Html.DevExtreme().Button().Icon("edit").OnClick("function(e){ modifierVoiture(" + new JS("data.ID") + ") }")
+                        @Html.DevExtreme().Button().Icon("remove").OnClick("function(e){ supprimerVoiture(" + new JS("data.ID") + ") }")
+                </text>);
+        })
+        .DataSource(new JS("data.Voitures"))
+    )
+}
+
+    @(Html.DevExtreme().DataGrid<CEDAlfaiaApp.DAL.Garage.Client>()
+.ID("gridListeClients")
+.ColumnMinWidth(50)
+.ColumnAutoWidth(true)
+.DataSource(this.Model.Where(c => c.DateSuppression == null).Select(m => new
+{
+    m.ID,
+    m.Nom,
+    m.Prenom,
+    m.Remise,
+    m.InformationsComplementaires,
+    m.Telephone,
+    m.Email,
+    m.Adresse,
+    m.Code,
+    Voitures = m.Voitures.Where(v => v.DateSuppression == null).Select(v => new
+    {
+        v.ID,
+        Marque = v.Modele.Marque.Libelle,
+        Modele = v.Modele.Libelle,
+        Immatriculation = v.Immatriculation
+    })
+}), null)
+.OnRowClick("onRowClick")
+.OnToolbarPreparing("onToolbarPreparing")
+.RemoteOperations(false)
+.AllowColumnReordering(true)
+.RowAlternationEnabled(true)
+.FilterRow(fr => fr.Visible(true))
+.StateStoring(s => s
+.Enabled(true)
+.Type(StateStoringType.LocalStorage)
+.StorageKey("gridListeClients")
+)
+.ShowBorders(true)
+.Paging(p => p.PageSize(25))
+.Pager(p => p
+.ShowPageSizeSelector(true)
+.AllowedPageSizes(new int[] { 10, 25, 50, 100 })
+)
+.SearchPanel(s => s
+.Visible(true)
+.HighlightSearchText(true)
+.Placeholder("Rechercher...")
+)
+.ColumnChooser(cc =>
+{
+    cc.Title("Choisir les colonnes").Mode(GridColumnChooserMode.DragAndDrop).EmptyPanelText("Aucune colonne à insérer").Enabled(true);
+})
+.GroupPanel(g => g.Visible(true))
+.Grouping(g => g.AutoExpandAll(true))
+.MasterDetail(md =>
+{
+md.Enabled(true);
+md.Template(@<text>
+        @RenderGridVoitures()
+    </text>);
+})
+.Columns(columns =>
+{
+columns.Add()
+    .DataField("Code")
+    .Caption("Code")
+    .HidingPriority(0)
+    .ShowInColumnChooser(true);
+
+columns.Add()
+.DataField("Nom")
+.Caption("Nom")
+.HidingPriority(0)
+.ShowInColumnChooser(true);
+
+columns.Add()
+    .DataField("Prenom")
+    .Caption("Prénom")
+    .HidingPriority(0)
+    .ShowInColumnChooser(true);
+
+columns.Add()
+    .DataField("Adresse")
+    .Caption("Adresse")
+    .HidingPriority(2)
+    .ShowInColumnChooser(true);
+columns.Add()
+    .DataField("InformationsComplementaires")
+    .Caption("Informations complémentaires")
+    .HidingPriority(3)
+    .ShowInColumnChooser(true);
+columns.Add()
+    .DataField("Telephone")
+    .Caption("Téléphone")
+    .HidingPriority(1)
+    .ShowInColumnChooser(true);
+columns.Add()
+    .DataField("Email")
+    .Caption("Email")
+    .HidingPriority(2)
+    .ShowInColumnChooser(true);
+columns.Add()
+    .DataField("Remise")
+    .Caption("Remise")
+    .HidingPriority(3)
+    .Format("#0%")
+    .ShowInColumnChooser(true);
+columns.Add()
+    .Caption("")
+    .Width(120)
+    .AllowFiltering(false)
+    .AllowSorting(false)
+    .ShowInColumnChooser(true)
+    .CellTemplate(@<text>
+        @Html.DevExtreme().Menu().Items(it =>
+            {
+                it.Add().Text("Actions")
+                .Items(subItems =>
+                {
+                    subItems.Add().Text("Modifier").Icon("edit").Option("idClient", new JS("data.ID")).Option("action", "Modifier");
+                    subItems.Add().Text("Supprimer").Icon("remove").Option("idClient", new JS("data.ID")).Option("action", "Supprimer");
+                });
+            }).OnItemClick("menuOnItemClick").AdaptivityEnabled(true)
+    </text>);
+}))
+</section>

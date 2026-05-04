@@ -1,0 +1,215 @@
+﻿@model List<CEDAlfaiaApp.Models.DevisModel>
+@{
+    ViewBag.Title = "Liste des devis";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    $(function () {
+        $('#tableDevis').DataTable({
+            'paging': true,
+            'lengthChange': true,
+            'searching': true,
+            'ordering': true,
+            'info': true,
+            'autoWidth': true,
+            'aoColumns': [
+                null,
+                null,
+                { "sType": "date-uk" },
+                null,
+                null,
+                { "sType": "num-fmt" },
+                null,
+                null
+            ],
+            'language': {
+                "lengthMenu": "Afficher _MENU_ devis par page",
+                "zeroRecords": "Aucun devis trouvé",
+                "info": "Page _PAGE_ sur _PAGES_",
+                "infoEmpty": "Aucun devis trouvé",
+                "paginate": {
+                    "previous": "Précédent",
+                    "next": "Suivant"
+                },
+                "search": "Rechercher"
+            }
+        });
+
+        $('#btnImprimer').click(function () {
+            var ids = [];
+            $("[role='IsAImprimer']:checked").each(function () {
+                ids.push($(this).closest('[data-idDevis]').attr('data-idDevis'));
+                if (this == $("[role='IsAImprimer']")[$("[role='IsAImprimer']:checked").length - 1])
+                    window.location = '@Url.Action("ImprimerParLot")?ids=' + JSON.stringify(ids);
+            });
+        });
+    });
+
+    jQuery.extend(jQuery.fn.dataTableExt.oSort, {
+        "date-uk-pre": function (a) {
+            var ukDatea = a.split('/');
+            return (ukDatea[2] + ukDatea[1] + ukDatea[0]) * 1;
+        },
+
+        "date-uk-asc": function (a, b) {
+            return ((a < b) ? -1 : ((a > b) ? 1 : 0));
+        },
+
+        "date-uk-desc": function (a, b) {
+            return ((a < b) ? 1 : ((a > b) ? -1 : 0));
+        }
+    });
+
+    function supprimerDevis(element) {
+        if (confirm("Voulez-vous vraiment supprimer ce devis ? ")) {
+            var idDevis = $(element).closest("[data-idDevis]").attr('data-idDevis');
+            $.ajax({
+                url: '@Url.Action("SupprimerDevis")',
+                data: JSON.stringify({ idDevis: idDevis }),
+                contentType: 'application/json; charset=utf-8',
+                context: { idDevis: idDevis },
+                type: 'POST',
+                success: function (result) {
+                    if (result == "OK")
+                        $("tr[data-idDevis=" + this.idDevis + "]").remove();
+                    else
+                        alert(result);
+                },
+                error: function (err) {
+                    alert(err);
+                }
+            });
+        }
+    }
+    function genererFacture(element) {
+        if (confirm("Voulez-vous vraiment générer ce devis en facture ? ")) {
+            var idDevis = $(element).closest("[data-idDevis]").attr('data-idDevis');
+            $.ajax({
+                url: '@Url.Action("GenererFacture")',
+                data: JSON.stringify({ idDevis: idDevis }),
+                contentType: 'application/json; charset=utf-8',
+                context: { idDevis: idDevis },
+                type: 'POST',
+                success: function (result) {
+                    if (result == "OK")
+                        $("tr[data-idDevis=" + this.idDevis + "]").remove();
+                    else
+                        alert(result);
+                },
+                error: function (err) {
+                    alert(err);
+                }
+            });
+        }
+    }
+
+</script>
+
+<section class="content-header">
+    <h1>
+        Liste des devis
+    </h1>
+    <ol class="breadcrumb">
+        <li><a href="#"><i class="fa fa-dashboard"></i> CEDAlfaia</a></li>
+        <li>Devis</li>
+    </ol>
+</section>
+
+@using (Html.BeginForm("Imprimer", "Devis", new { pListe = this.Model }))
+{
+    <section class="content">
+        @{
+            if (this.Model != null && this.Model.Any())
+            {
+                <div class="box box-danger">
+                    <div class="box-header">
+                        <h3 class="box-title">Liste des devis</h3>
+                        <a class="btn btn-sm btn-success pull-right" href="@Url.Action("Saisir", new { })"><i class="fa fa-plus"></i>&nbsp;Nouveau</a>
+                        <a id="btnImprimer" class="btn btn-sm btn-primary pull-right" href="#"><i class="fa fa-print"></i>&nbsp;Imprimer</a>
+                    </div>
+                    <!-- /.box-header -->
+                    <div class="box-body">
+                        <table id="tableDevis" class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>Numéro</th>
+                                    <th>Date</th>
+                                    <th>Client</th>
+                                    <th>Voiture</th>
+                                    <th>Total</th>
+                                    <th></th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var d in this.Model)
+                                {
+                                    <tr data-idDevis="@d.ID">
+                                        <td>
+                                            @Html.CheckBoxFor(m => d.IsAImprimer, new { role = "IsAImprimer", style = "width:20px;height:20px;" })
+                                        </td>
+                                        <td>
+                                            @d.Numero
+                                        </td>
+                                        <td>
+                                            @d.Date.ToShortDateString()
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(m => d.Client, "Client")
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(m => d.Voiture, "Voiture")
+                                        </td>
+                                        <td>
+                                            @(d.Total.ToString("F") + "€")
+                                        </td>
+                                        <td>
+                                            <a href="@Url.Action("Editer", new { idDevis = d.ID })"><i class="fa fa-file-pdf-o"></i></a>
+                                            <a href="@Url.Action("Editer", new { idDevis = d.ID })" style="display:none;"><i class="fa fa-file-pdf-o"></i></a>
+                                        </td>
+                                        <td>
+                                            <span class="btn-group pull-right">
+                                                <button type="button" class="btn btn-md btn-default dropdown-toggle" data-toggle="dropdown">
+                                                    <span class="caret"></span>
+                                                </button>
+                                                <ul class="dropdown-menu" role="menu">
+                                                    <li>
+                                                        <a href="@Url.Action("Saisir", new { identifiant = d.ID })"><i class="fa fa-edit"></i>&nbsp;Ouvrir</a>
+                                                        <a href="#" onclick="genererFacture(this);"><i class="fa fa-file"></i>&nbsp;Générer facture</a>
+                                                        <a href="#" onclick="supprimerDevis(this);"><i class="fa fa-times"></i>&nbsp;Supprimer</a>
+                                                    </li>
+                                                </ul>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th></th>
+                                    <th>Numéro</th>
+                                    <th>Date</th>
+                                    <th>Client</th>
+                                    <th>Voiture</th>
+                                    <th>Total</th>
+                                    <th></th>
+                                    <th></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    <!-- /.box-body -->
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-warning" role="alert">
+                    Aucun devis ! <a href="@Url.Action("Saisir")">Cliquez ici pour ajouter un devis</a>
+                </div>
+            }
+        }
+
+    </section>
+            }

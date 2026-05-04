@@ -1,0 +1,192 @@
+﻿@model List<CEDAlfaiaApp.Models.ClientModel>
+@{
+    ViewBag.Title = "Liste des clients";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    $(function () {
+        $('#tableClients').DataTable({
+            'paging': true,
+            'lengthChange': true,
+            'searching': true,
+            'ordering': true,
+            'info': true,
+            'autoWidth': true,
+            'language': {
+                "lengthMenu": "Afficher _MENU_ clients par page",
+                "zeroRecords": "Aucun client trouvé",
+                "info": "Page _PAGE_ sur _PAGES_",
+                "infoEmpty": "Aucun client trouvé",
+                "paginate": {
+                    "previous": "Précédent",
+                    "next": "Suivant"
+                },
+                "search": "Rechercher"
+            },
+            'responsive': true,
+            'columns' : [
+                { responsivePriority: 0 },
+                { responsivePriority: 1 },
+                { responsivePriority: 2 },
+                { responsivePriority: 4 },
+                { responsivePriority: 5 },
+                { responsivePriority: 6 },
+                { responsivePriority: 3 },
+                { responsivePriority: 0 }
+            ]
+        });
+    })
+
+    function supprimerVoiture(element) {
+        if (confirm("Voulez-vous vraiment supprimer cette voiture ? ")) {
+            var idVoiture = $(element).closest("[data-idvoiture]").attr('data-idvoiture');
+            $.ajax({
+                url: '@Url.Action("SupprimerVoiture")',
+                data: JSON.stringify({ idVoiture: idVoiture }),
+                contentType: 'application/json; charset=utf-8',
+                context: { idVoiture: idVoiture },
+                type: 'POST',
+                success: function (result) {
+                    if (result == "OK")
+                        $("div[data-idVoiture=" + this.idVoiture + "]").remove();
+                    else
+                        alert(result);
+                },
+                error: function (err) {
+                    alert(err);
+                }
+            });
+        }
+    }
+
+    function supprimerClient(element) {
+        if (confirm("Voulez-vous vraiment supprimer ce client ? ")) {
+            var idClient = $(element).closest("[data-idClient]").attr('data-idClient');
+            $.ajax({
+                url: '@Url.Action("SupprimerClient")',
+                data: JSON.stringify({ idClient: idClient }),
+                contentType: 'application/json; charset=utf-8',
+                context: { idClient: idClient },
+                type: 'POST',
+                success: function (result) {
+                    if (result == "OK")
+                        $("tr[data-idClient=" + this.idClient + "]").remove();
+                    else
+                        alert(result);
+                },
+                error: function (err) {
+                    alert(err);
+                }
+            });
+        }
+    }
+</script>
+
+<section class="content-header">
+    <h1>
+        Liste des clients
+    </h1>
+    <ol class="breadcrumb">
+        <li><a href="#"><i class="fa fa-dashboard"></i> CEDAlfaia</a></li>
+        <li>Clients</li>
+    </ol>
+</section>
+
+<section class="content">
+    @{
+        if (this.Model != null && this.Model.Any())
+        {
+            <div class="box box-danger">
+                <div class="box-header">
+                    <h3 class="box-title">Liste des clients</h3>
+                    <a class="btn btn-sm btn-success pull-right" href="@Url.Action("Saisir", new { })"><i class="fa fa-plus"></i>&nbsp;Nouveau</a>
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body">
+                    <table id="tableClients" class="table table-bordered table-striped responsive">
+                        <thead>
+                            <tr>
+                                <th>Nom</th>
+                                <th>Prénom</th>
+                                <th>Téléphone</th>
+                                <th>Email</th>
+                                <th>Adresse</th>
+                                <th>Compléments</th>
+                                <th>Voiture(s)</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var c in this.Model)
+                {
+                                <tr data-idClient="@c.ID">
+                                    <td>
+                                        @c.Nom
+                                    </td>
+                                    <td>
+                                        @c.Prenom
+                                    </td>
+                                    <td>
+                                        <a href="tel:@c.Telephone">@c.Telephone</a>
+                                    </td>
+                                    <td>
+                                        <a href="mailto:@c.Email">@c.Email</a>
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(m => c.Adresse, "Adresse")
+                                    </td>
+                                    <td>
+                                        @c.Complements
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(m => c.Voitures, "Voitures")
+                                    </td>
+                                    <td>
+                                        <span class="btn-group pull-right">
+                                            <button type="button" class="btn btn-md btn-default dropdown-toggle" data-toggle="dropdown">
+                                                <span class="caret"></span>
+                                            </button>
+                                            <ul class="dropdown-menu" role="menu">
+                                                <li>
+                                                    <a href="@Url.Action("Saisir", "Factures", new { identifiant = c.ID, typeId = 1 })"><i class="fa fa-plus"></i>&nbsp;Créer facture</a>
+                                                    <a href="@Url.Action("Liste","Factures", new { idClient = c.ID })"><i class="fa fa-list-ul"></i>&nbsp;Liste des factures</a>
+                                                    <a href="@Url.Action("Saisir", "Devis", new { identifiant = c.ID, typeId = 1 })"><i class="fa fa-plus"></i>&nbsp;Créer devis</a>
+                                                    <a href="@Url.Action("Liste","Devis", new { idClient = c.ID })"><i class="fa fa-list-ul"></i>&nbsp;Liste des devis</a>
+                                                    <a href="@Url.Action("Saisir", new { idClient = c.ID })"><i class="fa fa-edit"></i>&nbsp;Modifier client</a>
+                                                    <a href="@Url.Action("SaisirVoiture", new { idClient = c.ID })"><i class="fa fa-plus"></i>&nbsp;Ajouter une voiture</a>
+                                                    <a href="#" onclick="supprimerClient(this);"><i class="fa fa-times"></i>&nbsp;Supprimer</a>
+                                                </li>
+                                            </ul>
+                                        </span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th>Nom</th>
+                                <th>Prénom</th>
+                                <th>Téléphone</th>
+                                <th>Email</th>
+                                <th>Adresse</th>
+                                <th>Compléments</th>
+                                <th>Voiture(s)</th>
+                                <th></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-warning" role="alert">
+                Aucun client ! <a href="@Url.Action("Saisir")">Cliquez ici pour ajouter un client</a>
+            </div>
+        }
+    }
+    <div style="display:block;margin-bottom:50px;">
+        @Html.ActionLink("Afficher les clients supprimés", "ListeSupprimes", null, new { @class = "btn btn-danger pull-right" })
+    </div>
+</section>

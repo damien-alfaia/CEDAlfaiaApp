@@ -1,0 +1,199 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
+    <title>@ViewBag.Title</title>
+    @Styles.Render("~/Content/bundle")
+    @Scripts.Render("~/Scripts/bundle")
+    <meta content="/img/icone.png" itemprop="image">
+    <link href="/img/favicon.ico" rel="shortcut icon">
+
+    @Html.DevExpress().GetStyleSheets(
+        new StyleSheet { ExtensionSuite = ExtensionSuite.NavigationAndLayout, Theme = "Metropolis" },
+        new StyleSheet { ExtensionSuite = ExtensionSuite.Editors, Theme = "Metropolis" },
+        new StyleSheet { ExtensionSuite = ExtensionSuite.HtmlEditor, Theme = "Metropolis" },
+        new StyleSheet { ExtensionSuite = ExtensionSuite.GridView, Theme = "Metropolis" },
+        new StyleSheet { ExtensionSuite = ExtensionSuite.PivotGrid, Theme = "Metropolis" },
+        new StyleSheet { ExtensionSuite = ExtensionSuite.Chart, Theme = "Metropolis" },
+        new StyleSheet { ExtensionSuite = ExtensionSuite.Report, Theme = "Metropolis" },
+        new StyleSheet { ExtensionSuite = ExtensionSuite.Scheduler, Theme = "Metropolis" },
+        new StyleSheet { ExtensionSuite = ExtensionSuite.TreeList, Theme = "Metropolis" }
+    )
+    @Html.DevExpress().GetScripts(
+        new Script { ExtensionSuite = ExtensionSuite.NavigationAndLayout },
+        new Script { ExtensionSuite = ExtensionSuite.Editors },
+        new Script { ExtensionSuite = ExtensionSuite.GridView },
+        new Script { ExtensionSuite = ExtensionSuite.Report }
+    )
+
+    <script type="text/javascript" src="~/Scripts/aspnet/dx.aspnet.mvc.js"></script>
+    <script type="text/javascript" src="~/Scripts/aspnet/dx.aspnet.data.js"></script>
+    <link rel="stylesheet" type="text/css" href="~/Content/dx.common.css" />
+    <link rel="stylesheet" type="text/css" href="~/Content/dx.softblue.css" />
+
+    <style>
+        #toolbarMenuPrincipal, .dx-header-row {
+            background-color: #558ae0;
+            color: white;
+        }
+
+        .dx-menu-items-container {
+            color: black !important;
+        }
+
+        .dx-datagrid .dx-row-alt > td {
+            background-color: rgba(85, 138, 224, 0.10);
+        }
+
+        .dx-button-normal {
+            border-color: #558ae0 !important;
+            color: #558ae0 !important;
+        }
+
+            .dx-button-normal > .dx-button-content > i {
+                color: #558ae0 !important;
+            }
+    </style>
+</head>
+@{
+    CEDAlfaiaApp.DAL.Parametrage.Parametrage parametrage = new CEDAlfaiaApp.DAL.Parametrage.Parametrage();
+    var ctx = Request.GetOwinContext();
+    var authManager = ctx.Authentication;
+    string nomComplet = "";
+    CEDAlfaiaApp.DAL.Authentification.CompteUtilisateurRole roleUtilisateur = CEDAlfaiaApp.DAL.Authentification.CompteUtilisateurRole.Administrateur;
+    if (authManager.User != null)
+    {
+        string idUser = authManager.User.Claims.Where(c => c.Type == System.Security.Claims.ClaimTypes.Sid).Select(c => c.Value).SingleOrDefault();
+        string prenom = authManager.User.Claims.Where(c => c.Type == System.Security.Claims.ClaimTypes.Name).Select(c => c.Value).SingleOrDefault();
+        string nom = authManager.User.Claims.Where(c => c.Type == System.Security.Claims.ClaimTypes.Surname).Select(c => c.Value).SingleOrDefault();
+        string role = authManager.User.Claims.Where(c => c.Type == System.Security.Claims.ClaimTypes.Role).Select(c => c.Value).SingleOrDefault();
+        roleUtilisateur = (CEDAlfaiaApp.DAL.Authentification.CompteUtilisateurRole)Int32.Parse(role);
+        nomComplet = prenom + " " + nom;
+
+        int id = 0;
+        int.TryParse(idUser, out id);
+        if (id > 0)
+        {
+            parametrage = CEDAlfaiaApp.BLL.CEDAlfaiaAppWebService.GetService().ParametrageService.GetParametrageUtilisateur(id);
+            CEDAlfaiaAppV2.Code.Impression.Parametrage = parametrage;
+        }
+    }
+
+    var nomEntreprise = "ALFAIA";
+    string imageSrc = null;
+    if (parametrage != null && parametrage.NomEntreprise != null)
+    {
+        nomEntreprise = parametrage.NomEntreprise;
+
+        if (parametrage.Logo != null)
+        {
+            string imageBase64 = Convert.ToBase64String(parametrage.Logo);
+            imageSrc = string.Format("data:image/png;base64,{0}", imageBase64);
+        }
+    }
+
+    string actualAction = (string)ViewContext.RouteData.Values["action"];
+    string actualController = (string)ViewContext.RouteData.Values["controller"];
+    string lastPage = "";
+    if (System.Web.HttpContext.Current.Request.UrlReferrer != null)
+    {
+        lastPage = System.Web.HttpContext.Current.Request.UrlReferrer.AbsolutePath;
+    }
+}
+<script>
+
+    function goToLastPage() {
+        window.location.href = '@lastPage';
+    }
+    function menuPrincipalItem_click(data) {
+        if (data.itemData.icon == 'back') {
+            goToLastPage();
+        }
+        else {
+            var action = data.itemData.action;
+            var controller = data.itemData.controller;
+            var url = '';
+            if (action !== undefined && controller !== undefined)
+                url = '/' + controller + '/' + action;
+
+            if (data.itemData.TypeListe !== undefined)
+                url += '?typeListe=' + data.itemData.TypeListe;
+
+            if (data.itemData.TypePieceVente !== undefined)
+                url += '?typePieceVente=' + data.itemData.TypePieceVente;
+
+            if (url != '')
+                window.location.href = url;
+        }
+    }
+
+    $(function () {
+    });
+</script>
+
+
+
+<body style="position:relative;width: 100%;">
+    <div class="header">
+        <div style="height:40px;">
+            @(Html.DevExtreme().Toolbar()
+                .ID("toolbarMenuPrincipal")
+                .Items(items =>
+                {
+                    items.Add().Template(@<text>
+                <img src="@imageSrc" height="35" style="background-color:white;" />
+                    </text>).Location(ToolbarItemLocation.Before);
+                    items.Add().Widget(w => w.Menu().AdaptivityEnabled(true).Items(it =>
+                    {
+                        it.Add().Text("Tableau de bord").Icon("chart").Option("controller", "Widgets").Option("action", "Widgets");
+                        it.Add().Text("Agenda").Icon("event").Option("controller", "Agenda").Option("action", "Agenda");
+                        it.Add().Text("Clients").Icon("group").Items(subItems =>
+                        {
+                            subItems.Add().Text("Nouveau client").Icon("add").Option("controller", "Clients").Option("action", "Saisir");
+                            subItems.Add().Text("Liste des clients").Icon("menu").Option("controller", "Clients").Option("action", "Liste");
+                            subItems.Add().Text("Liste des prospects").Icon("menu").Option("controller", "Clients").Option("action", "ListeProspects");
+                        });
+                        it.Add().Text("Devis").Icon("doc").Items(subItems =>
+                        {
+                            subItems.Add().Text("Nouveau devis").Icon("add").Option("controller", "PiecesVente").Option("action", "Saisir").Option("TypePieceVente", "Devis");
+                            subItems.Add().Text("Liste des devis").Icon("menu").Option("controller", "PiecesVente").Option("action", "Liste").Option("TypeListe", "Devis");
+                        });
+                        it.Add().Text("Factures").Icon("doc").Items(subItems =>
+                        {
+                            subItems.Add().Text("Nouvelle facture").Icon("add").Option("controller", "PiecesVente").Option("action", "Saisir").Option("TypePieceVente", "Facture");
+                            subItems.Add().Text("Liste des factures").Icon("menu").Option("controller", "PiecesVente").Option("action", "Liste").Option("TypeListe", "Factures");
+                            subItems.Add().Text("Liste des factures annulées").Icon("menu").Option("controller", "PiecesVente").Option("action", "Liste").Option("TypeListe", "FacturesAnnulees");
+                        });
+                        it.Add().Text("Comptabilité").Icon("money").Items(subItems =>
+                        {
+                            subItems.Add().Text("Factures à envoyer").Icon("money").Option("controller", "PiecesVente").Option("action", "Liste").Option("TypeListe", "FacturesAEnvoyer");
+                            subItems.Add().Text("Balance âgée").Icon("menu").Option("controller", "Comptabilite").Option("action", "BalanceAgee");
+                        });
+                        it.Add().Text("Paramétrage").Icon("preferences").Items(subItems =>
+                        {
+                            subItems.Add().Text("Ressources").Icon("user").Option("controller", "Parametrage").Option("action", "Salaries");
+                            subItems.Add().Text("Paramètres").Icon("preferences").Option("controller", "Parametrage").Option("action", "Saisir");
+                        });
+                    }).OnItemClick("menuPrincipalItem_click")).Location(ToolbarItemLocation.After).LocateInMenu(ToolbarItemLocateInMenuMode.Auto);
+                })
+            )
+            @(Html.DevExtreme().LoadPanel()
+                .ID("loadPanel")
+                .ShadingColor("rgba(0,0,0,0.4)")
+                .Position(p => p.Of("body"))
+                .Visible(false)
+                .ShowIndicator(true)
+                .ShowPane(true)
+                .Shading(true)
+                .CloseOnOutsideClick(false)
+            )
+        </div>
+    </div>
+    <div class="content-column" style="width:95%;margin-top:10px;margin-left:auto;margin-right:auto;">
+        @RenderBody()
+    </div>
+
+    @RenderSection("scripts", required: false)
+</body>
+</html>

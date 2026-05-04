@@ -1,0 +1,34 @@
+﻿@model CEDAlfaiaApp.Models.ClientModel
+
+@{
+    if (this.Model != null)
+    {
+        if (!string.IsNullOrEmpty(this.Model.Telephone) && this.Model.Telephone != "0")
+        {
+            <div style="width:100%;">
+                <i class="fa fa-phone"></i>
+                <span>
+                    @this.Model.Telephone
+                </span>
+            </div>
+        }
+        if (!string.IsNullOrEmpty(this.Model.Email))
+        {
+            <div style="width:100%;">
+                <i class="fa fa-at"></i>
+                <span>
+                    @this.Model.Email
+                </span>
+            </div>
+        }
+        if (this.Model.Adresse != null && !string.IsNullOrEmpty(this.Model.Adresse.Ligne1))
+        {
+            <div style="width:100%;">
+                <i class="fa fa-envelope"></i>
+                <span>
+                    @Html.DisplayFor(m => m.Adresse, "Adresse")
+                </span>
+            </div>
+        }
+    }
+}

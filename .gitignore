@@ -1,0 +1,74 @@
+# Visual Studio / .NET
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.csproj.user
+*.csproj.bak
+Web.config.bak
+.vs/
+
+# NuGet
+packages/
+*.nupkg
+*.snupkg
+**/[Pp]ackages/*
+!**/[Pp]ackages/build/
+*.nuget.props
+*.nuget.targets
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Resharper / Rider
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+.idea/
+
+# Visual Studio cache files
+*.vshost.exe
+*.vshost.exe.config
+*.cache
+*.tlog
+*.lastbuildstate
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Publish
+PublishProfiles/
+*.[Pp]ublish.xml
+*.azurePubxml
+*.pubxml
+*.publishproj
+
+# Misc
+*.log
+*.pdb
+
+# Databases (potentially contain real customer data — never commit)
+*.mdf
+*.ldf
+*.sdf
+*.ndf
+App_Data/
+
+# Bower (front-end dependencies, restorable)
+bower_components/
+
+# Data imports
+import.csv
+

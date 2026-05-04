@@ -1,0 +1,40 @@
+﻿@model CEDAlfaiaAppV2.Models.AnnulerFactureModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    string titleFormulaire = "Annuler la facture";
+    if (this.Model != null && this.Model.IDFacture > 0)
+    {
+        titleFormulaire += " " + this.Model.Numero;
+    }
+}
+
+<div class="long-title"><h3>@titleFormulaire</h3></div>
+
+<div id="form-container">
+    @using (Html.BeginForm("Annuler", "PiecesVente", FormMethod.Post))
+    {
+        using (Html.DevExtreme().ValidationGroup())
+        {
+            @Html.HiddenFor(m => m.IDFacture)
+            @Html.HiddenFor(m => m.Numero)
+
+            @(Html.DevExtreme().Form<CEDAlfaiaAppV2.Models.AnnulerFactureModel>()
+                .ID("formAnnuler")
+                .ShowValidationSummary(true)
+                .Items(items =>
+                {
+                    items.AddSimpleFor(m => m.CommentaireAnnulation).Editor(ed => ed.TextArea().Height(200));
+                })
+                .LabelLocation(FormLabelLocation.Top)
+                .FormData(Model)
+            )
+
+        }
+
+        <div style="text-align:right;margin-top:10px;">
+            @Html.DevExtreme().Button().Text("Annuler").Icon("back").OnClick("goToLastPage")
+            @Html.DevExtreme().Button().Text("Enregistrer").Icon("save").UseSubmitBehavior(true).Type(ButtonType.Success)
+        </div>
+    }
+</div>

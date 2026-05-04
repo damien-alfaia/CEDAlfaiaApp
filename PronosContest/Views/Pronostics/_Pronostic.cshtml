@@ -1,0 +1,388 @@
+﻿@model CEDAlfaiaApp.Models.PronosticsModel
+
+@{
+	if (Model != null)
+	{
+		<div class="hidden-xs hidden-sm">
+			<tr>
+				<td width="130px">
+					<div class="form-group">
+						<label>@Model.DateHeure</label>
+					</div>
+				</td>
+				<td width="27%">
+					<div class="form-group text-right text-primary">
+						&nbsp;
+						<label class="hidden-sm hidden-xs">@Model.EquipeAName</label>
+						<label class="hidden-md hidden-lg">@Model.EquipeAShortName</label>
+						<span style="width:20px;"><img src="@Model.LogoUrlEquipeA" width="20" /></span>
+						&nbsp;
+					</div>
+				</td>
+				<td width="80px">
+					<center>
+						<div class="form-group">
+							@{
+								if (Model.IsReadOnly)
+								{
+									<span class="text-primary">@Model.ButsA</span>
+									if (Model.PenaltiesA > 0)
+									{
+										<span class="text-primary">(@Model.PenaltiesA)</span>
+									}
+								}
+								else
+								{
+									<div class="input-group input-group-sm" style="width:100px;">
+										<span class="input-group-btn">
+											<a href="#" class="btn btn-primary" onclick="RemoveGoalScoreOnClick($(this),'prono@(Model.MatchID)_ButsA','@(Model.ConcoursID)','@(Model.GroupeModel.ID)','@(Model.MatchID)','@(Model.EquipeAID)','@(Model.EquipeBID)','false','@(Model.IsNewProno.ToString())');return false;"><i class="fa fa-minus"></i></a>
+										</span>
+										@Html.TextBox("prono" + Model.MatchID + "_ButsA", Model.ButsA, "", new { @class = "form-control text-center", onchange = "SetScore('" + Model.ConcoursID + "','" + Model.GroupeModel.ID + "','" + Model.MatchID + "','" + Model.EquipeAID + "','" + Model.EquipeBID + "','false',$(this).val(), '" + Model.IsNewProno.ToString() + "');" })
+										<span class="input-group-btn">
+											<a href="#" class="btn btn-primary" onclick="AddGoalScoreOnClick($(this),'prono@(Model.MatchID)_ButsA','@(Model.ConcoursID)','@(Model.GroupeModel.ID)','@(Model.MatchID)','@(Model.EquipeAID)','@(Model.EquipeBID)','false','@(Model.IsNewProno.ToString())');return false;"><i class="fa fa-plus"></i></a>
+										</span>
+									</div>
+									if (Model.GroupeModel.TypePhaseFinale != null)
+									{
+										<div class="form-group" style="display:inline-block;">
+											<div class="input-group input-group-sm" style="width:100px;">
+												<span class="input-group-btn">
+													<a href="#" class="btn btn-primary" onclick="RemoveGoalPenaltyScoreOnClick($(this),'prono@(Model.MatchID)_ButsPenaltiesA','@(Model.ConcoursID)','@(Model.GroupeModel.ID)','@(Model.MatchID)','@(Model.EquipeAID)','@(Model.EquipeBID)','false','@(Model.IsNewProno.ToString())');return false;"><i class="fa fa-minus"></i></a>
+												</span>
+												@Html.TextBox("prono" + Model.MatchID + "_ButsPenaltiesA", Model.PenaltiesA, "", new { @class = "form-control text-center", placeholder = "P", onchange = "SetScorePenalties('" + Model.ConcoursID + "','" + Model.GroupeModel.ID + "','" + Model.MatchID + "','" + Model.EquipeAID + "','" + Model.EquipeBID + "','false',$(this).val(), '" + Model.IsNewProno.ToString() + "');" })
+												<span class="input-group-btn">
+													<a href="#" class="btn btn-primary" onclick="AddGoalPenaltyScoreOnClick($(this),'prono@(Model.MatchID)_ButsPenaltiesA','@(Model.ConcoursID)','@(Model.GroupeModel.ID)','@(Model.MatchID)','@(Model.EquipeAID)','@(Model.EquipeBID)','false','@(Model.IsNewProno.ToString())');return false;"><i class="fa fa-plus"></i></a>
+												</span>
+											</div>
+										</div>
+									}
+								}
+							}
+						</div>
+					</center>
+				</td>
+				<td width="80px">
+					<center>
+						<div class="form-group">
+							@{
+								if (Model.IsReadOnly)
+								{
+									<span class="text-primary">@Model.ButsB</span>
+									if (Model.PenaltiesB > 0)
+									{
+										<span class="text-primary">(@Model.PenaltiesB)</span>
+									}
+								}
+								else
+								{
+									<div class="input-group input-group-sm" style="width:100px;">
+										<span class="input-group-btn">
+											<a href="#" class="btn btn-primary" onclick="RemoveGoalScoreOnClick($(this),'prono@(Model.MatchID)_ButsB','@(Model.ConcoursID)','@(Model.GroupeModel.ID)','@(Model.MatchID)','@(Model.EquipeAID)','@(Model.EquipeBID)','true','@(Model.IsNewProno.ToString())');return false;"><i class="fa fa-minus"></i></a>
+										</span>
+										@Html.TextBox("prono" + Model.MatchID + "_ButsB", Model.ButsB, "", new { @class = "form-control text-center", onchange = "SetScore('" + Model.ConcoursID + "','" + Model.GroupeModel.ID + "','" + Model.MatchID + "','" + Model.EquipeAID + "','" + Model.EquipeBID + "','true',$(this).val(),'" + Model.IsNewProno.ToString() + "');" })
+										<span class="input-group-btn">
+											<a href="#" class="btn btn-primary" onclick="AddGoalScoreOnClick($(this),'prono@(Model.MatchID)_ButsB','@(Model.ConcoursID)','@(Model.GroupeModel.ID)','@(Model.MatchID)','@(Model.EquipeAID)','@(Model.EquipeBID)','true','@(Model.IsNewProno.ToString())');return false;"><i class="fa fa-plus"></i></a>
+										</span>
+									</div>
+									if (Model.GroupeModel.TypePhaseFinale != null)
+									{
+										<div class="form-group" style="display:inline-block;">
+											<div class="input-group input-group-sm" style="width:100px;">
+												<span class="input-group-btn">
+													<a href="#" class="btn btn-primary" onclick="RemoveGoalPenaltyScoreOnClick($(this),'prono@(Model.MatchID)_ButsPenaltiesB','@(Model.ConcoursID)','@(Model.GroupeModel.ID)','@(Model.MatchID)','@(Model.EquipeAID)','@(Model.EquipeBID)','true','@(Model.IsNewProno.ToString())');return false;"><i class="fa fa-minus"></i></a>
+												</span>
+												@Html.TextBox("prono" + Model.MatchID + "_ButsPenaltiesB", Model.PenaltiesB, "", new { @class = "form-control text-center", placeholder = "P", onchange = "SetScorePenalties('" + Model.ConcoursID + "','" + Model.GroupeModel.ID + "','" + Model.MatchID + "','" + Model.EquipeAID + "','" + Model.EquipeBID + "','true',$(this).val(),'" + Model.IsNewProno.ToString() + "');" })
+												<span class="input-group-btn">
+													<a href="#" class="btn btn-primary" onclick="AddGoalPenaltyScoreOnClick($(this),'prono@(Model.MatchID)_ButsPenaltiesB','@(Model.ConcoursID)','@(Model.GroupeModel.ID)','@(Model.MatchID)','@(Model.EquipeAID)','@(Model.EquipeBID)','true','@(Model.IsNewProno.ToString())');return false;"><i class="fa fa-plus"></i></a>
+												</span>
+											</div>
+										</div>
+									}
+								}
+							}
+						</div>
+					</center>
+				</td>
+				<td width="27%">
+					<div class="form-group text-primary">
+						&nbsp;
+						<span style="width:20px;"><img src="@Model.LogoUrlEquipeB" width="20" /></span>
+						<label class="hidden-sm hidden-xs">@Model.EquipeBName</label>
+						<label class="hidden-md hidden-lg">@Model.EquipeBShortName</label>
+						&nbsp;
+					</div>
+				</td>
+				<td width="30px" class="text-right">
+					<div class="form-group">
+						@{
+							switch (Model.Etat)
+							{
+								case CEDAlfaiaApp.DAL.Pronos.EtatPronostic.Empty:
+									<span class="label label-default">Non renseigné</span>
+									break;
+								case CEDAlfaiaApp.DAL.Pronos.EtatPronostic.EnCours:
+									<span class="label label-primary">En cours</span>
+									break;
+								case CEDAlfaiaApp.DAL.Pronos.EtatPronostic.Gagne:
+									<span class="label label-success">Gagné (@Model.Points)</span>
+									break;
+								case CEDAlfaiaApp.DAL.Pronos.EtatPronostic.GagneScoreExact:
+									<span class="label label-success">Score exact (@Model.Points)</span>
+									break;
+								case CEDAlfaiaApp.DAL.Pronos.EtatPronostic.Perdu:
+									<span class="label label-danger">Perdu</span>
+									break;
+							}
+						}
+					</div>
+				</td>
+				<td width="10px">
+					@{
+						if (!Model.IsNewProno)
+						{
+							<a href="@Url.Action("InformationsPronostic", "Pronostics", new { pIdConcours = Model.ConcoursID, pIdMatch = Model.MatchID })"><i class="fa fa-info-circle text-primary"></i></a>
+						}
+						else if (Model.IsReadOnly)
+						{
+							<a href="@Url.Action("InformationsPronostic", "Pronostics", new { pIdConcours = Model.ConcoursID, pIdMatch = Model.MatchID, pIsNewProno = Model.IsNewProno })"><i class="fa fa-info-circle text-primary"></i></a>
+						}
+					}
+				</td>
+			</tr>
+
+		</div>
+
+		<div class="row hidden-md hidden-lg">
+			<div class="col-xs-12">
+				@{
+					string classAlert = "";
+					switch (Model.Etat)
+					{
+						case CEDAlfaiaApp.DAL.Pronos.EtatPronostic.Empty:
+							classAlert = "";
+							break;
+						case CEDAlfaiaApp.DAL.Pronos.EtatPronostic.EnCours:
+							classAlert = "alert-info";
+							break;
+						case CEDAlfaiaApp.DAL.Pronos.EtatPronostic.Gagne:
+						case CEDAlfaiaApp.DAL.Pronos.EtatPronostic.GagneScoreExact:
+							classAlert = "alert-success";
+							break;
+						case CEDAlfaiaApp.DAL.Pronos.EtatPronostic.Perdu:
+							classAlert = "alert-danger";
+						break;
+					}
+				}
+				<div class="alert @classAlert">
+					<div class="row">
+						<div class="col-xs-12">
+							<center>
+								<div class="form-group">
+									<label>@Model.DateHeure</label>
+									@if (!Model.IsNewProno)
+									{
+										<a href="@Url.Action("InformationsPronostic", "Pronostics", new { pIdConcours = Model.ConcoursID, pIdMatch = Model.MatchID })"><i class="fa fa-info-circle text-primary"></i></a>
+									}
+									else if (Model.IsReadOnly)
+									{
+										<a href="@Url.Action("InformationsPronostic", "Pronostics", new { pIdConcours = Model.ConcoursID, pIdMatch = Model.MatchID, pIsNewProno = Model.IsNewProno })"><i class="fa fa-info-circle text-primary"></i></a>
+									}
+									<span class="badge pull-right">@Model.Points</span>
+								</div>
+							</center>
+						</div>
+					</div>
+					@{
+						if (Model.IsReadOnly)
+						{
+							<div class="row">
+								<div class="col-xs-12 text-center" style="">
+									<div class="col-xs-3">
+										<div class="form-group text-primary text-center" style="">
+											<label class="hidden-md hidden-lg">@Model.EquipeAShortName</label>
+											<span style="width:20px;"><img src="@Model.LogoUrlEquipeA" width="20" /></span>
+										</div>
+									</div>
+									<div class="col-xs-6">
+										<div class="form-group text-center">
+											@{
+												<span>@Model.ButsA</span>
+												if (Model.PenaltiesA > 0)
+												{
+													<span>(@Model.PenaltiesA)</span>
+												}
+
+												<span>&nbsp; - &nbsp;</span>
+												
+												if (Model.PenaltiesB > 0)
+												{
+													<span>(@Model.PenaltiesB)</span>
+												}
+												<span>@Model.ButsB</span>
+											}
+										</div>
+										@{
+											if (Model.Resultat_ButsA != null && Model.Resultat_ButsB != null)
+											{
+												<div class="form-group text-center">
+												@{
+													<b>
+														<span>@Model.Resultat_ButsA</span>
+														@if (Model.Resultat_PenaltiesA > 0)
+														{
+															<span>(@Model.Resultat_PenaltiesA)</span>
+														}
+
+														<span>&nbsp; - &nbsp;</span>
+
+														@if (Model.Resultat_PenaltiesB > 0)
+														{
+															<span>(@Model.Resultat_PenaltiesB)</span>
+														}
+														<span>@Model.Resultat_ButsB</span>
+													</b>
+												}
+												</div>
+											}
+										}
+									</div>
+									<div class="col-xs-3">
+										<div class="form-group text-primary text-center">
+											<label class="hidden-md hidden-lg">@Model.EquipeBShortName</label>
+											<span style="width:20px;"><img src="@Model.LogoUrlEquipeB" width="20" /></span>
+										</div>
+									</div>
+								</div>
+							</div>
+						}
+						else
+						{
+							<div class="row">
+								<div class="col-xs-12 text-center" style="">
+									<div class="col-xs-5">
+										<div class="form-group text-primary text-right" style="">
+											<label class="hidden-md hidden-lg">@Model.EquipeAShortName</label>
+											<span style="width:20px;"><img src="@Model.LogoUrlEquipeA" width="20" /></span>
+										</div>
+									</div>
+									<div class="col-xs-7">
+										<div class="form-group" style="display:inline-block; width:100px;">
+											@{
+												if (Model.IsReadOnly)
+												{
+													<span class="text-primary">@Model.ButsA</span>
+													if (Model.PenaltiesA > 0)
+													{
+														<span class="text-primary">(@Model.PenaltiesA)</span>
+													}
+													if (Model.Resultat_ButsA != null)
+													{
+														<span class="label-info">
+															@Model.Resultat_ButsA
+															@{
+																if (Model.PenaltiesA > 0)
+																{
+																	<span>(@Model.Resultat_PenaltiesA)</span>
+																}
+															}
+														</span>					}
+																}
+																else
+																{
+																	<div class="input-group input-group-sm" style="width:100px;">
+																		<span class="input-group-btn">
+																			<a href="#" class="btn btn-primary" onclick="RemoveGoalScoreOnClick($(this),'prono@(Model.MatchID)_ButsA','@(Model.ConcoursID)','@(Model.GroupeModel.ID)','@(Model.MatchID)','@(Model.EquipeAID)','@(Model.EquipeBID)','false','@(Model.IsNewProno.ToString())');return false;"><i class="fa fa-minus"></i></a>
+																		</span>
+																		@Html.TextBox("prono" + Model.MatchID + "_ButsA", Model.ButsA, "", new { @class = "form-control text-center", onchange = "SetScore('" + Model.ConcoursID + "','" + Model.GroupeModel.ID + "','" + Model.MatchID + "','" + Model.EquipeAID + "','" + Model.EquipeBID + "','false',$(this).val(),'" + Model.IsNewProno.ToString() + "');" })
+																		<span class="input-group-btn">
+																			<a href="#" class="btn btn-primary" onclick="AddGoalScoreOnClick($(this),'prono@(Model.MatchID)_ButsA','@(Model.ConcoursID)','@(Model.GroupeModel.ID)','@(Model.MatchID)','@(Model.EquipeAID)','@(Model.EquipeBID)','false','@(Model.IsNewProno.ToString())');return false;"><i class="fa fa-plus"></i></a>
+																		</span>
+																	</div>		}
+											}
+										</div>
+										@if (!Model.IsReadOnly && Model.GroupeModel.TypePhaseFinale != null)
+										{
+											<div class="form-group" style="display:inline-block;">
+												<div class="input-group input-group-sm" style="width:100px;">
+													<span class="input-group-btn">
+														<a href="#" class="btn btn-primary" onclick="RemoveGoalPenaltyScoreOnClick($(this),'prono@(Model.MatchID)_ButsPenaltiesA','@(Model.ConcoursID)','@(Model.GroupeModel.ID)','@(Model.MatchID)','@(Model.EquipeAID)','@(Model.EquipeBID)','false','@(Model.IsNewProno.ToString())');return false;"><i class="fa fa-minus"></i></a>
+													</span>
+													@Html.TextBox("prono" + Model.MatchID + "_ButsPenaltiesA", Model.PenaltiesA, "", new { @class = "form-control text-center", placeholder = "P", onchange = "SetScorePenalties('" + Model.ConcoursID + "','" + Model.GroupeModel.ID + "','" + Model.MatchID + "','" + Model.EquipeAID + "','" + Model.EquipeBID + "','false',$(this).val(),'" + Model.IsNewProno.ToString() + "');" })
+													<span class="input-group-btn">
+														<a href="#" class="btn btn-primary" onclick="AddGoalPenaltyScoreOnClick($(this),'prono@(Model.MatchID)_ButsPenaltiesA','@(Model.ConcoursID)','@(Model.GroupeModel.ID)','@(Model.MatchID)','@(Model.EquipeAID)','@(Model.EquipeBID)','false','@(Model.IsNewProno.ToString())');return false;"><i class="fa fa-plus"></i></a>
+													</span>
+												</div>
+											</div>
+										}
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-xs-12 text-center" style="">
+									<div class="col-xs-5">
+										<div class="form-group text-primary text-right">
+											<label class="hidden-md hidden-lg">@Model.EquipeBShortName</label>
+											<span style="width:20px;"><img src="@Model.LogoUrlEquipeB" width="20" /></span>
+										</div>
+									</div>
+									<div class="col-xs-7">
+										<div class="form-group" style="display:inline-block;width:100px;">
+											@{
+												if (Model.IsReadOnly)
+												{
+													<span class="text-primary">@Model.ButsB</span>
+													if (Model.PenaltiesB > 0)
+													{
+														<span class="text-primary">(@Model.PenaltiesB)</span>
+													}
+													if (Model.Resultat_ButsB != null)
+													{
+														<span class="label-info">
+															@Model.Resultat_ButsB
+															@{
+																if (Model.PenaltiesB > 0)
+																{
+																	<span>(@Model.Resultat_PenaltiesB)</span>
+																}
+															}
+														</span>					}
+																}
+																else
+																{
+																	<div class="input-group input-group-sm" style="width:100px;">
+																		<span class="input-group-btn">
+																			<a href="#" class="btn btn-primary" onclick="RemoveGoalScoreOnClick($(this),'prono@(Model.MatchID)_ButsB','@(Model.ConcoursID)','@(Model.GroupeModel.ID)','@(Model.MatchID)','@(Model.EquipeAID)','@(Model.EquipeBID)','true','@(Model.IsNewProno.ToString())');return false;"><i class="fa fa-minus"></i></a>
+																		</span>
+																		@Html.TextBox("prono" + Model.MatchID + "_ButsB", Model.ButsB, "", new { @class = "form-control text-center", onchange = "SetScore('" + Model.ConcoursID + "','" + Model.GroupeModel.ID + "','" + Model.MatchID + "','" + Model.EquipeAID + "','" + Model.EquipeBID + "','true',$(this).val(),'" + Model.IsNewProno.ToString() + "');" })
+																		<span class="input-group-btn">
+																			<a href="#" class="btn btn-primary" onclick="AddGoalScoreOnClick($(this),'prono@(Model.MatchID)_ButsB','@(Model.ConcoursID)','@(Model.GroupeModel.ID)','@(Model.MatchID)','@(Model.EquipeAID)','@(Model.EquipeBID)','true','@(Model.IsNewProno.ToString())');return false;"><i class="fa fa-plus"></i></a>
+																		</span>
+																	</div>		}
+											}
+										</div>
+										@if (!Model.IsReadOnly && Model.GroupeModel.TypePhaseFinale != null)
+										{
+											<div class="form-group" style="display:inline-block;">
+												<div class="input-group input-group-sm" style="width:100px;">
+													<span class="input-group-btn">
+														<a href="#" class="btn btn-primary" onclick="RemoveGoalPenaltyScoreOnClick($(this),'prono@(Model.MatchID)_ButsPenaltiesB','@(Model.ConcoursID)','@(Model.GroupeModel.ID)','@(Model.MatchID)','@(Model.EquipeAID)','@(Model.EquipeBID)','true','@(Model.IsNewProno.ToString())');return false;"><i class="fa fa-minus"></i></a>
+													</span>
+													@Html.TextBox("prono" + Model.MatchID + "_ButsPenaltiesB", Model.PenaltiesB, "", new { @class = "form-control text-center", placeholder = "P", onchange = "SetScorePenalties('" + Model.ConcoursID + "','" + Model.GroupeModel.ID + "','" + Model.MatchID + "','" + Model.EquipeAID + "','" + Model.EquipeBID + "','true',$(this).val(),'" + Model.IsNewProno.ToString() + "');" })
+													<span class="input-group-btn">
+														<a href="#" class="btn btn-primary" onclick="AddGoalPenaltyScoreOnClick($(this),'prono@(Model.MatchID)_ButsPenaltiesB','@(Model.ConcoursID)','@(Model.GroupeModel.ID)','@(Model.MatchID)','@(Model.EquipeAID)','@(Model.EquipeBID)','true','@(Model.IsNewProno.ToString())');return false;"><i class="fa fa-plus"></i></a>
+													</span>
+												</div>
+											</div>
+										}
+									</div>
+								</div>
+							</div>
+						}
+					}
+				</div>
+			</div>
+			
+		</div>
+	}
+}
+

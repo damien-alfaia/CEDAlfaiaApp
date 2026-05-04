@@ -1,0 +1,570 @@
+﻿@model CEDAlfaiaAppV2.Models.SaisirPieceVenteModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    function gridBox_valueChanged(e) {
+        var $dropDownBox = $("#dropDownBoxClient");
+        if ($dropDownBox.length) {
+            var dropDownBoxClient = $dropDownBox.dxDropDownBox("instance");
+            if (e.value[0] !== undefined)
+                dropDownBoxClient.option("value", e.value[0].ID);
+        }
+    }
+
+    function gridBox_displayExpr(item) {
+        return item && item.Libelle;
+    }
+
+    function mainDOeuvreOnChange() {
+        var duree = $("#DureeMainDOeuvre").dxNumberBox("instance").option("value");
+        var mainDOeuvre = $("#MainDOeuvre").dxNumberBox("instance").option("value");
+
+        $("#TotalMainDOeuvre").dxNumberBox("instance").option("value", duree * mainDOeuvre);
+        updatePiedFacture();
+        //piedFactureOnChange();
+    }
+
+    function CreateInputLigne(itemName, itemValue, itemIndex, container) {
+        var $input = $("<input />");
+
+        $input.appendTo(container).attr({ type: "hidden", name: "Lignes[" + itemIndex + "]." + itemName }).val(itemValue);
+    }
+    function CreateInputPaiement(itemName, itemValue, itemIndex, container) {
+        var $input = $("<input />");
+
+        $input.appendTo(container).attr({ type: "hidden", name: "Paiements[" + itemIndex + "]." + itemName }).val(itemValue);
+    }
+    function clickHandler(e) {
+
+        if (e.validationGroup.validate().isValid) {
+            if ($("#gridLignes").dxDataGrid('instance') !== undefined) {
+                var items = $("#gridLignes").dxDataGrid('instance')._controllers.data._dataSource._items;
+                for (var i = 0; i < items.length; i++) {
+                    var item = items[i];
+                    for (var property in item) {
+                        if (item.hasOwnProperty(property)) {
+                            CreateInputLigne(property, item[property], i, $("#editPieceVente")[0]);
+                        }
+                    }
+                }
+            }
+            if ($("#gridPaiements").dxDataGrid('instance') !== undefined) {
+                var itemsPaiements = $("#gridPaiements").dxDataGrid('instance')._controllers.data._dataSource._items;
+                for (var i = 0; i < itemsPaiements.length; i++) {
+                    var item = itemsPaiements[i];
+                    for (var property in item) {
+                        if (item.hasOwnProperty(property)) {
+                            var value = item[property];
+                            if (property == 'Date') {
+                                value = formaterDate(value);
+                            }
+                            CreateInputPaiement(property, value, i, $("#editPieceVente")[0]);
+                        }
+                    }
+                }
+            }
+            $("#editPieceVente")[0].submit();
+        }
+    }
+
+    function editorPrepared(e) {
+        if (e.dataField != 'Libelle') {
+            e.editorElement.dxNumberBox('instance').option('onValueChanged', args => {
+                setRowLigne(e.row, e.dataField, args.value);
+            });
+        }
+        //$("#gridLignes").dxDataGrid("instance").cellValue(e.row.rowIndex, "Libelle", "test");
+    }
+
+    function setRowLigne(row, typeSaisie, valeur) {
+        if (row !== undefined && typeSaisie !== undefined && valeur !== undefined) {
+            var quantite = parseFloat(typeSaisie == 'Quantite' ? valeur : row.data.Quantite);
+            var remise = parseFloat(typeSaisie == 'Remise' ? valeur : row.data.Remise);
+            var prixGarageHT = parseFloat(typeSaisie == 'PrixGarageHT' ? valeur : (row.data.PrixGarageHT !== undefined && row.data.PrixGarageHT != null ? row.data.PrixGarageHT : 0));
+            var prixGarageTTC = parseFloat(typeSaisie == 'PrixGarageTTC' ? valeur : (row.data.PrixGarageTTC !== undefined && row.data.PrixGarageTTC != null ? row.data.PrixGarageTTC : 0));
+            var prixClientHT = parseFloat(typeSaisie == 'PrixClientHT' ? valeur : (row.data.PrixClientHT !== undefined && row.data.PrixClientHT != null ? row.data.PrixClientHT : 0));
+            var prixClientTTC = parseFloat(typeSaisie == 'PrixClientTTC' ? valeur : (row.data.PrixClientTTC !== undefined && row.data.PrixClientTTC != null ? row.data.PrixClientTTC : 0));
+
+            row.data.Quantite = parseFloat(quantite);
+            row.data.Remise = parseFloat(remise);
+            switch (typeSaisie) {
+                /*
+                case 'Remise':
+                    prixClientHT = prixGarageHT / (1 - remise / 100);
+                    prixClientTTC = prixGarageTTC / (1 - remise / 100);
+                    break;
+                case 'PrixGarageHT':
+                    prixGarageTTC = prixGarageHT * 1.2;
+                    prixClientHT = prixGarageHT / (1 - remise / 100);
+                    prixClientTTC = prixGarageTTC / (1 - remise / 100);
+                    break;
+                case 'PrixGarageTTC':
+                    prixGarageHT = prixGarageTTC / 1.2;
+                    prixClientHT = prixGarageHT / (1 - remise / 100);
+                    prixClientTTC = prixGarageTTC / (1 - remise / 100);
+                    break;
+                case 'PrixClientHT':
+                    prixClientTTC = prixClientHT * 1.2;
+                    prixGarageHT = prixClientHT - (prixClientHT * (remise / 100));
+                    prixGarageTTC = prixClientTTC - (prixClientTTC * (remise / 100));
+                    break;
+                case 'PrixClientTTC':
+                    prixClientHT = prixClientTTC / 1.2;
+                    prixGarageHT = prixClientHT - (prixClientHT * (remise / 100));
+                    prixGarageTTC = prixClientTTC - (prixClientTTC * (remise / 100));
+                    break;
+                */
+                case 'Remise':
+                    prixClientHT = prixGarageTTC / (1 - remise / 100);
+                    prixClientTTC = prixClientHT;
+                    break;
+                case 'PrixGarageHT':
+                    prixGarageTTC = prixGarageHT * 1.2;
+                    prixClientHT = prixGarageTTC / (1 - remise / 100);
+                    prixClientTTC = prixClientHT;
+                    break;
+                case 'PrixGarageTTC':
+                    prixGarageHT = prixGarageTTC / 1.2;
+                    prixClientHT = prixGarageTTC / (1 - remise / 100);
+                    prixClientTTC = prixClientHT;
+                    break;
+                case 'PrixClientHT':
+                    prixClientTTC = prixClientHT;
+                    prixGarageTTC = prixClientHT - (prixClientHT * (remise / 100));
+                    prixGarageHT = prixGarageTTC / 1.2;
+                    break;
+                case 'PrixClientTTC':
+                    prixClientHT = prixClientTTC;
+                    prixGarageTTC = prixClientHT - (prixClientHT * (remise / 100));
+                    prixGarageHT = prixGarageTTC / 1.2;
+                    break;
+            }
+
+            row.data.PrixGarageHT = prixGarageHT;
+            row.data.PrixGarageTTC = prixGarageTTC;
+            row.data.PrixClientHT = prixClientHT;
+            row.data.PrixClientTTC = prixClientTTC;
+            row.data.TotalPrixGarageTTC = prixGarageTTC * quantite;
+            row.data.TotalPrixClientTTC = prixClientTTC * quantite;
+        }
+        $("#gridLignes").dxDataGrid('instance').refresh();
+    }
+
+    function formaterDate(date) {
+        var month = date.getMonth() + 1,
+            day = date.getDate(),
+            year = date.getFullYear();
+        return day + "/" + month + "/" + year;
+    }
+
+    function parserDate(e) {
+        var parts = e.split("/"),
+            day = Number(parts[0]),
+            month = Number(parts[1] - 1),
+            year = Number(parts[2]);
+        return new Date(year, month, day);
+    }
+
+    function updatePiedFacture() {
+        try {
+            var totalHTLignes = $("#gridLignes").dxDataGrid('instance').getTotalSummaryValue("TotalPrixClientTTC") / 1/*.2*/;
+            var totalMainDOeuvre = $("#TotalMainDOeuvre").dxNumberBox("instance")._parsedValue / 1/*.2*/;
+            var remise = $("#inputRemise").dxNumberBox("instance").option("value");
+
+            var totalHT = (totalHTLignes + totalMainDOeuvre) - ((totalHTLignes + totalMainDOeuvre) * remise);
+            var totalTTC = totalHT * 1/*.2*/;
+            var montantTVA = totalTTC - totalHT;
+
+            $("#TotalTTC").dxNumberBox("instance").option("value", totalTTC);
+            $("#TotalHT").dxNumberBox("instance").option("value", totalHT);
+            $("#MontantTVA").dxNumberBox("instance").option("value", montantTVA);
+        }
+        catch (ex) {
+
+        }
+    }
+
+
+    $(document).ready(function () {
+        mainDOeuvreOnChange();
+        $(".dx-tab")[1].click();
+        $(".dx-tab")[0].click();
+        //updatePiedFacture();
+    });
+</script>
+
+
+@{
+    string titleFormulaire = "Nouvelle facture";
+    if (this.Model != null && this.Model.IDPieceVente > 0)
+    {
+        titleFormulaire = this.Model.TypePiece + " " + this.Model.Numero;
+    }
+    else if (this.Model != null && this.Model.TypePiece == "Devis")
+    {
+        titleFormulaire = "Nouveau devis";
+    }
+    ViewBag.Title = titleFormulaire;
+
+    List<CEDAlfaiaAppV2.Models.ValeurLibelle> typesPaiement = new List<CEDAlfaiaAppV2.Models.ValeurLibelle>();
+    foreach (CEDAlfaiaApp.DAL.Garage.TypePaiement typePaiement in Enum.GetValues(typeof(CEDAlfaiaApp.DAL.Garage.TypePaiement)))
+    {
+        typesPaiement.Add(new CEDAlfaiaAppV2.Models.ValeurLibelle((int)typePaiement, typePaiement.ToString()));
+    }
+
+    var designations = CEDAlfaiaApp.BLL.CEDAlfaiaAppWebService.GetService().GarageService.GetAllDesignations().Distinct().Select(s => new { designation = s }).ToList();
+}
+
+<div class="long-title"><h3>@titleFormulaire</h3></div>
+
+<div id="form-container">
+    @using (Html.BeginForm("Saisir", "PiecesVente", FormMethod.Post, new { id = "editPieceVente", name = "editPieceVente" }))
+    {
+        using (Html.DevExtreme().ValidationGroup())
+        {
+            Html.Hidden("hiddenTauxTVA", CEDAlfaiaApp.Core.CEDAlfaiaAppHttpContext.TauxTVA);
+            @Html.HiddenFor(m => m.IDPieceVente)
+            @Html.HiddenFor(m => m.TypePiece)
+            @Html.HiddenFor(m => m.DevisFornisseurBase64, new { role = "DevisFournisseur" })
+            @Html.HiddenFor(m => m.BonLivraisonFornisseurBase64, new { role = "BonLivraisonFournisseur" })
+            @Html.HiddenFor(m => m.IsValide)
+            @Html.HiddenFor(m => m.IsAnnule)
+
+            @(Html.DevExtreme().Form<CEDAlfaiaAppV2.Models.SaisirPieceVenteModel>()
+            .ID("formPieceVente")
+            .ShowValidationSummary(true)
+            .Items(items =>
+            {
+            items.AddTabbed()
+                    .Tabs(tab =>
+                    {
+                        tab.Add().Option("tabName", "tabPieceVente").Title(this.Model.TypePiece).ColCount(4).Items(subItems =>
+                        {
+                        if (this.Model.IsValide)
+                        {
+                            subItems.AddSimpleFor(m => m.IDVoiture).Editor(ed =>
+                            {
+                                return ed.DropDownBox()
+                                    .DataSource(CEDAlfaiaApp.BLL.CEDAlfaiaAppWebService.GetService().GarageService.Voitures().OrderBy(v => (!string.IsNullOrEmpty(v.Client.Prenom) ? v.Client.Prenom.Trim() + " " : "") + (!string.IsNullOrEmpty(v.Client.Nom) ? v.Client.Nom.Trim() + " " : "")).Select(v => new
+                                    {
+                                        ID = v.ID,
+                                        Marque = v.Modele.Marque.Libelle,
+                                        Modele = v.Modele.Libelle,
+                                        Immatriculation = v.Immatriculation,
+                                        Client = (!string.IsNullOrEmpty(v.Client.Prenom) ? v.Client.Prenom.Trim() + " " : "") + (!string.IsNullOrEmpty(v.Client.Nom.Trim()) ? v.Client.Nom + " " : ""),
+                                        Libelle = (!string.IsNullOrEmpty(v.Client.Prenom) ? v.Client.Prenom.Trim() + " " : "") + (!string.IsNullOrEmpty(v.Client.Nom.Trim()) ? v.Client.Nom + " " : "") + " <" + v.Immatriculation + ">"
+                                    }))
+                                    .ID("dropDownBoxClient")
+                                    .Placeholder("Choisir le client...")
+                                    .ShowClearButton(true)
+                                    .ContentTemplate(new TemplateName("EmbeddedDataGridClient"))
+                                    .ValueExpr("ID")
+                                    .DisplayExpr("Libelle")
+                                    .Disabled(true)
+                                    .OnValueChanged("gridBox_valueChanged");
+                            }).ValidationRules(vr =>
+                            {
+                                vr.AddRequired().Message("Client obligatoire");
+                            }).ColSpan(2);
+                            subItems.AddSimpleFor(m => m.Date).Editor(ed =>
+                            {
+                                return ed.DateBox().Disabled(true).Width("100%").DateSerializationFormat("dd/MM/yyyy").DisplayFormat("dd/MM/yyyy");
+                            }).ValidationRules(vr =>
+                            {
+                                vr.AddRequired().Message("Date obligatoire !");
+                            });
+                            subItems.AddSimpleFor(m => m.Kilometrage).Editor(ed =>
+                            {
+                                return ed.NumberBox().Format("#0 km").Disabled(true);
+                            }).ValidationRules(vr =>
+                            {
+                                vr.AddNumeric().Message("Kilométrage doit être une valeur décimale");
+                            });
+                            subItems.AddSimpleFor(m => m.DureeMainDOeuvre).Editor(ed =>
+                            {
+                                return ed.NumberBox().OnChange("mainDOeuvreOnChange").Disabled(true).ID("DureeMainDOeuvre").Format("# heure(s)");
+                            });
+                            subItems.AddSimpleFor(m => m.MainDOeuvre).Editor(ed =>
+                            {
+                                return ed.NumberBox().OnChange("mainDOeuvreOnChange").Disabled(true).ID("MainDOeuvre").Format("#0.00€");
+                            });
+                            subItems.AddSimple().Name("TotalMainDOeuvre").Editor(ed => ed.NumberBox().ID("TotalMainDOeuvre").Format("#0.00€").Disabled(true)).Label(lb => { lb.Text("Total"); });
+
+                        }
+                        else
+                        {
+                            subItems.AddSimpleFor(m => m.IDVoiture).Editor(ed =>
+                            {
+                                return ed.DropDownBox()
+                                    .DataSource(CEDAlfaiaApp.BLL.CEDAlfaiaAppWebService.GetService().GarageService.Voitures().OrderBy(v => (!string.IsNullOrEmpty(v.Client.Prenom) ? v.Client.Prenom.Trim() + " " : "") + (!string.IsNullOrEmpty(v.Client.Nom) ? v.Client.Nom.Trim() + " " : "")).Select(v => new
+                                    {
+                                        ID = v.ID,
+                                        Marque = v.Modele.Marque.Libelle,
+                                        Modele = v.Modele.Libelle,
+                                        Immatriculation = v.Immatriculation,
+                                        Client = (!string.IsNullOrEmpty(v.Client.Prenom) ? v.Client.Prenom.Trim() + " " : "") + (!string.IsNullOrEmpty(v.Client.Nom.Trim()) ? v.Client.Nom + " " : ""),
+                                        Libelle = (!string.IsNullOrEmpty(v.Client.Prenom) ? v.Client.Prenom.Trim() + " " : "") + (!string.IsNullOrEmpty(v.Client.Nom.Trim()) ? v.Client.Nom + " " : "") + " <" + v.Immatriculation + ">"
+                                    }))
+                                    .ID("dropDownBoxClient")
+                                    .Placeholder("Choisir le client...")
+                                    .ShowClearButton(true)
+                                    .ContentTemplate(new TemplateName("EmbeddedDataGridClient"))
+                                    .ValueExpr("ID")
+                                    .DisplayExpr("Libelle")
+                                    .OnValueChanged("gridBox_valueChanged");
+                            }).ValidationRules(vr =>
+                            {
+                                vr.AddRequired().Message("Client obligatoire");
+                            }).ColSpan(2);
+                            subItems.AddSimpleFor(m => m.Date).Editor(ed =>
+                            {
+                                return ed.DateBox().Width("100%").DisplayFormat("dd/MM/yyyy");
+                            }).ValidationRules(vr =>
+                            {
+                                vr.AddRequired().Message("Date obligatoire !");
+                            });
+                            subItems.AddSimpleFor(m => m.Kilometrage).Editor(ed =>
+                            {
+                                return ed.NumberBox().Format("#0 km");
+                            });
+                            subItems.AddSimpleFor(m => m.DureeMainDOeuvre).Editor(ed =>
+                            {
+                                return ed.NumberBox().OnChange("mainDOeuvreOnChange").ID("DureeMainDOeuvre").Format("# heure(s)");
+                            });
+                            subItems.AddSimpleFor(m => m.MainDOeuvre).Editor(ed =>
+                            {
+                                return ed.NumberBox().OnChange("mainDOeuvreOnChange").ID("MainDOeuvre").Format("#0.00€");
+                            });
+                            subItems.AddSimple().Name("TotalMainDOeuvre").Editor(ed => ed.NumberBox().ID("TotalMainDOeuvre").Format("#0.00€").Disabled(true)).Label(lb => { lb.Text("Total"); });
+                        }
+                        if (this.Model.TypePiece == "Devis")
+                        {
+                            subItems.AddSimpleFor(m => m.IsDevisEnvoye)
+                                .Editor(ed => ed.CheckBox().Text("Envoyé au client"))
+                                .Label(lb => lb.Visible(false));
+                        }
+                        subItems.AddEmpty();
+
+                        subItems.AddSimple().Label(lb => lb.Text("Lignes")).ColSpan(4).Template(@<text>
+                                    @(
+                                                    Html.DevExtreme().DataGrid<CEDAlfaiaAppV2.Models.SaisirLignesPieceVenteModel>()
+                                                    .ID("gridLignes")
+                                                    .DataSource(this.Model.Lignes.Select(s => new
+                                                            {
+                                                                s.IDLigne,
+                                                                s.Libelle,
+                                                                s.PrixClientHT,
+                                                                s.PrixClientTTC,
+                                                                s.PrixGarageHT,
+                                                                s.PrixGarageTTC,
+                                                                s.Quantite,
+                                                                s.Remise,
+                                                                TotalPrixClientTTC = s.Quantite * float.Parse(s.PrixClientTTC.Replace('.', ',')),
+                                                                TotalPrixGarageTTC = s.Quantite * float.Parse(s.PrixGarageTTC.Replace('.', ','))
+                                                            }))
+                                                    .Editing(ed =>
+                                                    {
+                                                                ed.AllowAdding(!this.Model.IsValide).AllowUpdating(!this.Model.IsValide).AllowDeleting(!this.Model.IsValide).Mode(GridEditMode.Cell);
+                                                                ed.Texts(t =>
+                                        {
+                                                                t.ConfirmDeleteMessage("Voulez-vous vraiment supprimer cette ligne ?");
+                                                                t.ConfirmDeleteTitle("Suppression de ligne");
+                                                                t.DeleteRow("Supprimer");
+                                                            });
+                                                            })
+                                                    .OnEditorPrepared("editorPrepared")
+                                                    .OnContentReady("updatePiedFacture")
+                                                    .RemoteOperations(false)
+                                                    .Summary(s => s.TotalItems(totItems =>
+                                                    {
+                                                                totItems.AddFor(m => m.PrixClientHT).SummaryType(SummaryType.Sum).ValueFormat(v => v.Precision(2).Type(Format.FixedPoint)).DisplayFormat("{0}€");
+                                                                totItems.AddFor(m => m.PrixClientTTC).SummaryType(SummaryType.Sum).ValueFormat(v => v.Precision(2).Type(Format.FixedPoint)).DisplayFormat("{0}€");
+                                                                totItems.AddFor(m => m.PrixGarageHT).SummaryType(SummaryType.Sum).ValueFormat(v => v.Precision(2).Type(Format.FixedPoint)).DisplayFormat("{0}€");
+                                                                totItems.AddFor(m => m.PrixGarageTTC).SummaryType(SummaryType.Sum).ValueFormat(v => v.Precision(2).Type(Format.FixedPoint)).DisplayFormat("{0}€");
+                                                                totItems.Add().Column("TotalPrixGarageTTC").SummaryType(SummaryType.Sum).ValueFormat(v => v.Precision(2).Type(Format.FixedPoint)).DisplayFormat("{0}€");
+                                                                totItems.Add().Column("TotalPrixClientTTC").SummaryType(SummaryType.Sum).ValueFormat(v => v.Precision(2).Type(Format.FixedPoint)).DisplayFormat("{0}€");
+                                                            }))
+                                                    .Columns(columns =>
+                                                    {
+                                                    columns.Add()
+                                                        .DataField("Libelle")
+                                                        .Caption("Libellé")
+                                                        .DataType(GridColumnDataType.String)
+                                                        .EditCellTemplate(new TemplateName("DesignationsAutoComplete"));
+                                                     columns.Add()
+                                                        .DataField("Quantite")
+                                                        .Caption("Qté")
+                                                        .DataType(GridColumnDataType.Number)
+                                                        .Width(50);
+                                                                            columns.Add()
+                                                        .DataField("Remise")
+                                                        .Caption("Remise")
+                                                        .DataType(GridColumnDataType.Number)
+                                                        .Width(70);
+
+                                                                            columns.Add().Caption("Garage").Columns(subColumns =>
+                                                    {
+                                                                subColumns.Add()
+                                                        .DataField("PrixGarageHT")
+                                                        .Caption("PU HT")
+                                                        .Format("#0.00€")
+                                                        .DataType(GridColumnDataType.Number)
+                                                        .Width(100);
+                                                                subColumns.Add()
+                                                        .DataField("PrixGarageTTC")
+                                                        .Caption("PU TTC")
+                                                        //.Format("#0.00€")
+                                                        .DataType(GridColumnDataType.Number)
+                                                        .Width(100);
+                                                                subColumns.Add()
+                                                        .DataField("TotalPrixGarageTTC")
+                                                        .Caption("Total TTC")
+                                                        .Format("#0.00€")
+                                                        .DataType(GridColumnDataType.Number)
+                                                        .AllowEditing(false)
+                                                        .Width(100);
+                                                            });
+                                                                            columns.Add().Caption("Client").Columns(subColumns =>
+                                                    {
+                                                                subColumns.Add()
+                                                        .DataField("PrixClientHT")
+                                                        .Caption("PU HT")
+                                                        .Format("#0.00€")
+                                                        .DataType(GridColumnDataType.Number)
+                                                        .Width(100);
+                                                                subColumns.Add()
+                                                        .DataField("PrixClientTTC")
+                                                        .Caption("PU TTC")
+                                                        .Format("#0.00€")
+                                                        .DataType(GridColumnDataType.Number)
+                                                        .Width(100);
+                                                                subColumns.Add()
+                                                        .DataField("TotalPrixClientTTC")
+                                                        .Caption("Total TTC")
+                                                        .Format("#0.00€")
+                                                        .DataType(GridColumnDataType.Number)
+                                                        .AllowEditing(false)
+                                                        .Width(100);
+                                                            });
+                                                                        })
+                                    )
+                                </text>);
+                                        subItems.AddSimpleFor(m => m.Remise).Editor(e => e.NumberBox().Format("#0%").ID("inputRemise").OnFocusOut("updatePiedFacture"));
+                            //subItems.AddSimpleFor(m => m.Remise).Editor(e => e.NumberBox().Option("data-role","Remise").Min(0).Max(100).Format("#0%").OnChange("updatePiedFacture"));
+                            subItems.AddSimpleFor(m => m.TotalHT).Editor(e => e.NumberBox().ID("TotalHT").Format("#0.00€"));
+                                        subItems.AddSimpleFor(m => m.MontantTVA).Editor(e => e.NumberBox().ID("MontantTVA").Format("#0.00€"));
+                                        subItems.AddSimpleFor(m => m.TotalTTC).Editor(e => e.NumberBox().ID("TotalTTC").Format("#0.00€"));
+                                    });
+                                    tab.Add().Option("tabName","tabPaiements").Title("Paiements").ColCount(1).Items(subItems =>
+                        {
+                   subItems.AddSimple().Label(lb => lb.Text("Paiements")).Template(@<text>
+                @(
+                    Html.DevExtreme().DataGrid<CEDAlfaiaAppV2.Models.SaisirPaiementPieceVenteModel>()
+                    .ID("gridPaiements")
+                    .DataSource(this.Model.Paiements)
+                    .Editing(ed =>
+                    {
+                        ed.AllowAdding(true).AllowUpdating(true).AllowDeleting(true).Mode(GridEditMode.Popup);
+                        ed.Popup(p => p.Width("50%").Height("250px").Title("Saisir un paiement").ShowTitle(true));
+                        ed.Texts(t =>
+                        {
+                            t.DeleteRow("Supprimer");
+                            t.EditRow("Modifier");
+                            t.CancelRowChanges("Annuler");
+                            t.SaveRowChanges("Enregistrer");
+                            t.ConfirmDeleteMessage("Voulez-vous vraiment supprimer ce paiement ?");
+                            t.ConfirmDeleteTitle("Suppression de paiement");
+                        });
+                    })
+                    .RemoteOperations(false)
+                    .Summary(s => s.TotalItems(totItems =>
+                    {
+                        totItems.AddFor(m => m.Montant).SummaryType(SummaryType.Sum).ValueFormat(v => v.Precision(2).Type(Format.FixedPoint)).DisplayFormat("{0}€");
+                    }))
+                    .Columns(columns =>
+                    {
+                        columns.AddFor(m => m.Date)
+    .DataType(GridColumnDataType.Date)
+    .Format("dd/MM/yyyy")
+    .Caption("Date");
+                        columns.AddFor(m => m.TypePaiement)
+    .Lookup(m => m.DataSource(typesPaiement).DisplayExpr("Libelle").ValueExpr("Valeur"))
+    .Caption("Type de paiement");
+                        columns.AddFor(m => m.Montant)
+    .Caption("Montant")
+    .DataType(GridColumnDataType.Number)
+    .Format("#0.00€")
+    .Width(100);
+                    })
+)
+</text>);
+});
+        tab.Add().Title("Rendez-vous").ColCount(4).Items(subItems =>
+                {
+                        subItems.AddSimpleFor(m => m.RendezVous.Sujet).Editor(ed => ed.TextBox()).ColSpan(2);
+                        subItems.AddSimpleFor(m => m.RendezVous.Debut).Editor(ed => ed.DateBox().Type(DateBoxType.DateTime).Width("100%").DisplayFormat("dd/MM/yyyy HH:mm"));
+                        subItems.AddSimpleFor(m => m.RendezVous.Fin).Editor(ed => ed.DateBox().Type(DateBoxType.DateTime).Width("100%").DisplayFormat("dd/MM/yyyy HH:mm"));
+                        subItems.AddSimpleFor(m => m.RendezVous.Commentaire).Editor(ed => ed.TextArea()).ColSpan(4);
+                    });
+                /*tab.Add().Title("Devis fournisseur").Items(subItems =>
+                {
+                    subItems.AddSimpleFor(m => m.)
+                });
+                tab.Add().Title("BL fournisseur").Items(subItems =>
+                {
+
+                });*/
+                        });
+                })
+                                                                                                    .LabelLocation(FormLabelLocation.Top)
+                                                                                                    .FormData(Model)
+            )
+        }
+        <div style="text-align:right;margin-top:10px;">
+            @Html.DevExtreme().Button().Text("Annuler").Icon("back").OnClick("goToLastPage")
+            @Html.DevExtreme().Button().Text("Enregistrer").Icon("save").OnClick("clickHandler").UseSubmitBehavior(false).Type(ButtonType.Success)
+        </div>
+    }
+</div>
+
+
+@using (Html.DevExtreme().NamedTemplate("EmbeddedDataGridClient"))
+{
+    @(Html.DevExtreme().DataGrid()
+        .ID("embedded-datagrid-voitures")
+        .DataSource(new JS(@"component.option(""dataSource"")"))
+        .Columns(columns =>
+        {
+            columns.Add().DataField("Client");
+            columns.Add().DataField("Marque");
+            columns.Add().DataField("Modele");
+            columns.Add().DataField("Immatriculation");
+            columns.Add().DataField("Libelle").Visible(false);
+        })
+        .HoverStateEnabled(true)
+        .Paging(p => p.PageSize(10))
+        .FilterRow(f => f.Visible(true))
+        .Scrolling(s => s.Mode(GridScrollingMode.Infinite))
+        .Height(345)
+        .Selection(s => s.Mode(SelectionMode.Single))
+        .SelectedRowKeys(new JS(@"[component.option(""value"")]"))
+        .OnSelectionChanged(@<text>
+            function(selectedItems) {
+            var keys = selectedItems.selectedRowKeys;
+            component.option("value", keys);
+            }
+        </text>)
+    )
+}
+
+@using (Html.DevExtreme().NamedTemplate("DesignationsAutoComplete"))
+{
+    @(Html.DevExtreme().Autocomplete()
+        .DataSource(designations)
+        .DisplayValue("designation")
+        .ValueExpr("designation")
+        .Value(new JS("data.Libelle"))
+        .OnValueChanged(@"function(args){setValue(args.value);}")
+    )
+}

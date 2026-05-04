@@ -1,0 +1,134 @@
+﻿@model List<CEDAlfaiaAppV2.Models.ClientModel>
+@{
+    ViewBag.Title = "Liste des clients supprimés";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    $(function () {
+        $('#tableClients').DataTable({
+            'paging': true,
+            'lengthChange': true,
+            'searching': true,
+            'ordering': true,
+            'info': true,
+            'autoWidth': true,
+            'language': {
+                "lengthMenu": "Afficher _MENU_ clients par page",
+                "zeroRecords": "Pas de client supprimé",
+                "info": "Page _PAGE_ sur _PAGES_",
+                "infoEmpty": "Aucun client trouvé",
+                "paginate": {
+                    "previous": "Précédent",
+                    "next": "Suivant"
+                },
+                "search": "Rechercher"
+            }
+        });
+    })
+
+    function reactiverClient(element) {
+        if (confirm("Voulez-vous réactiver ce client ? ")) {
+            var idClient = $(element).closest("[data-idClient]").attr('data-idClient');
+            $.ajax({
+                url: '@Url.Action("ReactiverClient")',
+                data: JSON.stringify({ idClient: idClient }),
+                contentType: 'application/json; charset=utf-8',
+                context: { idClient: idClient },
+                type: 'POST',
+                success: function (result) {
+                    if (result == "OK")
+                        $("tr[data-idClient=" + this.idClient + "]").remove();
+                    else
+                        alert(result);
+                },
+                error: function (err) {
+                    alert(err);
+                }
+            });
+        }
+    }
+</script>
+
+<section class="content-header">
+    <h1>
+        Liste des clients supprimés
+    </h1>
+    <ol class="breadcrumb">
+        <li><a href="#"><i class="fa fa-dashboard"></i> CEDAlfaia</a></li>
+        <li>Clients</li>
+    </ol>
+</section>
+
+<section class="content">
+    @{
+        if (this.Model != null && this.Model.Any())
+        {
+            <div class="box box-danger">
+                <div class="box-header">
+                    <h3 class="box-title">Liste des clients supprimés</h3>
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body">
+                    <table id="tableClients" class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>Nom</th>
+                                <th>Prénom</th>
+                                <th>Téléphone</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var c in this.Model)
+                {
+                                <tr data-idClient="@c.ID">
+                                    <td>
+                                        @c.Nom
+                                    </td>
+                                    <td>
+                                        @c.Prenom
+                                    </td>
+                                    <td>
+                                        <a href="tel:@c.Telephone">@c.Telephone</a>
+                                    </td>
+                                    <td>
+                                        <span class="btn-group pull-right">
+                                            <button type="button" class="btn btn-md btn-default dropdown-toggle" data-toggle="dropdown">
+                                                <span class="caret"></span>
+                                            </button>
+                                            <ul class="dropdown-menu" role="menu">
+                                                <li>
+                                                    <a href="#" onclick="reactiverClient(this);"><i class="fa fa-check"></i>&nbsp;Réactiver</a>
+                                                </li>
+                                            </ul>
+                                        </span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th>Nom</th>
+                                <th>Prénom</th>
+                                <th>Téléphone</th>
+                                <th></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                <!-- /.box-body -->
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-warning" role="alert">
+                Aucun client ! <a href="@Url.Action("Saisir")">Cliquez ici pour ajouter un client</a>
+            </div>
+        }
+    }
+
+    <div style="display:block;margin-bottom:50px;">
+        @Html.ActionLink("Afficher les clients actifs", "Liste", null, new { @class = "btn btn-success pull-right" })
+    </div>
+</section>

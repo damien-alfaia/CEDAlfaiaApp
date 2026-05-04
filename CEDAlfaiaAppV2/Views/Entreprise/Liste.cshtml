@@ -1,0 +1,128 @@
+﻿@model List<CEDAlfaiaAppV2.Models.EntrepriseModel>
+@{
+    ViewBag.Title = "Liste des entreprises";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    $(function () {
+        $('#tableEntreprises').DataTable({
+            'paging': true,
+            'lengthChange': true,
+            'searching': true,
+            'ordering': true,
+            'info': true,
+            'autoWidth': true,
+            'language': {
+                "lengthMenu": "Afficher _MENU_ clients par page",
+                "zeroRecords": "Aucune entreprise trouvée",
+                "info": "Page _PAGE_ sur _PAGES_",
+                "infoEmpty": "Aucune entreprise trouvée",
+                "paginate": {
+                    "previous": "Précédent",
+                    "next": "Suivant"
+                },
+                "search": "Rechercher"
+            }
+        });
+    })
+</script>
+
+<section class="content-header">
+    <h1>
+        Liste des entreprises
+    </h1>
+    <ol class="breadcrumb">
+        <li><a href="#"><i class="fa fa-dashboard"></i> CEDAlfaia</a></li>
+        <li>Entreprises</li>
+    </ol>
+</section>
+
+<section class="content">
+    @{
+        if (this.Model != null && this.Model.Any())
+        {
+            <div class="box box-danger hidden-xs hidden-sm">
+                <div class="box-header">
+                    <h3 class="box-title">Liste des entreprises</h3>
+                    <a class="btn btn-sm btn-success pull-right" href="@Url.Action("Saisir", new { })"><i class="fa fa-plus"></i>&nbsp;Nouveau</a>
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body">
+                    <table id="tableEntreprises" class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th width="5"></th>
+                                <th>Entreprise</th>
+                                <th>Adresse</th>
+                                <th>Commentaire</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var d in this.Model)
+                {
+                                <tr data-idEntreprise="@d.ID">
+                                    <td>
+                                        @{
+                                            if (d.IsActif)
+                                            {
+                                                <i class="fa fa-thumbs-up text-green"></i>
+                                            }
+                                            else
+                                            {
+                                                <i class="fa fa-thumbs-down text-red"></i>
+                                            }
+                                        }
+                                    </td>
+                                    <td>
+                                        @d.Nom
+                                        @{
+                                            if (d.Siren != null && d.Siren != "")
+                                            {
+                                                <br /><span class="text-muted">- @d.Siren</span>
+                                            }
+                                        }
+                                        @{
+                                            if (d.Siret != null && d.Siret != "")
+                                            {
+                                                <br /><span class="text-muted">- @d.Siret</span>
+                                            }
+                                        }
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(m => d.Adresse, "Adresse")
+                                    </td>
+                                    <td>
+                                        @d.Commentaire
+                                    </td>
+                                    <td>
+                                        <span class="btn-group pull-right">
+                                            <button type="button" class="btn btn-md btn-default dropdown-toggle" data-toggle="dropdown">
+                                                <span class="caret"></span>
+                                            </button>
+                                            <ul class="dropdown-menu" role="menu">
+                                                <li>
+                                                    <a href="@Url.Action("Saisir", new { idEntreprise = d.ID })"><i class="fa fa-edit"></i>&nbsp;Modifier</a>
+                                                    <a href="#" onclick="supprimerEntreprise(this);"><i class="fa fa-times"></i>&nbsp;Supprimer</a>
+                                                </li>
+                                            </ul>
+                                        </span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <!-- /.box-body -->
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-warning" role="alert">
+                Aucune entreprise ! <a href="@Url.Action("Saisir")">Cliquez ici pour ajouter une entreprise</a>
+            </div>
+        }
+    }
+
+</section>

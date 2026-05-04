@@ -1,0 +1,126 @@
+﻿@model CEDAlfaiaApp.Models.ConcoursClassementViewModel
+
+@{
+    ViewBag.Title = "Classement";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script type="text/javascript">
+	function RemplirClassementConcours(pConcoursID, pShowGroupes, pShowAnciensPronos, pShowNouveauxPronos) {
+		$.ajax({
+			url: '@Url.Action("GetClassementConcours")?pConcoursID=' + pConcoursID + '&pShowGroupes=' + pShowGroupes + '&pShowAnciensPronos=' + pShowAnciensPronos + '&pShowNouveauxPronos=' + pShowNouveauxPronos,
+			type: 'GET',
+			dataType: 'html',
+			success: function (result) {
+				$('#divClassementConcours').html(result);
+			}
+		});
+	}
+	function AfficherPronosticsClassement_OnChanged()
+	{
+		var idConcours = @this.Model.ConcoursID;
+		var showGroupes = $("#showPhasesGroupes").is(':checked');
+		var showAnciensPronos = $("#showAnciensPronos").is(':checked');
+		var showNouveauxPronos = $("#showNouveauxPronos").is(':checked');
+
+		RemplirClassementConcours(idConcours, showGroupes, showAnciensPronos, showNouveauxPronos);
+	}
+</script>
+@{
+	if (this.Model != null && this.Model.Classement.Any())
+	{
+        <h3>Classement actuel</h3>
+		<div class="row" style="margin-bottom:5px;">
+			<div class="col-xs-12 col-md-4">
+				<span class="text-muted">Afficher les phases de groupes</span>
+				<div class="material-switch pull-right">
+					@{ string checkGroupes = this.Model.ShowGroupes ? "checked" : ""; }
+					<input id="showPhasesGroupes" name="showPhasesGroupes" type="checkbox" @checkGroupes onchange="AfficherPronosticsClassement_OnChanged();"/>
+					<label for="showPhasesGroupes" class="label-primary"></label>
+				</div>
+			</div>
+			<div class="col-xs-12 col-md-4">
+				<span class="text-muted">Afficher les anciens pronos</span>
+				<div class="material-switch pull-right">
+					@{ string checkAnciensPronos = this.Model.ShowAnciensPronos ? "checked" : ""; }
+					<input id="showAnciensPronos" name="showAnciensPronos" type="checkbox" @checkAnciensPronos onchange="AfficherPronosticsClassement_OnChanged();"/>
+					<label for="showAnciensPronos" class="label-primary"></label>
+				</div>
+			</div>
+			<div class="col-xs-12 col-md-4">
+				<span class="text-muted">Afficher les nouveaux pronos</span>
+				<div class="material-switch pull-right">
+					@{ string checkNouveauxPronos = this.Model.ShowNouveauxPronos ? "checked" : ""; }
+					<input id="showNouveauxPronos" name="showNouveauxPronos" type="checkbox" @checkNouveauxPronos onchange="AfficherPronosticsClassement_OnChanged();"/>
+					<label for="showNouveauxPronos" class="label-primary"></label>
+				</div>
+			</div>
+		</div>
+		<div id="divClassementConcours">
+			@{
+				Html.RenderPartial("_ClassementConcours", this.Model);
+			}
+		</div>
+		
+	}
+    <div class="row hidden-xs">
+        <div class="col-xs-12">
+            @{
+                //Html.RenderPartial("_WidgetClassementParMatch", this.Model.Classement);
+            }
+        </div>
+    </div>
+    
+    <h3>Barème</h3>
+	<dl>
+		<dt>Match de poule</dt>
+		<dd>le bon gagnant rapporte 1 point</dd>
+		<dd>le score exact rapporte 2 points de plus</dd>
+		<dt>Classement de poule</dt>
+		<dd>bonus de 1 point par équipe qualifiée bien choisie</dd>
+		<dd>bonus de 1 point par équipe bien positionné dans la poule</dd>
+		<dd>bonus de 2 points par poule complète</dd>
+        <dt>Phases finales - Nouveaux pronostics</dt>
+        <dd>le bon gagnant rapporte 1 point</dd>
+        <dd>le score exact rapporte 2 points de plus</dd>
+        <dd>bonus de 1 point si bon gagnant aux penaltys</dd>
+        <dd>bonus de 2 points si bon score aux penaltys</dd>
+        <dt>Phases finales - Anciens</dt>
+        <dd>la bonne équipe qualifiée pour les 1/4 de finale rapporte 2 points</dd>
+        <dd>bonus de 3 points si bon match et bon score pour les 1/8</dd>
+        <dd>la bonne équipe qualifiée pour les 1/2 finales rapporte 2 points</dd>
+        <dd>bonus de 4 points si bon match et bon score pour les 1/4</dd>
+        <dd>la bonne équipe qualifiée pour la finale rapporte 3 points</dd>
+        <dd>bonus de 5 points si bon match et bon score pour les 1/2</dd>
+        <dd>le bon vainqueur de la compétition rapporte 5 points</dd>
+        <dd>bonus de 10 points si bon match et bon score pour la finale</dd>
+	</dl>
+}
+
+<footer class="hidden-lg hidden-md">
+	<div class="navbar navbar-fixed-bottom">
+		<div class="container">
+			<div class="row">
+				<div class="col-xs-3 text-center">
+					<a href="#" class="btn btn-primary active" title="Classement" style="border:none; display:block; width:100%;">
+						<i class="fa fa-trophy fa-2x"></i>
+					</a>
+				</div>
+				<div class="col-xs-3 text-center">
+					<a href="@Url.Action("SaisirPronostics", "Pronostics", new { pConcoursID = this.Model.ConcoursID })" class="btn btn-primary" title="Vos pronostics" style="border:none; display:block; width:100%;">
+						<i class="fa fa-pencil fa-2x"></i>
+					</a>
+				</div>
+				<div class="col-xs-3 text-center">
+					<a href="@Url.Action("ScoresMatch", "Pronostics", new { pConcoursID = this.Model.ConcoursID })" class="btn btn-primary" title="Résultats des matchs" style="border:none; display:block; width:100%;">
+						<i class="fa fa-soccer-ball-o fa-2x"></i>
+					</a>
+				</div>
+				<div class="col-xs-3 text-center">
+					<a href="@Url.Action("StatsConcours", "Pronostics", new { pConcoursID = this.Model.ConcoursID })" class="btn btn-primary" title="Statistiques du concours" style="border:none; display:block; width:100%;">
+						<i class="fa fa-bar-chart fa-2x"></i>
+					</a>
+				</div>
+			</div>
+		</div>
+	</div>
+</footer>

@@ -1,0 +1,85 @@
+﻿@model CEDAlfaiaApp.Models.ClientModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@{
+    string titleFormulaire = "Nouveau client";
+    if (this.Model != null)
+    {
+        titleFormulaire = this.Model.Prenom + " " + this.Model.Nom;
+    }
+}
+
+<div class="long-title"><h3>@titleFormulaire</h3></div>
+<div id="form-container">
+    @using (Html.BeginForm())
+    {
+        using (Html.DevExtreme().ValidationGroup())
+        {
+            @Html.HiddenFor(m => m.ID)
+                @(Html.DevExtreme().Form<CEDAlfaiaApp.Models.ClientModel>()
+                .ID("formClient")
+                .ShowValidationSummary(true)
+                .Items(items =>
+                {
+                    items.AddTabbed()
+                        .Tabs(tab =>
+                        {
+                            tab.Add().Title("Informations générales").ColCount(2).Items(subItems =>
+                            {
+                                subItems.AddSimpleFor(m => m.IsProspect).Editor(ed =>
+                                {
+                                    return ed.Switch().OnText("Prospect").OffText("Client").Width("100px");
+                                }).ColSpan(2);
+                                subItems.AddSimpleFor(m => m.Prenom).IsRequired(true).ValidationRules(vr =>
+                                {
+                                    vr.AddRequired().Message("Prénom obligatoire");
+                                });
+                                subItems.AddSimpleFor(m => m.Nom).IsRequired(true).ValidationRules(vr =>
+                                {
+                                    vr.AddRequired().Message("Nom obligatoire");
+                                });
+                                subItems.AddSimpleFor(m => m.Email).ValidationRules(vr =>
+                                {
+                                    vr.AddEmail().Message("Email incorrect");
+                                });
+                                subItems.AddSimpleFor(m => m.Telephone).Editor(ed => ed.TextBox().Mask("99.99.99.99.99"));
+                            });
+                            tab.Add().Title("Adresse").ColCount(3).Items(subItems =>
+                            {
+                                subItems.AddSimpleFor(m => m.Adresse.Ligne1).ColSpan(3);
+                                subItems.AddSimpleFor(m => m.Adresse.Ligne2).ColSpan(3);
+                                subItems.AddSimpleFor(m => m.Adresse.Ligne3).ColSpan(3);
+                                subItems.AddSimpleFor(m => m.Adresse.CodePostal);
+                                subItems.AddSimpleFor(m => m.Adresse.Ville).ColSpan(2);
+                                subItems.AddSimpleFor(m => m.Adresse.Pays).ColSpan(3);
+                            });
+                            tab.Add().Title("Financier").ColCount(3).Items(subItems =>
+                            {
+                                subItems.AddSimpleFor(m => m.Remise).Editor(ed =>{
+                                    return ed.NumberBox().Format("#0%");
+                                }).ValidationRules(vr =>
+                                {
+                                    vr.AddRange().Min(0).Max(1).Message("La remise doit être comprise entre 0 et 100% !");
+                                });
+                            });
+                            tab.Add().Title("Autres informations").Items(subItems =>
+                            {
+                                subItems.AddSimpleFor(m => m.Complements).Editor(ed =>
+                                {
+                                    return ed.TextArea();
+                                });
+                            });
+                        });
+                })
+                .LabelLocation(FormLabelLocation.Top)
+                .FormData(Model)
+                )
+            <div style="text-align:right;margin-top:10px;">
+                @Html.DevExtreme().Button().Text("Annuler").Icon("back").OnClick("goToLastPage")
+                @Html.DevExtreme().Button().Text("Enregistrer").Icon("save").UseSubmitBehavior(true).Type(ButtonType.Success)
+            </div>
+        }
+    }
+</div>

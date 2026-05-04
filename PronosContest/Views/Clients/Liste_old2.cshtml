@@ -1,0 +1,88 @@
+﻿
+@{
+    ViewBag.Title = "Liste des clients";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<script>
+    function menuClient_menuItemClick(s, e) {
+        if (e.item.name == 'Delete') {
+            s.GetRowValues(e.visibleIndex, 'ID', function (value) {
+                supprimerClient(value, e.item);
+            });
+        }
+    }
+
+    function modifierClient(idClient) {
+        window.location = 'Saisir?idClient=' + idClient;
+    }
+
+    function supprimerVoiture(element) {
+        if (confirm("Voulez-vous vraiment supprimer cette voiture ? ")) {
+            var idVoiture = $(element).closest("[data-idvoiture]").attr('data-idvoiture');
+            $.ajax({
+                url: '@Url.Action("SupprimerVoiture")',
+                data: JSON.stringify({ idVoiture: idVoiture }),
+                contentType: 'application/json; charset=utf-8',
+                context: { idVoiture: idVoiture },
+                type: 'POST',
+                success: function (result) {
+                    if (result == "OK")
+                        $("div[data-idVoiture=" + this.idVoiture + "]").remove();
+                    else
+                        alert(result);
+                },
+                error: function (err) {
+                    alert(err);
+                }
+            });
+        }
+    }
+
+    function supprimerClient(idClient,element) {
+        if (confirm("Voulez-vous vraiment supprimer ce client ? ")) {
+            $.ajax({
+                url: '@Url.Action("SupprimerClient")',
+                data: JSON.stringify({ idClient: idClient }),
+                contentType: 'application/json; charset=utf-8',
+                context: { element: element },
+                type: 'POST',
+                success: function (result) {
+                    if (result == "OK")
+                        $(e.item).closest('tr').remove();
+                    else
+                        alert(result);
+                },
+                error: function (err) {
+                    alert(err);
+                }
+            });
+        }
+    }
+</script>
+
+<section class="content-header">
+    <h1>
+        Liste des clients
+    </h1>
+    <ol class="breadcrumb">
+        <li><a href="#"><i class="fa fa-dashboard"></i> CEDAlfaia</a></li>
+        <li>Clients</li>
+    </ol>
+</section>
+
+<section class="content">
+    <a class="btn btn-sm btn-success pull-right" href="@Url.Action("Saisir", new { })" style="margin-bottom:10px;"><i class="fa fa-plus"></i>&nbsp;Nouveau client</a>
+    @using (Html.BeginForm())
+    {
+        @Html.Action("GridViewListeClientPartial")
+    }
+
+
+
+
+    <div style="display:block;margin-bottom:50px;">
+        @Html.ActionLink("Afficher les clients supprimés", "ListeSupprimes", null, new { @class = "btn btn-danger pull-right" })
+    </div>
+</section>

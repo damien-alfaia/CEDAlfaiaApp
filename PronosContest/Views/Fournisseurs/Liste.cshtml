@@ -1,0 +1,154 @@
+﻿@model List<CEDAlfaiaApp.Models.FournisseurModel>
+@{
+    ViewBag.Title = "Liste des fournisseurs";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    $(function () {
+        $('#tableFournisseurs').DataTable({
+            'paging': true,
+            'lengthChange': true,
+            'searching': true,
+            'ordering': true,
+            'info': true,
+            'autoWidth': true,
+            'language': {
+                "lengthMenu": "Afficher _MENU_ clients par page",
+                "zeroRecords": "Aucun fournisseur trouvé",
+                "info": "Page _PAGE_ sur _PAGES_",
+                "infoEmpty": "Aucun fournisseur trouvé",
+                "paginate": {
+                    "previous": "Précédent",
+                    "next": "Suivant"
+                },
+                "search": "Rechercher"
+            }
+        });
+    })
+
+    function supprimerFournisseur(element) {
+        if (confirm("Voulez-vous vraiment supprimer ce fournisseur ? ")) {
+            var idFournisseur = $(element).closest("[data-idFournisseur]").attr('data-idFournisseur');
+            $.ajax({
+                url: '@Url.Action("SupprimerFournisseur")',
+                data: JSON.stringify({ idFournisseur: idFournisseur }),
+                contentType: 'application/json; charset=utf-8',
+                context: { idFournisseur: idFournisseur },
+                type: 'POST',
+                success: function (result) {
+                    if (result == "OK")
+                        $("tr[data-idFournisseur=" + this.idFournisseur + "]").remove();
+                    else
+                        alert(result);
+                },
+                error: function (err) {
+                    alert(err);
+                }
+            });
+        }
+    }
+</script>
+
+<section class="content-header">
+    <h1>
+        Liste des fournisseurs
+    </h1>
+    <ol class="breadcrumb">
+        <li><a href="#"><i class="fa fa-dashboard"></i> CEDAlfaia</a></li>
+        <li>Fournisseurs</li>
+    </ol>
+</section>
+
+<section class="content">
+    @{
+        if (this.Model != null && this.Model.Any())
+        {
+            <div class="box box-danger hidden-xs hidden-sm">
+                <div class="box-header">
+                    <h3 class="box-title">Liste des fournisseurs</h3>
+                    <a class="btn btn-sm btn-success pull-right" href="@Url.Action("Saisir", new { })"><i class="fa fa-plus"></i>&nbsp;Nouveau</a>
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body">
+                    <table id="tableFournisseurs" class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>Nom</th>
+                                <th>Adresse</th>
+                                <th>Commentaire(s)</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var f in this.Model)
+                {
+                                <tr data-idFournisseur="@f.ID">
+                                    <td>
+                                        @f.Nom
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(m => f.Adresse, "Adresse")
+                                    </td>
+                                    <td>
+                                        @f.Commentaire
+                                    </td>
+                                    <td>
+                                        <span class="btn-group pull-right">
+                                            <button type="button" class="btn btn-md btn-default dropdown-toggle" data-toggle="dropdown">
+                                                <span class="caret"></span>
+                                            </button>
+                                            <ul class="dropdown-menu" role="menu">
+                                                <li>
+                                                    <a href="@Url.Action("Saisir", new { idFournisseur = f.ID })"><i class="fa fa-edit"></i>&nbsp;Modifier</a>
+                                                    <a href="#" onclick="supprimerFournisseur(this);"><i class="fa fa-times"></i>&nbsp;Supprimer</a>
+                                                </li>
+                                            </ul>
+                                        </span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th>Nom</th>
+                                <th>Adresse</th>
+                                <th>Commentaire(s)</th>
+                                <th></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                <!-- /.box-body -->
+            </div>
+            <div class="list-group hidden-md hidden-lg">
+                @{foreach (var c in this.Model)
+                    {
+                        <div class="list-group-item">
+                            <h4 class="list-group-item-heading">
+                                @c.Nom
+                                <span class="btn-group pull-right">
+                                    <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
+                                        <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu" role="menu">
+                                        <li>
+                                            <a href="@Url.Action("Saisir", new { idClient = c.ID })"><i class="fa fa-user"></i>&nbsp;Saisir</a>
+                                        </li>
+                                    </ul>
+                                </span>
+                            </h4>
+                        </div>
+                    }
+                }
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-warning" role="alert">
+                Aucun fournisseur ! <a href="@Url.Action("Saisir")">Cliquez ici pour ajouter un fournisseur</a>
+            </div>
+        }
+    }
+
+</section>

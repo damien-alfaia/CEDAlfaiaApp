@@ -1,0 +1,36 @@
+﻿@model CEDAlfaiaApp.Models.GenericStatViewModel
+
+<div class="panel @Model.PanelColor">
+	<div class="panel-heading">
+		<div class="row">
+			<div class="col-xs-3">
+				<i class="fa @Model.Icon fa-5x"></i>
+			</div>
+			<div class="col-xs-9 text-right">
+				<div class="huge">@Model.Count</div>
+				<div>@Model.Title</div>
+			</div>
+		</div>
+	</div>
+	<div class="panel-body collapse" id="@Model.ID">
+		<ul class="list-group">
+			@{
+				foreach (var item in Model.Items)
+				{
+					<li class="list-group-item">
+						<span class="badge">@item.Count</span>
+						@item.Label
+					</li>
+				}
+			}
+			
+		</ul>
+	</div>
+	<a role="button" data-toggle="collapse" href="#@Model.ID" aria-expanded="false" aria-controls="@Model.ID">
+		<div class="panel-footer">
+			<span class="pull-left">Détails</span>
+			<span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+			<div class="clearfix"></div>
+		</div>
+	</a>
+</div>

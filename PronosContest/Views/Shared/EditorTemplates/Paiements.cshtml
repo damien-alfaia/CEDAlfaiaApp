@@ -1,0 +1,73 @@
+﻿@model List<CEDAlfaiaApp.Models.SaisirPaiementPieceVenteModel>
+
+<script type="text/javascript">
+    function supprimerPaiement(element) {
+        var trParent = $(element).closest("tr[data-idPaiement]");
+        var isSupprime = trParent.find("input[id$=IsSupprime]");
+        if (isSupprime.length > 0)
+            isSupprime.val('true');
+        trParent.slideUp('slow');
+    }
+
+    function paiementAdd() {
+        var $trLast = $("#tablePaiements").find('tr').last();
+        if ($trLast !== undefined && $trLast.length > 0) {
+            var newRow = $trLast.clone(true);
+            var indexLigne = parseInt(newRow.find('input[role=IndexLigne]').val()) + 1;
+            newRow.attr('data-isEmpty', 'False');
+            newRow.attr('data-idLigne', '0');
+            newRow.find('input[id$=IsEmpty]').val('False');
+            newRow.show();
+
+            $.ajax({
+                url: '@Url.Action("PaiementAdd")?indexLigne=' + indexLigne,
+                type: 'GET',
+                dataType: 'html',
+                context: { paiement: newRow },
+                success: function (result) {
+                    var $trPaiement = this.paiement;
+
+                    var $html = $(result);
+                    $html.find('[name]').each(function () {
+                        $(this).attr('name', 'Paiements' + $(this).attr('name'));
+                    });
+
+                    $trPaiement.html($('<div>').append($html.clone()).html());
+
+                    $("#tablePaiements").append(newRow);
+                    
+                    chargerComposants();
+			    }
+		    });
+        }
+    }
+</script>
+
+@{
+    if (this.Model != null)
+    {
+        <table id="tablePaiements" class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th width="27%">Date</th>
+                    <th width="40%">Type paiement</th>
+                    <th width="30%">Montant</th>
+                    <th width="3%"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (var i = 0; i < this.Model.Count(); i++)
+                {
+                    this.Model[i].IndexLigne = i;
+                    var styleDisplay = this.Model[i].IsEmpty ? "none" : "";
+                    <tr data-idPaiement="@this.Model[i].IDPaiement" data-isEmpty="@this.Model[i].IsEmpty" style="display:@styleDisplay">
+                        @{
+                            Html.RenderPartial("_Paiement", this.Model[i]);
+                        }
+                    </tr>
+                 }
+            </tbody>
+        </table>
+        <a class="pull-right" style="margin-right:10px;" href="#" onclick="paiementAdd(); return false;"><i class="fa fa-plus fa-2x text-success"></i></a>
+     }
+}

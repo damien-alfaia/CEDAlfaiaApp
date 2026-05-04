@@ -1,0 +1,49 @@
+﻿@model int
+
+@Html.DevExpress().Menu(
+        settings =>
+        {
+            settings.Name = "menuClient" + Model;
+            settings.ShowPopOutImages = DefaultBoolean.True;
+            settings.ClientSideEvents.ItemClick = "menuClient_menuItemClick";
+            settings.Items.Add(item =>
+            {
+                item.Text = "Actions";
+                item.Items.Add(subItem =>
+                {
+                    subItem.Text = "Créer facture";
+                    subItem.NavigateUrl = DevExpressHelper.GetUrl(new { Controller = "Factures", Action = "Saisir", identifiant = Model, typeId = 1 });
+                });
+                item.Items.Add(subItem =>
+                {
+                    subItem.Text = "Liste des factures";
+                    subItem.NavigateUrl = DevExpressHelper.GetUrl(new { Controller = "Factures", Action = "Liste", idClient = Model });
+                });
+                item.Items.Add(subItem =>
+                {
+                    subItem.Text = "Créer devis";
+                    subItem.NavigateUrl = DevExpressHelper.GetUrl(new { Controller = "Devis", Action = "Saisir", identifiant = Model, typeId = 1 });
+                });
+                item.Items.Add(subItem =>
+                {
+                    subItem.Text = "Liste des devis";
+                    subItem.NavigateUrl = DevExpressHelper.GetUrl(new { Controller = "Devis", Action = "Liste", idClient = Model });
+                });
+                item.Items.Add(subItem =>
+                {
+                    subItem.Text = "Modifier";
+                    subItem.NavigateUrl = DevExpressHelper.GetUrl(new { Controller = "Clients", Action = "Saisir", idClient = Model });
+                });
+                item.Items.Add(subItem =>
+                {
+                    subItem.Text = "Saisir voiture";
+                    subItem.NavigateUrl = DevExpressHelper.GetUrl(new { Controller = "Clients", Action = "SaisirVoiture", idClient = Model });
+                });
+                item.Items.Add(subItem =>
+                {
+                    subItem.Text = "Supprimer";
+                    subItem.Name = "Delete";
+                    //supprimerClient(this);
+                });
+            });
+        }).GetHtml()

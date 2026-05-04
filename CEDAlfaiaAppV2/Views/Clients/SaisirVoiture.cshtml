@@ -1,0 +1,62 @@
+﻿@model CEDAlfaiaAppV2.Models.VoitureModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@{
+    string titleFormulaire = "Nouvelle voiture";
+    if (this.Model != null)
+    {
+        titleFormulaire = "Nouvelle voiture de " + ViewBag.NomClient;
+        if (this.Model.IDModele > 0)
+        {
+            titleFormulaire = "Modifier la voiture de " + ViewBag.NomClient;
+        }
+    }
+}
+
+<div class="long-title"><h3>@titleFormulaire</h3></div>
+<div id="form-container">
+    @using (Html.BeginForm())
+    {
+        using (Html.DevExtreme().ValidationGroup())
+        {
+            @Html.HiddenFor(m => m.ID)
+            @Html.HiddenFor(m => m.IDClient)
+            @(Html.DevExtreme().Form<CEDAlfaiaAppV2.Models.VoitureModel>()
+                        .ID("formVoiture")
+                        .ShowValidationSummary(true)
+                        .Items(items =>
+                        {
+                            items.AddSimpleFor(m => m.IDModele).IsRequired(true).Label(lb => { lb.Text("Voiture");  })
+                                .Editor(ed =>
+                                {
+                                    return ed.Lookup().DataSource(CEDAlfaiaApp.BLL.CEDAlfaiaAppWebService.GetService().GarageService.Modeles().Select(s => new
+                                    {
+                                        ID = s.ID,
+                                        Marque = s.Marque.Libelle,
+                                        Modele = s.Libelle
+                                    }))
+                                    .ShowPopupTitle(false)
+                                    .DisplayExpr("Modele")
+                                    .ValueExpr("ID")
+                                    .DataSourceOptions(o => o.Group("Marque"))
+                                    .Grouped(true)
+                                    .SearchEnabled(true);
+                                })
+                                .ValidationRules(vr =>
+                                {
+                                    vr.AddRequired().Message("Marque et modèle obligatoires");
+                                });
+                            items.AddSimpleFor(m => m.Immatriculation).IsRequired(true).ValidationRules(vr => vr.AddRequired().Message("Immatriculation obligatoire"));
+                        })
+                .LabelLocation(FormLabelLocation.Top)
+                .FormData(Model)
+            )
+            <div style="text-align:right;margin-top:10px;">
+                @Html.DevExtreme().Button().Text("Annuler").Icon("remove")
+                @Html.DevExtreme().Button().Text("Enregistrer").Icon("save").UseSubmitBehavior(true).Type(ButtonType.Success)
+            </div>
+        }
+    }
+</div>

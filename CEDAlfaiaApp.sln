@@ -1,0 +1,55 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26730.8
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CEDAlfaiaApp", "PronosContest\CEDAlfaiaApp.csproj", "{882942AB-1597-43A3-B4E3-9B4A747779E0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CEDAlfaiaApp.DAL", "PronosContest.DAL\CEDAlfaiaApp.DAL.csproj", "{B7688024-EC05-4E4C-9DA4-7EEF9CAAA82C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CEDAlfaiaApp.BLL", "PronosContest.BLL\CEDAlfaiaApp.BLL.csproj", "{1EE93A7A-E5DF-44D6-813D-82E085366CAB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CEDAlfaiaApp.Core", "PronosContest.Core\CEDAlfaiaApp.Core.csproj", "{F8712080-9BD1-41E9-A8E2-A2600B05E6E6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CEDAlfaiaAppDX", "CEDAlfaiaAppDX\CEDAlfaiaAppDX.csproj", "{734FAA82-C1AB-4FE3-9AE5-AEEC7FF3DECA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CEDAlfaiaAppV2", "CEDAlfaiaAppV2\CEDAlfaiaAppV2.csproj", "{3AED7D64-9B37-4EA3-BED8-6421885A19CE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{882942AB-1597-43A3-B4E3-9B4A747779E0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{882942AB-1597-43A3-B4E3-9B4A747779E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{882942AB-1597-43A3-B4E3-9B4A747779E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{882942AB-1597-43A3-B4E3-9B4A747779E0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B7688024-EC05-4E4C-9DA4-7EEF9CAAA82C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B7688024-EC05-4E4C-9DA4-7EEF9CAAA82C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B7688024-EC05-4E4C-9DA4-7EEF9CAAA82C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B7688024-EC05-4E4C-9DA4-7EEF9CAAA82C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1EE93A7A-E5DF-44D6-813D-82E085366CAB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1EE93A7A-E5DF-44D6-813D-82E085366CAB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1EE93A7A-E5DF-44D6-813D-82E085366CAB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1EE93A7A-E5DF-44D6-813D-82E085366CAB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F8712080-9BD1-41E9-A8E2-A2600B05E6E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F8712080-9BD1-41E9-A8E2-A2600B05E6E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F8712080-9BD1-41E9-A8E2-A2600B05E6E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F8712080-9BD1-41E9-A8E2-A2600B05E6E6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{734FAA82-C1AB-4FE3-9AE5-AEEC7FF3DECA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{734FAA82-C1AB-4FE3-9AE5-AEEC7FF3DECA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{734FAA82-C1AB-4FE3-9AE5-AEEC7FF3DECA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{734FAA82-C1AB-4FE3-9AE5-AEEC7FF3DECA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3AED7D64-9B37-4EA3-BED8-6421885A19CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3AED7D64-9B37-4EA3-BED8-6421885A19CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3AED7D64-9B37-4EA3-BED8-6421885A19CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3AED7D64-9B37-4EA3-BED8-6421885A19CE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A8AB4360-27BD-450F-A91F-0F81D8E1771F}
+	EndGlobalSection
+EndGlobal

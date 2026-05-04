@@ -1,0 +1,105 @@
+﻿@model CEDAlfaiaApp.Models.VoitureModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@Html.Hidden("hiddenMarques", (string)ViewBag.Marques)
+
+<script type="text/javascript">
+    function alimenter() {
+        var marques = JSON.parse($("#hiddenMarques").val());
+        $("#row_voiture").find("select[name$='IDMarque']").each(function () {
+            var $selectMarque = $(this);
+            var htmlMarques = "<option value=''>-----------</option>";
+            var htmlModeles = "<option value=''>-----------</option>";
+            var $selectModeles = $selectMarque.closest("#row_voiture").find("select[name$='IDModele']").first();
+            $selectModeles.html(htmlModeles);
+
+            $(marques).each(function () {
+                htmlMarques += "<option value='" + this.IDMarque + "'>" + this.Libelle + "</option>";
+                if (parseInt($selectMarque.attr('value')) == this.IDMarque) {
+                    if ($selectModeles !== undefined) {
+                        $(this.Modeles).each(function () {
+                            htmlModeles += "<option value='" + this.IDModele + "'>" + this.Libelle + "</option>";
+                        });
+                        $selectModeles.html(htmlModeles);
+                        $selectModeles.val($selectModeles.attr('value'));
+                    }
+                }
+            });
+            $selectMarque.html(htmlMarques);
+            $selectMarque.val($selectMarque.attr('value'));
+        });
+    }
+    function selectMarqueOnChange(element) {
+        var value = $(element).val();
+        var marqueSelectionne = getMarqueByID(value);
+        if (marqueSelectionne != null && marqueSelectionne.length > 0) {
+            var $selectModeles = $(element).closest("#row_voiture").find("select[name$='IDModele']").first();
+            var htmlModeles = "<option value=''>-----------</option>";
+            if ($selectModeles !== undefined) {
+                $(marqueSelectionne[0].Modeles).each(function () {
+                    htmlModeles += "<option value='" + this.IDModele + "'>" + this.Libelle + "</option>";
+                });
+                $selectModeles.html(htmlModeles);
+                $selectModeles.val($selectModeles.attr('value'));
+            }
+        }
+    }
+    function getMarqueByID(id) {
+        var result = null;
+        var marques = JSON.parse($("#hiddenMarques").val());
+        $(marques).each(function () {
+            if (this.IDMarque == parseInt(id))
+                result = $(this);
+        });
+        return result;
+    }
+    $(document).ready(function () {
+        alimenter();
+    });
+</script>
+<section class="content-header">
+    <h1>
+        Ajouter une voiture
+    </h1>
+    <ol class="breadcrumb">
+        <li><a href="#"><i class="fa fa-dashboard"></i> CEDAlfaia</a></li>
+        <li><a href="@Url.Action("Liste", "Clients")">Clients</a></li>
+        <li class="active">Ajouter une voiture</li>
+    </ol>
+</section>
+
+<section class="content">
+    <div class="box box-danger">
+        <div class="box-header with-border">
+            <h3 class="box-title">Ajouter une voiture à @ViewBag.NomClient</h3>
+        </div>
+
+        @Html.ValidationSummary(false, "", new { @style = "color:red;" })
+        @using (Html.BeginForm())
+        {
+            @Html.HiddenFor(m => m.ID)
+            @Html.HiddenFor(m => m.IDClient)
+            <div id="row_voiture" class="box-body">
+                <div class="form-group">
+                    @Html.LabelFor(m=> m.Marque)
+                    @Html.DropDownListFor(m => m.IDMarque, new List<SelectListItem>(), new { @class = "form-control", value = this.Model.IDMarque, onchange = "selectMarqueOnChange(this)" })
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.Modele)
+                    @Html.DropDownListFor(m => m.IDModele, new List<SelectListItem>(), new { @class = "form-control", value = this.Model.IDMarque })
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.Immatriculation)
+                    @Html.TextBoxFor(m => m.Immatriculation, new { @class = "form-control", placeholder="Immatriculation" })
+                </div>
+            </div>
+
+            <div class="box-footer">
+                <button class="btn btn-md btn-default" type="reset">Annuler</button>
+                <button type="submit" class="btn btn-primary">Enregistrer</button>
+            </div>
+        }        
+    </div>
+</section>

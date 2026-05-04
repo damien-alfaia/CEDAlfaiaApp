@@ -1,0 +1,150 @@
+﻿@model List<CEDAlfaiaApp.DAL.Pronos.PhaseGroupe.ClassementGroupeModel>
+
+@{
+    if (this.Model != null && this.Model.Any())
+    {
+        <div class="table-responsive hidden-xs hidden-sm">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Nom</th>
+                        <th>
+							<span class="hidden-xs hidden-sm">Points</span>
+							<span class="hidden-md hidden-lg">Pts</span>
+						</th>
+                        <th>J</th>
+                        <th>G</th>
+                        <th>N</th>
+                        <th>P</th>
+                        <th>BM</th>
+                        <th>BE</th>
+                        <th>
+							<span class="hidden-xs hidden-sm">Diff</span>
+							<span class="hidden-md hidden-lg">D</span>
+						</th>
+                    </tr>
+                </thead>
+                @{
+                    int i = 1;
+                    foreach (var c in this.Model)
+                    {
+                        string classLigne = "";
+                        if (this.Model.Count == 4)
+                        {
+                            switch (i)
+                            {
+                                case 1:
+                                case 2:
+                                    classLigne = "success";
+                                    break;
+                                case 3:
+                                    classLigne = "warning";
+                                    break;
+                                case 4:
+                                    classLigne = "danger";
+                                    break;
+                            }
+                        }
+                        else if (this.Model.Count == 6)
+                        {
+                            switch (i)
+                            {
+                                case 1:
+                                case 2:
+                                case 3:
+                                case 4:
+                                    classLigne = "success";
+                                    break;
+                                case 5:
+                                case 6:
+                                    classLigne = "danger";
+                                    break;
+                            }
+                        }
+                        <tr class="@classLigne">
+                            <td>@i°</td>
+                            <td>
+                                <span class="hidden-xs hidden-sm">@c.Nom</span>
+                                <span class="hidden-md hidden-lg">@c.ShortName</span>
+                            </td>
+                            <td>
+                                @c.Points
+                            </td>
+                            <td>
+                                @c.MatchsJoues
+                            </td>
+                            <td>
+                                @c.MatchsGagnes
+                            </td>
+                            <td>
+                                @c.MatchsNuls
+                            </td>
+                            <td>
+                                @c.MatchsPerdus
+                            </td>
+                            <td>
+                                @c.ButsMarques
+                            </td>
+                            <td>
+                                @c.ButsEncaisses
+                            </td>
+                            <td>
+                                @c.Difference
+                            </td>
+                        </tr>
+                        i++;
+                    }
+                }
+            </table>
+        </div>
+		<div class="list-group hidden-md hidden-lg">
+			@{  i = 1;
+                foreach (var c in this.Model)
+                {
+                    string classLigne = "";
+                    if (this.Model.Count == 4)
+                    {
+                        switch (i)
+                        {
+                            case 1:
+                            case 2:
+                                classLigne = "list-group-item-success";
+                                break;
+                            case 3:
+                                classLigne = "list-group-item-danger";
+                                break;
+                            case 4:
+                                classLigne = "list-group-item-warning";
+                                break;
+                        }
+                    }
+                    else if (this.Model.Count == 6)
+                    {
+                        switch (i)
+                        {
+                            case 1:
+                            case 2:
+                            case 3:
+                            case 4:
+                                classLigne = "list-group-item-success";
+                                break;
+                            case 5:
+                            case 6:
+                                classLigne = "list-group-item-danger";
+                                break;
+                        }
+                    }
+                    <div class="list-group-item @classLigne">
+						<h4 class="list-group-item-heading">@i° @c.Nom <span class="label label-warning pull-right" style="font-size:1.15em;">@c.Points</span></h4>
+						<p class="list-group-item-text">
+							<span class="label label-info">Matchs: @c.MatchsGagnes - @c.MatchsNuls - @c.MatchsPerdus</span>
+							<span class="label label-info">Buts: @c.ButsMarques - @c.ButsEncaisses = @c.Difference</span>
+						</p>
+					</div>
+					i++;
+				}
+			}
+		</div>
+	}
+}

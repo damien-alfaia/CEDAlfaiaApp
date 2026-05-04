@@ -1,0 +1,223 @@
+﻿@model CEDAlfaiaApp.Models.ParametrageModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script type="text/javascript">
+    function supprimerLogo() {
+        $('#imgLogo').attr('src', '');
+        $('[role=Logo]').val('');
+        $('#imgLogo').hide();
+    }
+    function PreviewLogo() {
+        fileLogo = document.getElementById("uploadLogo").files[0];
+        file_url_logo = URL.createObjectURL(fileLogo);
+        $('#imgLogo').attr('src', file_url_logo);
+        $('#imgLogo').slideDown();
+        setBase64File(fileLogo, '[role=Logo]');
+    }
+    function supprimerEntete() {
+        $('#imgEntete').attr('src', '');
+        $('[role=Entete]').val('');
+        $('#imgEntete').hide();
+    }
+    function PreviewEntete() {
+        fileEntete = document.getElementById("uploadEntete").files[0];
+        file_url_entete = URL.createObjectURL(fileEntete);
+        $('#imgEntete').attr('src', file_url_entete);
+        $('#imgEntete').slideDown();
+        setBase64File(fileEntete, '[role=Entete]');
+    }
+    function converBase64toBlob(content, contentType) {
+        contentType = contentType || '';
+        var sliceSize = 512;
+        var byteCharacters = window.atob(content); //method which converts base64 to binary
+        var byteArrays = [
+        ];
+        for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+            var slice = byteCharacters.slice(offset, offset + sliceSize);
+            var byteNumbers = new Array(slice.length);
+            for (var i = 0; i < slice.length; i++) {
+                byteNumbers[i] = slice.charCodeAt(i);
+            }
+            var byteArray = new Uint8Array(byteNumbers);
+            byteArrays.push(byteArray);
+        }
+        var blob = new Blob(byteArrays, {
+            type: contentType
+        }); //statement which creates the blob
+        return blob;
+    }
+    function setBase64File(file, selector) {
+        var reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = function () {
+            $(selector).val(reader.result);
+        };
+        reader.onerror = function (error) {
+            console.log('Error: ', error);
+        };
+    }
+    $(document).ready(function () {
+        if ($("[role=Logo]") !== undefined && $("[role=Logo]").val() != '') {
+            var file = converBase64toBlob($("[role=Logo]").val(), 'application/img');
+            file_url_logo = URL.createObjectURL(file);
+
+            if (file_url_logo == undefined || file_url_logo == null)
+                $('imgLogo').hide();
+            else
+                $('#imgLogo').attr('src', file_url_logo);
+        }
+        if ($("[role=Entete]") !== undefined && $("[role=Entete]").val() != '') {
+            var file = converBase64toBlob($("[role=Entete]").val(), 'application/img');
+            file_url_entete = URL.createObjectURL(file);
+
+            if (file_url_entete == undefined || file_url_entete == null)
+                $('imgEntete').hide();
+            else
+                $('#imgEntete').attr('src', file_url_entete);
+        }
+    });
+</script>
+
+
+<section class="content-header">
+    <h1>
+        Paramétrage
+    </h1>
+    <ol class="breadcrumb">
+        <li><a href="#"><i class="fa fa-dashboard"></i> CEDAlfaia</a></li>
+        <li class="active">Paramétrage</li>
+    </ol>
+</section>
+
+<section class="content">
+    <div class="box box-danger">
+        <div class="box-header with-border">
+            <h3 class="box-title">Paramétrage</h3>
+        </div>
+
+        @Html.ValidationSummary(false, "", new { @style = "color:red;" })
+        @using (Html.BeginForm())
+        {
+            @Html.HiddenFor(m => m.ID)
+            <div class="box-body">
+                <div class="form-group">
+                    @Html.LabelFor(m => m.LibelleEntreprise)
+                    @Html.TextBoxFor(m => m.LibelleEntreprise, new { @class = "form-control", placeholder = "Nom de l'entreprise" })
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.Telephone)
+                    @Html.TextBoxFor(m => m.Telephone, new { @class = "form-control", placeholder = "Téléphone de l'entreprise" })
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.Portable)
+                    @Html.TextBoxFor(m => m.Portable, new { @class = "form-control", placeholder = "Portable de l'entreprise" })
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.Email)
+                    @Html.TextBoxFor(m => m.Email, new { @class = "form-control", placeholder = "Email de l'entreprise" })
+                </div>
+                <div class="form-group">
+                    @Html.EditorFor(m => m.Adresse, "Adresse")
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.Logo)
+                    @Html.HiddenFor(m => m.Logo, new { role = "Logo" })
+                    <label class="btn btn-default btn-xs btn-file">
+                        Choisir <input id="uploadLogo" type="file" name="uploadLogo" accept="image/*" onchange="PreviewLogo();" style="display:none;" />
+                    </label>
+                    <a class="btn btn-danger btn-xs" onclick="supprimerLogo(); return false;">Supprimer</a>
+                    <div>
+                        <img id="imgLogo" src="" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.Entete)
+                    @Html.HiddenFor(m => m.Entete, new { role = "Entete" })
+                    <label class="btn btn-default btn-xs btn-file">
+                        Choisir <input id="uploadEntete" type="file" name="uploadEntete" accept="image/*" onchange="PreviewEntete();" style="display:none;" />
+                    </label>
+                    <a class="btn btn-danger btn-xs" onclick="supprimerEntete(); return false;">Supprimer</a>
+                    <div>
+                        <img id="imgEntete" src="" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.MainDOeuvreMontantHoraire)
+                    @Html.TextBoxFor(m => m.MainDOeuvreMontantHoraire, new { @class = "form-control", placeholder = "Tarif horaire de main d'oeuvre" })
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.TauxTVA)
+                    @Html.TextBoxFor(m => m.TauxTVA, new { @class = "form-control", placeholder = "TVA" })
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.SIRET)
+                    @Html.TextBoxFor(m => m.SIRET, new { @class = "form-control", placeholder = "SIRET" })
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.CodeAPE)
+                    @Html.TextBoxFor(m => m.CodeAPE, new { @class = "form-control", placeholder = "Code APE" })
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.TVAIntraCommunautaire)
+                    @Html.TextBoxFor(m => m.TVAIntraCommunautaire, new { @class = "form-control", placeholder = "TVA IntraCommunautaire" })
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.LibelleBasDePage)
+                    @Html.TextBoxFor(m => m.LibelleBasDePage, new { @class = "form-control", placeholder = "Bas de page" })
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.EmailComptable)
+                    @Html.TextBoxFor(m => m.EmailComptable, new { @class = "form-control", placeholder = "Email du comptable" })
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.IsSavePieceVente)
+                    <div>
+                        @Html.CheckBoxFor(m => m.IsSavePieceVente, new { @class = "form-check-input", style = "width: 20px;height: 20px;" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.EmailEnvoi)
+                    <div>
+                        @Html.TextBoxFor(m => m.EmailEnvoi, new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.EmailSMTP)
+                    <div>
+                        @Html.TextBoxFor(m => m.EmailSMTP, new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.PasswordSMTP)
+                    <div>
+                        @Html.TextBoxFor(m => m.PasswordSMTP, new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.ServeurSMTP)
+                    <div>
+                        @Html.TextBoxFor(m => m.ServeurSMTP, new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.PortSMTP)
+                    <div>
+                        @Html.TextBoxFor(m => m.PortSMTP, new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.IsSSL)
+                    <div>
+                        @Html.CheckBoxFor(m => m.IsSSL, new { @class = "form-check-input", style = "width: 20px;height: 20px;" })
+                    </div>
+                </div>
+            </div>
+            <div class="box-footer">
+                <button class="btn btn-md btn-default" type="reset">Annuler</button>
+                <button type="submit" class="btn btn-primary">Enregistrer</button>
+            </div>
+        }
+    </div>
+</section>

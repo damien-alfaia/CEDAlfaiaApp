@@ -1,0 +1,397 @@
+﻿@model CEDAlfaiaApp.Models.SaisirFactureModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    $(document).ready(function () {
+        piedFactureOnChange();
+    });
+    function PreviewImageDevisFournisseur() {
+        pdffileDevisFournisseur = document.getElementById("uploadPDFDevisFournisseur").files[0];
+        pdffile_url_DevisFournisseur = URL.createObjectURL(pdffileDevisFournisseur);
+        $('#viewerDevisFournisseur').attr('src', pdffile_url_DevisFournisseur);
+        setBase64FileInDevis(pdffileDevisFournisseur, '[role=DevisFournisseur]');
+    }
+    function PreviewImageBonLivraisonFournisseur() {
+        pdffileBonLivraisonFournisseur = document.getElementById("uploadPDFBonLivraisonFournisseur").files[0];
+        pdffile_url_BonLivraisonFournisseur = URL.createObjectURL(pdffileBonLivraisonFournisseur);
+        $('#viewerBonLivraisonFournisseur').attr('src', pdffile_url_BonLivraisonFournisseur);
+        setBase64FileInDevis(pdffileBonLivraisonFournisseur, '[role=BonLivraisonFournisseur]');
+    }
+    function converBase64toBlob(content, contentType) {
+        contentType = contentType || '';
+        var sliceSize = 512;
+        var byteCharacters = window.atob(content); //method which converts base64 to binary
+        var byteArrays = [
+        ];
+        for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+            var slice = byteCharacters.slice(offset, offset + sliceSize);
+            var byteNumbers = new Array(slice.length);
+            for (var i = 0; i < slice.length; i++) {
+                byteNumbers[i] = slice.charCodeAt(i);
+            }
+            var byteArray = new Uint8Array(byteNumbers);
+            byteArrays.push(byteArray);
+        }
+        var blob = new Blob(byteArrays, {
+            type: contentType
+        }); //statement which creates the blob
+        return blob;
+    }
+    function setBase64FileInDevis(file, selector) {
+        var reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = function () {
+            $(selector).val(reader.result);
+        };
+        reader.onerror = function (error) {
+            console.log('Error: ', error);
+        };
+    }
+    function mainDOeuvreOnChange() {
+        var duree = parseFloat($("#DureeMainDOeuvre").val());
+        var mainDOeuvre = parseFloat($("#MainDOeuvre").val());
+        $("#TotalMainDOeuvre").val(duree * mainDOeuvre);
+
+        piedFactureOnChange();
+    }
+    function piedFactureOnChange() {
+        var duree = parseFloat($("#DureeMainDOeuvre").val().replace(/,/g, '.'));
+        var mainDOeuvre = parseFloat($("#MainDOeuvre").val().replace(/,/g, '.'));
+        var totalHTMainDOeuvre = (duree * mainDOeuvre) / (0.2 + 1);
+        var remiseTotaleHT = parseFloat($("#Remise").val().replace(/,/g, '.'));
+
+        var totalHT = 0;
+        $("[role='PrixClientHT']").each(function () {
+            var qte = parseFloat($(this).closest('tr').find("[role='Quantite']").val());
+            if (!isNaN(parseFloat($(this).val().replace(/ /g, '').replace(/,/g, '.'))))
+                totalHT += parseFloat($(this).val().replace(/ /g, '').replace(/,/g, '.')) * qte;
+        });
+
+        totalHT += totalHTMainDOeuvre;
+
+        if (!isNaN(remiseTotaleHT))
+            totalHT = totalHT - (totalHT * (remiseTotaleHT / 100));
+
+        var totalGarageTTC = 0;
+        $("[role='PrixGarageTTC']").each(function () {
+            var qte = parseFloat($(this).closest('tr').find("[role='Quantite']").val());
+            if (!isNaN(parseFloat($(this).val().replace(/ /g, '').replace(/,/g, '.'))))
+                totalGarageTTC += parseFloat($(this).val().replace(/ /g, '').replace(/,/g, '.')) * qte;;
+        });
+
+        var tauxTVA = parseFloat($("#hiddenTauxTVA").val());
+        if (isNaN(tauxTVA))
+            tauxTVA = 0.2;
+
+        var totalTTC = totalHT * (tauxTVA + 1);
+        $("#TotalHT").val(totalHT.toFixed(2));
+        $("#TotalTTC").val(totalTTC.toFixed(2));
+        $("#MontantTVA").val((totalTTC - totalHT).toFixed(2));
+        $("#Benefice").val((totalTTC - totalGarageTTC).toFixed(2));
+    }
+    $(document).ready(function () {
+        $("#viewerDevisFournisseur").width($("section.content").width() - 30);
+        $("#viewerBonLivraisonFournisseur").width($("section.content").width() - 30);
+
+        if ($("[role=DevisFournisseur]") !== undefined && $("[role=DevisFournisseur]").val() != '') {
+            var file = converBase64toBlob($("[role=DevisFournisseur]").val(), 'application/pdf');
+
+            pdffile_url_DevisFournisseur = URL.createObjectURL(file);
+            $('#viewerDevisFournisseur').attr('src', pdffile_url_DevisFournisseur);
+        }
+
+        if ($("[role=BonLivraisonFournisseur]") !== undefined && $("[role=BonLivraisonFournisseur]").val() != '') {
+            var file = converBase64toBlob($("[role=BonLivraisonFournisseur]").val(), 'application/pdf');
+
+            pdffile_url_BonLivraisonFournisseur = URL.createObjectURL(file);
+            $('#viewerBonLivraisonFournisseur').attr('src', pdffile_url_BonLivraisonFournisseur);
+        }
+    });
+</script>
+
+<section class="content-header">
+    <h1>
+        Saisir une facture
+    </h1>
+    <ol class="breadcrumb">
+        <li><a href="#"><i class="fa fa-dashboard"></i> CEDAlfaia</a></li>
+        <li><a href="@Url.Action("Liste", "Factures")">Factures</a></li>
+        <li class="active">Saisir une facture</li>
+    </ol>
+</section>
+
+@{
+    string titleFormulaire = "Nouvelle facture";
+    if (this.Model != null && this.Model.IDFacture > 0)
+    {
+        titleFormulaire = this.Model.LibelleClient + " (" + this.Model.LibelleVoiture + ")";
+    }
+
+    List<SelectListItem> items = new List<SelectListItem>();
+    var clients = CEDAlfaiaApp.BLL.CEDAlfaiaAppWebService.GetService().GarageService.GetClients();
+    if (this.Model != null && Model.IDClient > 0)
+    {
+        clients = clients.Where(c => c.ID == this.Model.IDClient).ToList();
+    }
+    foreach (var c in clients.OrderBy(c => c.Nom).ThenBy(c => c.Prenom))
+    {
+        SelectListGroup group = new SelectListGroup()
+        {
+            Name = c.Nom + " " + c.Prenom
+        };
+        foreach (var v in c.Voitures)
+        {
+            items.Add(new SelectListItem()
+            {
+                Group = group,
+                Text = v.Modele.Marque.Libelle + " " + v.Modele.Libelle + " - " + v.Immatriculation,
+                Value = v.ID.ToString()
+            });
+        }
+    }
+}
+
+<section class="content">
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="box box-danger">
+                <div class="box-header with-border">
+                    <h3 class="box-title">@titleFormulaire</h3>
+                </div>
+
+                @Html.ValidationSummary(false, "", new { @style = "color:red;" })
+                @using (Html.BeginForm())
+                {
+                    @Html.Hidden("hiddenTauxTVA", CEDAlfaiaApp.Core.CEDAlfaiaAppHttpContext.TauxTVA)
+
+                    @Html.HiddenFor(m => m.IDFacture)
+                    @Html.HiddenFor(m => m.DevisFornisseurBase64, new { role = "DevisFournisseur" })
+                    @Html.HiddenFor(m => m.BonLivraisonFornisseurBase64, new { role = "BonLivraisonFournisseur" })
+                    @Html.HiddenFor(m => m.IsValide)
+                    @Html.HiddenFor(m => m.IsAnnule)
+                    <div class="box-body">
+                        <ul class="nav nav-tabs" style="margin-bottom:10px;">
+                            <li class="active"><a data-toggle="tab" href="#menuFacture">Facture</a></li>
+                            <li><a data-toggle="tab" href="#menuPaiements" onclick="$('#divPaiements').show();">Paiements</a></li>
+                            <li><a data-toggle="tab" href="#menuRendezVous">Rendez-vous</a></li>
+                            <li><a data-toggle="tab" href="#menuDevisFournisseur">Devis fournisseur</a></li>
+                            <li><a data-toggle="tab" href="#menuBonLivraisonFournisseur">BL fournisseur</a></li>
+                        </ul>
+                        <div class="tab-content">
+                            <div id="menuFacture" class="tab-pane fade in active">
+                                @{
+                                    if (this.Model.IsValide)
+                                    {
+                                        <div class="row">
+                                            <div class="col-xs-12 col-md-6">
+                                                <div class="form-group">
+                                                    @Html.LabelFor(m => m.IDVoiture)
+                                                    @Html.DropDownListFor(m => m.IDVoiture, items, new { @class = "form-control", disabled = "disabled" })
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 col-md-3">
+                                                <div class="form-group">
+                                                    @Html.LabelFor(m => m.Date)
+                                                    @Html.TextBoxFor(m => m.Date, new { @class = "form-control", data_role = "datetimepicker", disabled = "disabled" })
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 col-md-3">
+                                                <div class="form-group has-feedback">
+                                                    @Html.LabelFor(m => m.Kilometrage)
+                                                    @Html.TextBoxFor(m => m.Kilometrage, new { @class = "form-control text-right", style = "padding-right:30px;", placeholder = "Kilométrage", disabled = "disabled" })
+                                                    <i class="form-control-feedback" style="font-size: 0.8em">km</i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-xs-12 col-md-3">
+                                                <div class="form-group has-feedback">
+                                                    @Html.LabelFor(m => m.DureeMainDOeuvre)
+                                                    @Html.TextBoxFor(m => m.DureeMainDOeuvre, new { @class = "form-control text-right", onchange = "mainDOeuvreOnChange();", style = "padding-right:30px;", placeholder = "Durée de main d'oeuvre", disabled = "disabled" })
+                                                    <i class="form-control-feedback" style="font-size: 0.8em">h</i>
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 col-md-3">
+                                                <div class="form-group has-feedback">
+                                                    @Html.LabelFor(m => m.MainDOeuvre)
+                                                    @Html.TextBoxFor(m => m.MainDOeuvre, new { @class = "form-control text-right", onchange = "mainDOeuvreOnChange();", style = "padding-right:30px;", placeholder = "Main d'oeuvre", disabled = "disabled" })
+                                                    <i class="form-control-feedback" style="font-size: 0.8em">€</i>
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 col-md-3">
+                                                <div class="form-group has-feedback">
+                                                    @Html.LabelFor(m => m.TotalMainDOeuvre)
+                                                    @Html.TextBox("TotalMainDOeuvre", Model.TotalMainDOeuvre.ToString("c2"), new { @class = "form-control text-right", style = "padding-right:30px;", placeholder = "Main d'oeuvre", disabled = "disabled" })
+                                                    <i class="form-control-feedback" style="font-size: 0.8em">€</i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="row">
+                                            <div class="col-xs-12 col-md-6">
+                                                <div class="form-group">
+                                                    @Html.LabelFor(m => m.IDVoiture)
+                                                    @Html.DropDownListFor(m => m.IDVoiture, items, new { @class = "form-control" })
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 col-md-3">
+                                                <div class="form-group">
+                                                    @Html.LabelFor(m => m.Date)
+                                                    @Html.TextBoxFor(m => m.Date, new { @class = "form-control", data_role = "datetimepicker" })
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 col-md-3">
+                                                <div class="form-group has-feedback">
+                                                    @Html.LabelFor(m => m.Kilometrage)
+                                                    @Html.TextBoxFor(m => m.Kilometrage, new { @class = "form-control text-right", style = "padding-right:30px;", placeholder = "Kilométrage" })
+                                                    <i class="form-control-feedback" style="font-size: 0.8em">km</i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-xs-12 col-md-3">
+                                                <div class="form-group has-feedback">
+                                                    @Html.LabelFor(m => m.DureeMainDOeuvre)
+                                                    @Html.TextBoxFor(m => m.DureeMainDOeuvre, new { @class = "form-control text-right", onchange = "mainDOeuvreOnChange();", style = "padding-right:30px;", placeholder = "Durée de main d'oeuvre" })
+                                                    <i class="form-control-feedback" style="font-size: 0.8em">h</i>
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 col-md-3">
+                                                <div class="form-group has-feedback">
+                                                    @Html.LabelFor(m => m.MainDOeuvre)
+                                                    @Html.TextBoxFor(m => m.MainDOeuvre, new { @class = "form-control text-right", onchange = "mainDOeuvreOnChange();", style = "padding-right:30px;", placeholder = "Main d'oeuvre" })
+                                                    <i class="form-control-feedback" style="font-size: 0.8em">€</i>
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 col-md-3">
+                                                <div class="form-group has-feedback">
+                                                    @Html.LabelFor(m => m.TotalMainDOeuvre)
+                                                    @Html.TextBox("TotalMainDOeuvre", Model.TotalMainDOeuvre.ToString("c2"), new { @class = "form-control text-right", style = "padding-right:30px;", placeholder = "Main d'oeuvre", disabled = "disabled" })
+                                                    <i class="form-control-feedback" style="font-size: 0.8em">€</i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                }
+
+                                <div class="row">
+                                    <div class="col-xs-12">
+                                        <div class="form-group">
+                                            @Html.LabelFor(m => m.Lignes)
+                                            @Html.EditorFor(m => m.Lignes, "LignesFacture")
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-12">
+                                        <div class="form-group">
+                                            @Html.LabelFor(m => m.Services)
+                                            @Html.EditorFor(m => m.Services, "ServicesPieceVente")
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" style="margin-top:20px;">
+                                    <div class="col-xs-6">
+                                        &nbsp;
+                                    </div>
+                                    <div class="col-xs-6">
+                                        <div class="row">
+                                            <div class="col-xs-6 text-right">
+                                                @Html.LabelFor(m => m.Remise)
+                                            </div>
+                                            <div class="col-xs-6">
+                                                <div class="form-group has-feedback">
+                                                    @Html.TextBoxFor(m => m.Remise, new { @class = "form-control text-right", style = "padding-right:30px;", onchange = "piedFactureOnChange();" })
+                                                    <i class="form-control-feedback" style="font-size: 0.8em">%</i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-xs-6 text-right">
+                                                @Html.LabelFor(m => m.TotalHT)
+                                            </div>
+                                            <div class="col-xs-6">
+                                                <div class="form-group has-feedback">
+                                                    @Html.TextBox("TotalHT", Model.TotalHT.ToString("c2"), new { @class = "form-control text-right", style = "padding-right:30px;", disabled = "disabled" })
+                                                    <i class="form-control-feedback" style="font-size: 0.8em">€</i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-xs-6 text-right">
+                                                @Html.LabelFor(m => m.MontantTVA)
+                                            </div>
+                                            <div class="col-xs-6">
+                                                <div class="form-group has-feedback">
+                                                    @Html.TextBox("MontantTVA", Model.MontantTVA.ToString("c2"), new { @class = "form-control text-right", style = "padding-right:30px;", disabled = "disabled" })
+                                                    <i class="form-control-feedback" style="font-size: 0.8em">€</i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-xs-6 text-right">
+                                                @Html.LabelFor(m => m.TotalTTC)
+                                            </div>
+                                            <div class="col-xs-6">
+                                                <div class="form-group has-feedback">
+                                                    @Html.TextBox("TotalTTC", Model.TotalTTC.ToString("c2"), new { @class = "form-control text-right", style = "padding-right:30px;", disabled = "disabled" })
+                                                    <i class="form-control-feedback" style="font-size: 0.8em">€</i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-xs-6 text-right">
+                                                @Html.LabelFor(m => m.Benefice)
+                                            </div>
+                                            <div class="col-xs-6">
+                                                <div class="form-group has-feedback">
+                                                    @Html.TextBox("Benefice", Model.Benefice.ToString("c2"), new { @class = "form-control text-right", style = "padding-right:30px;", disabled = "disabled" })
+                                                    <i class="form-control-feedback" style="font-size: 0.8em">€</i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="menuPaiements" class="tab-pane fade in active">
+                                <div class="form-group" id="divPaiements" style="display:none;">
+                                    @Html.EditorFor(m => m.Paiements, "Paiements")
+                                </div>
+                            </div>
+                            <div id="menuRendezVous" class="tab-pane fade">
+                                <div class="form-group">
+                                    @Html.EditorFor(m => m.RendezVous, "RendezVous")
+                                </div>
+                            </div>
+                            <div id="menuDevisFournisseur" class="tab-pane fade">
+                                <label class="btn btn-default btn-xs btn-file pull-right">
+                                    Devis fournisseur <input id="uploadPDFDevisFournisseur" class="btn btn-md btn-default" type="file" name="myPDF" accept=".jpg,.jpeg,.pdf" onchange="PreviewImageDevisFournisseur();" style="display:none;width:100%;" />
+                                </label>
+                                <div style="clear:both; margin-top:20px;">
+                                    <iframe id="viewerDevisFournisseur" frameborder="0" scrolling="no" width="1000" height="800"></iframe>
+                                </div>
+                            </div>
+                            <div id="menuBonLivraisonFournisseur" class="tab-pane fade">
+                                <label class="btn btn-default btn-xs btn-file pull-right">
+                                    Bon livraison fournisseur <input id="uploadPDFBonLivraisonFournisseur" class="btn btn-md btn-default" type="file" name="myPDF" accept=".jpg,.jpeg,.pdf" onchange="PreviewImageBonLivraisonFournisseur();" style="display:none;width:100%;" />
+                                </label>
+                                <div style="clear:both; margin-top:20px;">
+                                    <iframe id="viewerBonLivraisonFournisseur" frameborder="0" scrolling="no" width="1000" height="800"></iframe>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="box-footer">
+                            <button class="btn btn-md btn-default" type="reset">Annuler</button>
+                            <button type="submit" class="btn btn-primary">Enregistrer</button>
+                        </div>
+
+                    </div>
+                                    }
+            </div>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,124 @@
+﻿@model List<CEDAlfaiaApp.Models.UtilisateurModel>
+@{
+    ViewBag.Title = "Liste des utilisateurs";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    $(function () {
+        $('#tableUtilisateurs').DataTable({
+            'paging': true,
+            'lengthChange': true,
+            'searching': true,
+            'ordering': true,
+            'info': true,
+            'autoWidth': true,
+            'language': {
+                "lengthMenu": "Afficher _MENU_ utilisateurs par page",
+                "zeroRecords": "Aucun utilisateur trouvé",
+                "info": "Page _PAGE_ sur _PAGES_",
+                "infoEmpty": "Aucun utilisateur trouvé",
+                "paginate": {
+                    "previous": "Précédent",
+                    "next": "Suivant"
+                },
+                "search": "Rechercher"
+            }
+        });
+    })
+
+    function supprimerUtilisateur(element) {
+        if (confirm("Voulez-vous vraiment supprimer cet utilisateur ? ")) {
+            var idUtilisateur = $(element).closest("[data-idUtilisateur]").attr('data-idUtilisateur');
+            $.ajax({
+                url: '@Url.Action("SupprimerUtilisateur")',
+                data: JSON.stringify({ idUtilisateur: idUtilisateur }),
+                contentType: 'application/json; charset=utf-8',
+                context: { idUtilisateur: idUtilisateur },
+                type: 'POST',
+                success: function (result) {
+                    if (result == "OK")
+                        $("tr[data-idUtilisateur=" + this.idUtilisateur + "]").remove();
+                    else
+                        alert(result);
+                },
+                error: function (err) {
+                    alert(err);
+                }
+            });
+        }
+    }
+</script>
+
+<section class="content-header">
+    <h1>
+        Liste des utilisateurs
+    </h1>
+    <ol class="breadcrumb">
+        <li><a href="#"><i class="fa fa-dashboard"></i> CEDAlfaia</a></li>
+        <li>Utilisateurs</li>
+    </ol>
+</section>
+
+<section class="content">
+    @{
+        if (this.Model != null && this.Model.Any())
+        {
+            <div class="box box-danger hidden-xs hidden-sm">
+                <div class="box-header">
+                    <h3 class="box-title">Liste des utilisateurs</h3>
+                    <a class="btn btn-sm btn-success pull-right" href="@Url.Action("Saisir", new { })"><i class="fa fa-plus"></i>&nbsp;Nouveau</a>
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body">
+                    <table id="tableUtilisateurs" class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>Nom</th>
+                                <th>Email</th>
+                                <th>Rôle</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var f in this.Model)
+                {
+                                <tr data-idUtilisateur="@f.ID">
+                                    <td>
+                                        @(f.Prenom + " " + f.Nom)
+                                    </td>
+                                    <td>
+                                        @f.AdresseMail
+                                    </td>
+                                    <td>
+                                        @f.Role
+                                    </td>
+                                    <td>
+                                        <span class="btn-group pull-right">
+                                            <button type="button" class="btn btn-md btn-default dropdown-toggle" data-toggle="dropdown">
+                                                <span class="caret"></span>
+                                            </button>
+                                            <ul class="dropdown-menu" role="menu">
+                                                <li>
+                                                    <a href="@Url.Action("Saisir", new { idUtilisateur = f.ID })"><i class="fa fa-edit"></i>&nbsp;Modifier</a>
+                                                    <a href="#" onclick="supprimerUtilisateur(this);"><i class="fa fa-times"></i>&nbsp;Supprimer</a>
+                                                </li>
+                                            </ul>
+                                        </span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-warning" role="alert">
+                Aucun utilisateur ! <a href="@Url.Action("Saisir")">Cliquez ici pour ajouter un utilisateur</a>
+            </div>
+        }
+    }
+
+</section>

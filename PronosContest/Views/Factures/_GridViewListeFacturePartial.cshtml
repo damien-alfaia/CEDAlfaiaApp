@@ -1,0 +1,326 @@
+@model CEDAlfaiaApp.Models.SearchPieceVenteWithPiecesVenteModel
+
+
+@(Html.DevExtreme().DataGrid<CEDAlfaiaApp.DAL.Garage.PieceVente>()
+.ID("gridListeFactures")
+.DataSource(this.Model.PiecesVente.Select(m => new
+{
+    m.ID,
+    m.BeneficeTTC,
+    Client = ((!string.IsNullOrEmpty(m.Client.Prenom) ? m.Client.Prenom : "") + " " + (!string.IsNullOrEmpty(m.Client.Nom) ? m.Client.Nom : "")).Trim(),
+    m.DateFacture,
+    m.IsEnvoyeComptable,
+    m.IsValide,
+    m.Kilometrage,
+    //m.Lignes,
+    MainDOeuvre = (m.MainDOeuvreDuree * m.MainDOeuvreMontantHoraire),
+    m.MontantTVA,
+    m.NumFacture,
+    //m.Paiements,
+    m.Remise,
+    m.ResteAPayer,
+    //m.Services,
+    m.TotalHT,
+    m.TotalTTC,
+    Voiture = m.Voiture.Modele.Marque.Libelle + " " + m.Voiture.Modele.Libelle,
+    Immatriculation = m.Voiture.Immatriculation,
+    Paye = (m.ResteAPayer == m.TotalTTC ? "A payer" : (m.ResteAPayer == 0 ? "Payé" : "Non terminé")),
+    Etat = (!m.IsValide ? "En attente de validation" : (m.IsFactureAnnule ? "Annulé" : (m.IsEnvoyeComptable ? "Envoyé au comptable" : "Validé"))),
+    Menu = new
+    {
+        text = "Actions",
+        icon = ""
+    }
+}), null)
+.OnRowClick("onRowClick")
+.OnToolbarPreparing("onToolbarPreparing")
+.RemoteOperations(false)
+.Selection(s =>
+{
+    s.AllowSelectAll(true).SelectAllMode(SelectAllMode.Page).Mode(SelectionMode.Multiple);
+})
+.AllowColumnReordering(true)
+.RowAlternationEnabled(true)
+.FilterRow(fr => fr.Visible(true))
+.StateStoring(s => s
+.Enabled(true)
+.Type(StateStoringType.LocalStorage)
+.StorageKey("gridListeFactures")
+)
+.ShowBorders(true)
+.Paging(p => p.PageSize(25))
+.Pager(p => p
+.ShowPageSizeSelector(true)
+.AllowedPageSizes(new int[] { 10, 25, 50, 100 })
+)
+.SearchPanel(s => s
+.Visible(true)
+.HighlightSearchText(true)
+.Placeholder("Rechercher...")
+)
+.ColumnChooser(cc =>
+{
+    cc.Title("Choisir les colonnes").Mode(GridColumnChooserMode.DragAndDrop).EmptyPanelText("Aucune colonne à insérer").Enabled(true);
+})
+.GroupPanel(g => g.Visible(true))
+.Grouping(g => g.AutoExpandAll(true))
+.Columns(columns =>
+{
+columns.Add()
+    .DataField("NumFacture")
+    .Caption("Numéro")
+    .HidingPriority(0)
+    .ShowInColumnChooser(true);
+
+columns.Add()
+    .DataField("DateFacture")
+    .Caption("Date")
+    .HidingPriority(0)
+    .ShowInColumnChooser(true)
+    .DataType(GridColumnDataType.Date)
+    .Format("dd/MM/yyyy");
+
+columns.Add()
+    .DataField("Client")
+    .Caption("Client")
+    .HidingPriority(0)
+    .ShowInColumnChooser(true);
+
+columns.Add()
+    .DataField("Voiture")
+    .Caption("Voiture")
+    .HidingPriority(2)
+    .ShowInColumnChooser(true);
+
+columns.Add()
+    .DataField("Kilometrage")
+    .Caption("Kilométrage")
+    .HidingPriority(2)
+    .ShowInColumnChooser(true);
+
+columns.Add()
+    .DataField("TotalHT")
+    .Caption("Total HT")
+    .HidingPriority(3)
+    .Format("#0.00€")
+    .ShowInColumnChooser(true);
+
+columns.Add()
+    .DataField("TotalTTC")
+    .Caption("Total TTC")
+    .HidingPriority(3)
+    .ShowInColumnChooser(true)
+    .Format("#0.00€");
+
+columns.Add()
+    .DataField("BeneficeTTC")
+    .Caption("Marge TTC")
+    .HidingPriority(3)
+    .ShowInColumnChooser(true)
+    .CellTemplate(@<text>
+            <div>
+                <% 
+                    var html = "";
+                    var margePercent = 0;
+                    if (data.TotalTTC > 0)
+                        margePercent = data.BeneficeTTC/data.TotalTTC;
+                    if (margePercent >= 0.5){
+                        html = "<span style=''>" + data.BeneficeTTC.toFixed(2).toLocaleString() + "€</span>";
+                    }
+                    else{
+                        html = "<span style='color:red;font-weight:bold;'>" + data.BeneficeTTC.toFixed(2).toLocaleString() + "€</span>";
+                    }
+                %>
+                <span><%= html %></span>
+            </div>
+        </text>)
+.Format("#0.00€");
+
+columns.Add()
+.DataField("Remise")
+.Caption("Remise")
+.HidingPriority(3)
+.Format("#0%")
+.ShowInColumnChooser(true);
+
+columns.Add()
+.DataField("ResteAPayer")
+.Caption("Reste à payer")
+.HidingPriority(3)
+.Format("#0.00€")
+.CellTemplate(@<text>
+    <div>
+        <%
+        var html = "";
+        if (data.ResteAPayer > 0){
+        html = "<span style='color:red;font-weight:bold;'>" + data.ResteAPayer.toFixed(2).toLocaleString() + "€</span>";
+        }
+        else{
+        html = "<span style='color:lawngreen;'>" + data.ResteAPayer.toFixed(2).toLocaleString() + "€</span>";
+        }
+        %>
+        <span><%= html %></span>
+    </div>
+</text>)
+.ShowInColumnChooser(true);
+
+columns.Add()
+.DataField("Etat")
+.Caption("Etat")
+.HidingPriority(3)
+.ShowInColumnChooser(true);
+
+columns.Add()
+.DataField("Paye")
+.Caption("Payé")
+.HidingPriority(3)
+.CellTemplate(@<text>
+    <div>
+        <%
+        var html = "";
+        switch (data.Paye){
+            case "Payé":
+                html = "<span class='label label-success'>" + data.Paye + "</span>";
+                break;
+            case 'A payer':
+                html = "<span class='label label-danger'>" + data.Paye + "</span>";
+                break;
+            case 'Non terminé':
+                html = "<span class='label label-warning'>" + data.Paye + "</span>";
+                break;
+        }
+        %>
+        <div style="font-size:1.2em;margin-top:3px;"><%= html %></div>
+    </div>
+</text>)
+.ShowInColumnChooser(true);
+
+columns.Add()
+.Caption("")
+.Width(120)
+.AllowFiltering(false)
+.AllowSorting(false)
+.ShowInColumnChooser(true)
+.CellTemplate(@<text>
+    <% switch (data.Etat){
+        case 'En attente de validation':
+            if (data.Paye == 'Payé') {
+                %> @RenderMenuEnAttenteValidationPaye() <%
+            }
+            else{
+                %> @RenderMenuEnAttenteValidationNonPaye() <%
+            }
+            break;
+        case 'Envoyé au comptable':
+        case 'Validé':
+            if (data.Paye == 'Payé') {
+                %> @RenderMenuValidePaye() <%
+            }
+            else{
+                %> @RenderMenuValideNonPaye() <%
+            }
+            break;
+        case 'Annulé':
+            %> @RenderMenuAnnule() <%
+            break;
+    }%>
+          
+        </text>);
+    })
+.Summary(s => s.TotalItems(items =>
+{
+    items.AddFor(m => m.TotalHT).SummaryType(SummaryType.Sum).ValueFormat(v => v.Precision(2).Type(Format.FixedPoint)).DisplayFormat("{0}€");
+    items.AddFor(m => m.TotalTTC).SummaryType(SummaryType.Sum).ValueFormat(v => v.Precision(2).Type(Format.FixedPoint)).DisplayFormat("{0}€");
+    items.AddFor(m => m.BeneficeTTC).SummaryType(SummaryType.Sum).ValueFormat(v => v.Precision(2).Type(Format.FixedPoint)).DisplayFormat("{0}€");
+    items.AddFor(m => m.MontantTVA).SummaryType(SummaryType.Sum).ValueFormat(v => v.Precision(2).Type(Format.FixedPoint)).DisplayFormat("{0}€");
+    items.AddFor(m => m.ResteAPayer).SummaryType(SummaryType.Sum).ValueFormat(v => v.Precision(2).Type(Format.FixedPoint)).DisplayFormat("{0}€");
+    items.AddFor(m => m.NumFacture).SummaryType(SummaryType.Count).DisplayFormat("{0}");
+
+}
+)))
+
+@helper RenderMenuValidePaye(){
+    @(Html.DevExtreme().Menu().Items(it =>
+    {
+        it.Add().Text("Actions")
+        .Items(subItems =>
+        {
+            subItems.Add().Text("Ouvrir").Icon("edit").Option("idFacture", new JS("data.ID")).Option("action", "Ouvrir");
+            subItems.Add().Text("Imprimer").Icon("print").Option("idFacture", new JS("data.ID")).Option("action", "Imprimer");
+        });
+    }).OnItemClick("menuOnItemClick").AdaptivityEnabled(true))
+}
+@helper RenderMenuValideNonPaye()
+{
+    @(Html.DevExtreme().Menu().Items(it =>
+    {
+        it.Add().Text("Actions")
+        .Items(subItems =>
+        {
+            subItems.Add().Text("Ouvrir").Icon("edit").Option("idFacture", new JS("data.ID")).Option("action", "Ouvrir");
+            subItems.Add().Text("Imprimer").Icon("print").Option("idFacture", new JS("data.ID")).Option("action", "Imprimer");
+            subItems.Add().Text("Payé en espèces").Icon("cart").Option("idFacture", new JS("data.ID")).Option("modePaiement", "0").Option("action", "Payer");
+            subItems.Add().Text("Payé en CB").Icon("cart").Option("idFacture", new JS("data.ID")).Option("modePaiement", "2").Option("action", "Payer");
+            subItems.Add().Text("Payé par chèque").Icon("cart").Option("idFacture", new JS("data.ID")).Option("modePaiement", "1").Option("action", "Payer");
+        });
+    }).OnItemClick("menuOnItemClick").AdaptivityEnabled(true))
+}
+@helper RenderMenuEnAttenteValidationNonPaye()
+{
+    @(Html.DevExtreme().Menu().Items(it =>
+    {
+        it.Add().Text("Actions")
+        .Items(subItems =>
+        {
+            subItems.Add().Text("Ouvrir").Icon("edit").Option("idFacture", new JS("data.ID")).Option("action", "Ouvrir");
+            subItems.Add().Text("Imprimer").Icon("print").Option("idFacture", new JS("data.ID")).Option("action", "Imprimer");
+            subItems.Add().Text("Payé en espèces").Icon("cart").Option("idFacture", new JS("data.ID")).Option("modePaiement", "0").Option("action", "Payer");
+            subItems.Add().Text("Payé en CB").Icon("cart").Option("idFacture", new JS("data.ID")).Option("modePaiement", "2").Option("action", "Payer");
+            subItems.Add().Text("Payé par chèque").Icon("cart").Option("idFacture", new JS("data.ID")).Option("modePaiement", "1").Option("action", "Payer");
+            subItems.Add().Text("Valider").Icon("todo").Option("idFacture", new JS("data.ID")).Option("action", "Valider");
+            subItems.Add().Text("Annuler").Icon("remove").Option("idFacture", new JS("data.ID")).Option("action", "Annuler");
+        });
+    }).OnItemClick("menuOnItemClick").AdaptivityEnabled(true))
+}
+@helper RenderMenuEnAttenteValidationPaye()
+{
+    @(Html.DevExtreme().Menu().Items(it =>
+    {
+        it.Add().Text("Actions")
+        .Items(subItems =>
+        {
+            subItems.Add().Text("Ouvrir").Icon("edit").Option("idFacture", new JS("data.ID")).Option("action", "Ouvrir");
+            subItems.Add().Text("Imprimer").Icon("print").Option("idFacture", new JS("data.ID")).Option("action", "Imprimer");
+            subItems.Add().Text("Valider").Icon("todo").Option("idFacture", new JS("data.ID")).Option("action", "Valider");
+            subItems.Add().Text("Annuler").Icon("remove").Option("idFacture", new JS("data.ID")).Option("action", "Annuler");
+        });
+    }).OnItemClick("menuOnItemClick").AdaptivityEnabled(true))
+}
+@helper RenderMenuAnnule()
+{
+    @(Html.DevExtreme().Menu().Items(it =>
+    {
+        it.Add().Text("Actions")
+        .Items(subItems =>
+        {
+            subItems.Add().Text("Repasser en facture").Icon("todo").Option("idFacture", new JS("data.ID")).Option("action", "RepasserEnFacture");
+        });
+    }).OnItemClick("menuOnItemClick").AdaptivityEnabled(true))
+}
+@helper RenderMenu()
+{
+    @(Html.DevExtreme().Menu().Items(it =>
+    {
+        it.Add().Text("Actions")
+        .Items(subItems =>
+        {
+            subItems.Add().Text("Ouvrir").Icon("edit").Option("idFacture", new JS("data.ID")).Option("action", "Ouvrir");
+            subItems.Add().Text("Imprimer").Icon("print").Option("idFacture", new JS("data.ID")).Option("action", "Imprimer");
+            subItems.Add().Text("Payé en espèces").Icon("cart").Option("idFacture", new JS("data.ID")).Option("modePaiement", "0").Option("action", "Payer");
+            subItems.Add().Text("Payé en CB").Icon("cart").Option("idFacture", new JS("data.ID")).Option("modePaiement", "2").Option("action", "Payer");
+            subItems.Add().Text("Payé par chèque").Icon("cart").Option("idFacture", new JS("data.ID")).Option("modePaiement", "1").Option("action", "Payer");
+            subItems.Add().Text("Valider").Icon("todo").Option("idFacture", new JS("data.ID")).Option("action", "Valider");
+            subItems.Add().Text("Annuler").Icon("remove").Option("idFacture", new JS("data.ID")).Option("action", "Annuler");
+        });
+    }).OnItemClick("menuOnItemClick").AdaptivityEnabled(true))
+}

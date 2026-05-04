@@ -1,0 +1,61 @@
+﻿@model CEDAlfaiaAppV2.Models.WidgetUtilisateurModel
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="long-title"><h3>Saisir un widget</h3></div>
+<div id="form-container">
+@using (Html.BeginForm())
+{
+    using (Html.DevExtreme().ValidationGroup())
+    {
+        @Html.HiddenFor(m => m.ID)
+        @Html.HiddenFor(m => m.HtmlIndex)
+        @Html.HiddenFor(m => m.HtmlLeft)
+        @Html.HiddenFor(m => m.HtmlOwnerZoneUID)
+        @Html.HiddenFor(m => m.HtmlTop)
+        @Html.HiddenFor(m => m.CompteUtilisateurID)
+        @(Html.DevExtreme().Form<CEDAlfaiaAppV2.Models.WidgetUtilisateurModel>()
+                .ID("formWidgetUtilisateur")
+                .ColCount(2)
+                .ShowValidationSummary(true)
+                .Items(items =>
+                {
+                    items.AddSimpleFor(m => m.WidgetID).IsRequired(true).Editor(ed =>
+                    {
+                        return ed.SelectBox()
+                        .DataSource(CEDAlfaiaApp.BLL.CEDAlfaiaAppWebService.GetService().WidgetService.GetAllWidgets())
+                        .DisplayExpr("Libelle")
+                        .ValueExpr("ID");
+                    }).ColSpan(2);
+                    items.AddSimpleFor(m => m.Titre).IsRequired(true).ColSpan(2);
+                    items.AddSimpleFor(m => m.DateDebut).Editor(ed =>
+                    {
+                        return ed.DateBox()
+                        .DisplayFormat("dd/MM/yyyy")
+                        .Width("100%");
+                    }).Visible(true);
+                    items.AddSimpleFor(m => m.DateFin).Editor(ed =>
+                    {
+                        return ed.DateBox()
+                        .DisplayFormat("dd/MM/yyyy")
+                        .Width("100%");
+                    }).Visible(true);
+                    items.AddSimpleFor(m => m.IsAnneeEnCours).Visible(true);
+                    items.AddSimpleFor(m => m.IsMoisEnCours).Visible(true);
+
+                    items.AddEmpty().ColSpan(2);
+
+                })
+                .LabelLocation(FormLabelLocation.Top)
+                .FormData(Model)
+        )
+
+        <div style="text-align:right;">
+            @Html.DevExtreme().Button().Text("Annuler").Icon("remove")
+            @Html.DevExtreme().Button().Text("Enregistrer").Icon("save").UseSubmitBehavior(true).Type(ButtonType.Success)
+        </div>
+    }
+}
+</div>

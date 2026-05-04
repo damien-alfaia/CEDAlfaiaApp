@@ -1,0 +1,29 @@
+﻿@model CEDAlfaiaApp.Models.RendezVousModel
+
+<div class="row">
+    @Html.HiddenFor(m => m.ID)
+    <div class="col-xs-12" style="margin-bottom:10px;">
+        @Html.LabelFor(m => m.Sujet)
+        @Html.TextBoxFor(m => m.Sujet, new { @class = "form-control", placeholder = "Titre du rendez-vous" })
+    </div>
+    <div class="col-xs-4" style="margin-bottom:10px;">
+        @Html.LabelFor(m => m.DateDebut)
+        @Html.TextBoxFor(m => m.DateDebut, new { @class = "form-control", data_role = "datetimepicker" })
+    </div>
+    <div class="col-xs-2" style="margin-bottom:10px;">
+        @Html.LabelFor(m => m.HeureDebut)
+        @Html.TextBoxFor(m => m.HeureDebut, new { @class = "form-control", data_role = "timepicker" })
+    </div>
+    <div class="col-xs-4" style="margin-bottom:10px;">
+        @Html.LabelFor(m => m.DateFin)
+        @Html.TextBoxFor(m => m.DateFin, new { @class = "form-control", data_role = "datetimepicker" })
+    </div>
+    <div class="col-xs-2" style="margin-bottom:10px;">
+        @Html.LabelFor(m => m.HeureFin)
+        @Html.TextBoxFor(m => m.HeureFin, new { @class = "form-control", data_role = "timepicker" })
+    </div>
+    <div class="col-xs-12" style="margin-bottom:10px;">
+        @Html.LabelFor(m => m.Commentaire)
+        @Html.TextAreaFor(m => m.Commentaire, new { @class = "form-control", rows=5 })
+    </div>
+</div>

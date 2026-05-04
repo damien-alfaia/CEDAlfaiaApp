@@ -1,0 +1,154 @@
+﻿@model List<CEDAlfaiaApp.Models.SaisirLignesPieceVenteModel>
+
+<script type="text/javascript">
+    function supprimerLigne(element) {
+        var trParent = $(element).closest("tr[data-idLigne]");
+        var isSupprime = trParent.find("input[id$=IsSupprime]");
+        if (isSupprime.length > 0)
+            isSupprime.val('true');
+        trParent.slideUp('slow');
+    }
+    function ajouterLigne() {
+        var trEmpty = $("#tableLignesFacture").find('tr[data-isEmpty=True]').first();
+        if (trEmpty !== undefined && trEmpty.length > 0) {
+            var newRow = trEmpty.clone(true);
+            newRow.attr('data-isEmpty', 'False');
+            newRow.find('input[id$=IsEmpty]').val('False');
+            newRow.show();
+            newRow.find("[name]").each(function () {
+                var name = $(this).attr('name');
+                var indexDebut = name.indexOf('[') + 1;
+                var indexFin = name.indexOf(']');
+                var index = $("#tableLignesFacture").find('tr[data-isEmpty]').length;
+                $(this).attr('name', name.substring(0, indexDebut) + index + name.substring(indexFin, name.length));
+            });
+            $("#tableLignesFacture").append(newRow);
+        }
+    }
+
+    function ligneFactureAdd() {
+        var $trLast = $("#tableLignesFacture").find('tr').last();
+        if ($trLast !== undefined && $trLast.length > 0) {
+            var newRow = $trLast.clone(true);
+            var indexLigne = parseInt(newRow.find('input[role=IndexLigne]').val()) + 1;
+            newRow.attr('data-isEmpty', 'False');
+            newRow.attr('data-idLigne', '0');
+            newRow.find('input[id$=IsEmpty]').val('False');
+            newRow.show();
+
+            $.ajax({
+                url: '@Url.Action("LigneFactureAdd")?indexLigne=' + indexLigne,
+                type: 'GET',
+                dataType: 'html',
+                context: { ligne: newRow },
+                success: function (result) {
+                    var $trLigne = this.ligne;
+
+                    var $html = $(result);
+                    $html.find('[name]').each(function () {
+                        $(this).attr('name', 'Lignes' + $(this).attr('name'));
+                    });
+
+                    $trLigne.html($('<div>').append($html.clone()).html());
+
+                    $("#tableLignesFacture").append(newRow);
+			    }
+		    });
+        }
+    }
+    function ligneFactureOnChange(element) {
+        var $trLigne = $(element).closest('[data-idLigne]');
+        var nameElement = $(element).attr('name');
+        var idLigne = $trLigne.attr('data-idLigne');
+        var quantite = $trLigne.find('[role=Quantite]').val();
+        var libelle = $trLigne.find('[role=Libelle]').val();
+        var remise = $trLigne.find('[role=Remise]').val();
+        var prixGarageHT = $trLigne.find('[role=PrixGarageHT]').val();
+
+        var indexLigne = $trLigne.find('[role=IndexLigne]').val();
+        var isEmpty = $trLigne.find('[role=IsEmpty]').val();
+        var isSupprime = $trLigne.find('[role=IsSupprime]').val();
+
+        if (parseInt(prixGarageHT[prixGarageHT.length - 1]).toString() !== 'NaN') {
+            $.ajax({
+                url: '@Url.Action("LigneFactureChange")?idLigne=' + idLigne + '&libelle=' + libelle + '&quantite=' + quantite + '&remise=' + remise + '&prixGarageHT=' + prixGarageHT + '&indexLigne=' + indexLigne + '&isEmpty=' + isEmpty + '&isSupprime=' + isSupprime,
+                type: 'GET',
+                dataType: 'html',
+                context: { ligne: $trLigne, nameElement: nameElement },
+                success: function (result) {
+                    var $trLigne = this.ligne;
+
+                    var $html = $(result);
+                    $html.find('[name]').each(function () {
+                        $(this).attr('name', 'Lignes' + $(this).attr('name'));
+                    });
+
+                    $trLigne.html($('<div>').append($html.clone()).html());
+                    SetCaretAtEnd($trLigne.find('[name="' + this.nameElement + '"]').first()[0]);//.focus();
+
+                    piedFactureOnChange();
+                }
+            });
+        }
+    }
+    function SetCaretAtEnd(elem) {
+        var elemLen = elem.value.length;
+        // For IE Only
+        if (document.selection) {
+            // Set focus
+            elem.focus();
+            // Use IE Ranges
+            var oSel = document.selection.createRange();
+            // Reset position to 0 & then set at end
+            oSel.moveStart('character', -elemLen);
+            oSel.moveStart('character', elemLen);
+            oSel.moveEnd('character', 0);
+            oSel.select();
+        }
+        else if (elem.selectionStart || elem.selectionStart == '0') {
+            // Firefox/Chrome
+            elem.selectionStart = elemLen;
+            elem.selectionEnd = elemLen;
+            elem.focus();
+        } // if
+    }
+</script>
+
+@Html.Hidden("hiddenTauxTVA", CEDAlfaiaApp.Core.CEDAlfaiaAppHttpContext.TauxTVA)
+@if (this.Model != null)
+{
+    <table id="tableLignesFacture" class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th width="40%">Description</th>
+                <th width="11%">Quantité</th>
+                <th width="11%">Remise</th>
+                <th width="17.5%">Fournisseur</th>
+                <th width="17.5%">Client</th>
+                <th width="3%"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+
+                for (var i = 0; i < this.Model.Count(); i++)
+                {
+                    this.Model[i].IndexLigne = i;
+                    var styleDisplay = this.Model[i].IsEmpty ? "none" : "";
+                    <tr data-idLigne="@this.Model[i].IDLigne" data-isEmpty="@this.Model[i].IsEmpty" style="display:@styleDisplay">
+                        @{
+                            Html.RenderPartial("_LignePieceVente", this.Model[i]);
+                        }
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+    
+    var ligneFound = this.Model.FirstOrDefault();
+    if (ligneFound == null || !ligneFound.IsReadOnly)
+    {
+        <a class="pull-right" style="margin-right:10px;" href="#" onclick="ligneFactureAdd(); return false;"><i class="fa fa-plus fa-2x text-success"></i></a>
+    }
+}
+    

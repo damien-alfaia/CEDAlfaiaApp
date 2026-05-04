@@ -1,0 +1,69 @@
+﻿@model CEDAlfaiaApp.DAL.Widgets.WidgetUtilisateur
+
+
+@{
+    var factures = CEDAlfaiaApp.BLL.CEDAlfaiaAppWebService.GetService().GarageService.Factures().Where(f => !f.IsFactureAnnule).ToList();
+    if (this.Model.DateDebut != null || this.Model.DateFin != null)
+    {
+        if (this.Model.DateDebut != null)
+        {
+            factures = factures.Where(f => f.DateFacture >= this.Model.DateDebut).ToList();
+        }
+        if (this.Model.DateFin != null)
+        {
+            factures = factures.Where(f => f.DateFacture <= this.Model.DateFin).ToList();
+        }
+    }
+    else if (this.Model.IsAnneeEnCours != null && this.Model.IsAnneeEnCours.Value)
+    {
+        factures = factures.Where(f => f.DateFacture.Value.Year == DateTime.Now.Year).ToList();
+    }
+    else if (this.Model.IsMoisEnCours != null && this.Model.IsMoisEnCours.Value)
+    {
+        factures = factures.Where(f => f.DateFacture.Value.Year == DateTime.Now.Year && f.DateFacture.Value.Month == DateTime.Now.Month).ToList();
+    }
+
+    var gp = factures.GroupBy(
+            g => g.DateFacture.Value.ToString("MM/yyyy"),
+            g => g,
+            (key, g) => new { MoisAnnee = key, CA = g.Sum(f => f.TotalTTC) }).OrderBy(d => d.MoisAnnee).ToList();
+}
+
+@(Html.DevExtreme().Chart()
+    .ID("widgetCAParMois" + this.Model.ID)
+    .Palette(VizPalette.Carmine)
+    .CommonSeriesSettings(s => s
+        .ArgumentField("MoisAnnee")
+        .Type(SeriesType.Line)
+    )
+    .Size(s => s.Width(new JS("$('#" + this.Model.HtmlOwnerZoneUID + "').width() - 30")).Height(300))
+    .ArgumentAxis(a => a
+        .ValueMarginsEnabled(false)
+        .DiscreteAxisDivisionMode(DiscreteAxisDivisionMode.CrossLabels)
+        .Grid(g => g.Visible(true))
+    )
+    .Series(s =>
+    {
+        s.Add().ValueField("CA").Name("CA par mois");
+    })
+    .Legend(l => l
+        .VerticalAlignment(VerticalEdge.Bottom)
+        .HorizontalAlignment(HorizontalAlignment.Center)
+        .ItemTextPosition(Position.Bottom)
+    )
+    .Title(t => t
+        .Text("Chiffre d'affaire par mois")
+    )
+    .Export(e => e.Enabled(true))
+    .Tooltip(t => t
+        .Enabled(true)
+        .CustomizeTooltip(@<text>
+            function (arg) {
+            return {
+            text: arg.valueText
+            };
+            }
+        </text>)
+    )
+    .DataSource(gp)
+)

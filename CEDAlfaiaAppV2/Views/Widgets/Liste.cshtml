@@ -1,0 +1,200 @@
+﻿@model IQueryable<CEDAlfaiaApp.DAL.Widgets.WidgetUtilisateur>
+
+@{
+    ViewBag.Title = "Liste des widgets";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+<script>
+    function onRowClick(e) {
+        var component = e.component;
+        var data = e.data;
+
+        function initialClick() {
+            component.clickCount = 1;
+            component.clickKey = e.key;
+            component.clickDate = new Date();
+        }
+
+        function doubleClick() {
+            component.clickCount = 0;
+            component.clickKey = 0;
+            component.clickDate = null;
+
+            modifierWidget(data.ID);
+        }
+
+        if ((!component.clickCount) || (component.clickCount != 1) || (component.clickKey != e.key)) {
+            initialClick();
+        }
+        else if (component.clickKey == e.key) {
+            if (((new Date()) - component.clickDate) <= 300)
+                doubleClick();
+            else
+                initialClick();
+        }
+    }
+
+    function menuOnItemClick(e) {
+        if (e.itemData.action !== undefined) {
+            switch (e.itemData.action) {
+                case 'Modifier':
+                    modifierWidget(e.itemData.idWidget);
+                    break;
+                case 'Supprimer':
+                    supprimerWidget(e.itemData.idWidget);
+                    break;
+            }
+        }
+    }
+
+    function modifierWidget(id) {
+        window.location = 'Saisir?idWidget=' + id;
+    }
+
+    function supprimerWidget(id) {
+        if (confirm("Voulez-vous vraiment supprimer ce widget ? ")) {
+            $.ajax({
+                url: '@Url.Action("SupprimerWidget")',
+                data: JSON.stringify({ idWidget: id }),
+                contentType: 'application/json; charset=utf-8',
+                type: 'POST',
+                success: function (result) {
+                    if (result == "OK")
+                        location.reload();
+                    else
+                        alert(result);
+                },
+                error: function (err) {
+                    alert(err);
+                }
+            });
+        }
+    }
+    function onToolbarPreparing(e) {
+        var toolbarItems = e.toolbarOptions.items;
+        // Modifies an existing item
+        /*$.each(toolbarItems, function (_, item) {
+            if (item.name === "saveButton") {
+                // Change the item options here
+            }
+        });*/
+
+        // Adds a new item
+        toolbarItems.push({
+            widget: "dxButton",
+            options: {
+                icon: "add", onClick: function () {
+                    window.location.href = '/Widgets/Saisir'; 
+                }
+            },
+            location: "after"
+        });
+    }
+</script>
+
+<section class="content-header">
+    <h1>
+        Liste des widgets
+    </h1>
+</section>
+
+<section class="content">
+    @(Html.DevExtreme().DataGrid<CEDAlfaiaApp.DAL.Widgets.WidgetUtilisateur>()
+.ID("gridListeWidgets")
+.DataSource(this.Model.Select(m => new
+{
+    ID = m.ID,
+    Widget = m.Widget.Libelle,
+    DateDebut = m.DateDebut,
+    DateFin = m.DateFin,
+    MoisEnCours = (m.IsMoisEnCours.HasValue && m.IsMoisEnCours.Value) ? "Oui" : "Non",
+    AnneeEnCours = (m.IsAnneeEnCours.HasValue && m.IsAnneeEnCours.Value) ? "Oui" : "Non"
+}), null)
+.OnRowClick("onRowClick")
+.OnToolbarPreparing("onToolbarPreparing")
+.RemoteOperations(false)
+.AllowColumnReordering(true)
+.RowAlternationEnabled(true)
+.FilterRow(fr => fr.Visible(true))
+.StateStoring(s => s
+    .Enabled(true)
+    .Type(StateStoringType.LocalStorage)
+    .StorageKey("gridListeWidgets")
+)
+.ShowBorders(true)
+.Paging(p => p.PageSize(10))
+.Pager(p => p
+    .ShowPageSizeSelector(true)
+    .AllowedPageSizes(new int[] { 10, 25, 50, 100 })
+)
+.SearchPanel(s => s
+    .Visible(true)
+    .HighlightSearchText(true)
+    .Placeholder("Rechercher...")
+)
+.ColumnChooser(cc =>
+{
+    cc.Title("Choisir les colonnes").Mode(GridColumnChooserMode.DragAndDrop).EmptyPanelText("Aucune colonne à insérer").Enabled(true);
+})
+.GroupPanel(g => g.Visible(true))
+.Grouping(g => g.AutoExpandAll(true))
+.Columns(columns =>
+{
+    columns.Add()
+        .DataField("Widget")
+        .GroupIndex(0)
+        .HidingPriority(0)
+        .ShowInColumnChooser(true);
+
+    columns.Add()
+        .DataField("DateDebut")
+        .Caption("Date de début")
+        .DataType(GridColumnDataType.Date)
+        .Format(Format.ShortDate)
+        .Alignment(HorizontalAlignment.Left)
+        .HidingPriority(2)
+        .ShowInColumnChooser(true);
+
+    columns.Add()
+        .DataField("DateFin")
+        .Caption("Date de fin")
+        .DataType(GridColumnDataType.Date)
+        .Format(Format.ShortDate)
+        .Alignment(HorizontalAlignment.Left)
+        .HidingPriority(2)
+        .ShowInColumnChooser(true);
+    columns.Add()
+        .DataField("MoisEnCours")
+        .Caption("Mois en cours ?")
+        .Alignment(HorizontalAlignment.Left)
+        .HidingPriority(3)
+        .ShowInColumnChooser(true);
+    columns.Add()
+        .DataField("AnneeEnCours")
+        .Caption("Année en cours ?")
+        .Alignment(HorizontalAlignment.Left)
+        .HidingPriority(3)
+        .ShowInColumnChooser(true);
+    columns.Add()
+        .Caption("")
+        .Width(120)
+        .AllowFiltering(false)
+        .AllowSorting(false)
+        .HidingPriority(0)
+        .ShowInColumnChooser(true)
+        .CellTemplate(@<text>
+                @Html.DevExtreme().Menu().Items(it =>
+       {
+           it.Add().Text("Actions")
+           .Items(subItems =>
+           {
+               subItems.Add().Text("Modifier").Icon("edit").Option("idWidget", new JS("data.ID")).Option("action", "Modifier");
+               subItems.Add().Text("Supprimer").Icon("remove").Option("idWidget", new JS("data.ID")).Option("action", "Supprimer");
+           });
+       }).OnItemClick("menuOnItemClick").AdaptivityEnabled(true)
+        </text>);
+ }))
+</section>

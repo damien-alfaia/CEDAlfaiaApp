@@ -1,0 +1,15 @@
+﻿@model List<CEDAlfaiaApp.Models.VoitureModel>
+
+@{
+    foreach (var voiture in this.Model)
+    {
+        <div class="row">
+            <div class="col-xs-12">
+                <i class="fa fa-car"></i>
+                <span>
+                    @(voiture.Marque + " " + voiture.Modele + " - " + voiture.Immatriculation)
+                </span>
+            </div>
+        </div>
+    }
+}

@@ -1,0 +1,22 @@
+﻿@model CEDAlfaiaApp.DAL.Shared.Adresse
+
+@if (Model != null)
+{
+    <div class="row">
+        <div class="col-xs-12">
+            @Model.Ligne1
+        </div>
+        <div class="col-xs-12">
+            @Model.Ligne2
+        </div>
+        <div class="col-xs-12">
+            @Model.Ligne3
+        </div>
+        <div class="col-xs-12">
+            @(Model.CodePostal + " " + Model.Ville)
+        </div>
+        <div class="col-xs-12">
+            @Model.Pays
+        </div>
+    </div>
+}

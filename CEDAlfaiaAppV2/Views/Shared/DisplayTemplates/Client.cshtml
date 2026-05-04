@@ -1,0 +1,15 @@
+﻿@model CEDAlfaiaAppV2.Models.ClientModel
+
+@{
+    if (this.Model != null)
+    {
+        <i class="fa fa-user"></i>
+        <span>
+            @(this.Model.Prenom + " " + this.Model.Nom)
+        </span>
+        <br/>
+        <span class="text-muted">
+            @(" - " + this.Model.Telephone)
+        </span>
+    }
+}

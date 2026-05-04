@@ -1,0 +1,20 @@
+﻿@model CEDAlfaiaApp.Models.AdresseModel
+
+<label>Adresse</label>
+
+@(Html.DevExtreme().Form<CEDAlfaiaApp.Models.AdresseModel>()
+    .ID("formWidgetUtilisateur")
+    .ColCount(3)
+    .ShowValidationSummary(true)
+    .Items(items =>
+    {
+        items.AddSimpleFor(m => m.Ligne1).ColSpan(3);
+        items.AddSimpleFor(m => m.Ligne2).ColSpan(3);
+        items.AddSimpleFor(m => m.Ligne3).ColSpan(3);
+        items.AddSimpleFor(m => m.CodePostal);
+        items.AddSimpleFor(m => m.Ville).ColSpan(2);
+        items.AddSimpleFor(m => m.Pays).ColSpan(3);
+    })
+    .LabelLocation(FormLabelLocation.Top)
+    .FormData(Model)
+)

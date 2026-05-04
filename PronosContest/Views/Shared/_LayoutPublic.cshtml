@@ -1,0 +1,46 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
+    <title>@ViewBag.Title</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/Content/js")
+    <meta content="/img/icone.png" itemprop="image">
+    <link href="/img/favicon.ico" rel="shortcut icon">
+
+
+    @Html.DevExpress().GetStyleSheets(
+        new StyleSheet { ExtensionSuite = ExtensionSuite.NavigationAndLayout, Theme = "Metropolis" },
+        new StyleSheet { ExtensionSuite = ExtensionSuite.Editors, Theme = "Metropolis" },
+        new StyleSheet { ExtensionSuite = ExtensionSuite.HtmlEditor, Theme = "Metropolis" },
+        new StyleSheet { ExtensionSuite = ExtensionSuite.GridView, Theme = "Metropolis" },
+        new StyleSheet { ExtensionSuite = ExtensionSuite.PivotGrid, Theme = "Metropolis" },
+        new StyleSheet { ExtensionSuite = ExtensionSuite.Chart, Theme = "Metropolis" },
+        new StyleSheet { ExtensionSuite = ExtensionSuite.Report, Theme = "Metropolis" },
+        new StyleSheet { ExtensionSuite = ExtensionSuite.Scheduler, Theme = "Metropolis" },
+        new StyleSheet { ExtensionSuite = ExtensionSuite.TreeList, Theme = "Metropolis" }
+    )
+    @Html.DevExpress().GetScripts(
+        new Script { ExtensionSuite = ExtensionSuite.NavigationAndLayout },
+        new Script { ExtensionSuite = ExtensionSuite.Editors },
+        new Script { ExtensionSuite = ExtensionSuite.GridView },
+        new Script { ExtensionSuite = ExtensionSuite.Report }
+    )
+
+    @Styles.Render("~/Content/DevExtremeBundle")
+    @Scripts.Render("~/Scripts/DevExtremeBundle")
+
+    <style>
+        body {
+            background-color: black;
+        }
+    </style>
+</head>
+<body>
+    @RenderBody()
+
+    @RenderSection("scripts", required: false)
+</body>
+</html>

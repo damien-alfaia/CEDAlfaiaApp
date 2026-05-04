@@ -1,0 +1,329 @@
+﻿@model CEDAlfaiaAppV2.Models.SearchPieceVenteModel
+
+<script>
+    function imprimerParLot() {
+        var ids = [];
+        var typeListe = '@Model.TypeListe';
+        var selectedRows = $("#gridListe" + typeListe).dxDataGrid("instance").getSelectedRowsData();
+        $(selectedRows).each(function () {
+            ids.push(this.ID);
+        });
+        if (ids.length > 0)
+            window.open('ImprimerParLot?ids=' + JSON.stringify(ids), "_blank");
+    }
+
+    function envoyerAuComptable() {
+        var ids = [];
+        var typeListe = '@Model.TypeListe';
+        var selectedRows = $("#gridListe" + typeListe).dxDataGrid("instance").getSelectedRowsData();
+        $(selectedRows).each(function () {
+            ids.push(this.ID);
+        });
+        $("#loadPanel").dxLoadPanel("instance").show();
+        if (ids.length > 0) {
+             $.ajax({
+                url: '@Url.Action("EnvoyerComptable")',
+                data: JSON.stringify({ ids: JSON.stringify(ids) }),
+                contentType: 'application/json; charset=utf-8',
+                type: 'POST',
+                success: function (result) {
+                    $("#loadPanel").dxLoadPanel("instance").hide();
+                    if (result == "OK") {
+                        alert('Email envoyé !');
+                        location.reload();
+                    }
+                    else
+                        alert(result);
+                },
+                error: function (err) {
+                    $("#loadPanel").dxLoadPanel("instance").hide();
+                    alert(err);
+                }
+            });
+        }
+    }
+
+    function validerFacture(idFacture) {
+        if (confirm("Voulez-vous vraiment valider cette facture ? ")) {
+            $.ajax({
+                url: '@Url.Action("ValiderFacture")',
+                data: JSON.stringify({ idFacture: idFacture }),
+                contentType: 'application/json; charset=utf-8',
+                context: { idFacture: idFacture },
+                type: 'POST',
+                success: function (result) {
+                    if (result == "OK")
+                        location.reload();
+                    else
+                        alert(result);
+                },
+                error: function (err) {
+                    alert(err);
+                }
+            });
+        }
+    }
+
+    function payer(idPieceVente, modePaiement) {
+        if (confirm("Voulez-vous vraiment payer cette pièce de vente ? ")) {
+            $.ajax({
+                url: '@Url.Action("Payer")',
+                data: JSON.stringify({ idPieceVente: idPieceVente, modePaiement: modePaiement }),
+                contentType: 'application/json; charset=utf-8',
+                type: 'POST',
+                success: function (result) {
+                    if (result == "OK") {
+                        location.reload();
+                    }
+                    else
+                        alert(result);
+                },
+                error: function (err) {
+                    alert(err);
+                }
+            });
+        }
+    }
+
+    function supprimerDevis(idDevis) {
+        if (confirm("Voulez-vous vraiment supprimer ce devis ? ")) {
+            $.ajax({
+                url: '@Url.Action("SupprimerDevis")',
+                data: JSON.stringify({ idDevis: idDevis }),
+                contentType: 'application/json; charset=utf-8',
+                type: 'POST',
+                success: function (result) {
+                    if (result == "OK")
+                        location.reload();
+                    else
+                        alert(result);
+                },
+                error: function (err) {
+                    alert(err);
+                }
+            });
+        }
+    }
+    function genererFacture(idDevis) {
+        if (confirm("Voulez-vous vraiment générer ce devis en facture ? ")) {
+            $.ajax({
+                url: '@Url.Action("GenererFacture")',
+                data: JSON.stringify({ idDevis: idDevis }),
+                contentType: 'application/json; charset=utf-8',
+                type: 'POST',
+                success: function (result) {
+                    if (result == "OK")
+                        location.reload();
+                    else
+                        alert(result);
+                },
+                error: function (err) {
+                    alert(err);
+                }
+            });
+        }
+    }
+
+    function repasserEnFacture(idFacture) {
+        if (confirm("Voulez-vous vraiment repasser en facture ? ")) {
+            $.ajax({
+                url: '@Url.Action("RepasserEnFacture")',
+                data: JSON.stringify({ idFacture: idFacture }),
+                contentType: 'application/json; charset=utf-8',
+                type: 'POST',
+                success: function (result) {
+                    if (result == "OK")
+                        location.reload();
+                    else
+                        alert(result);
+                },
+                error: function (err) {
+                    alert(err);
+                }
+            });
+        }
+    }
+
+    function annulerFacture(idFacture) {
+        if (confirm("Voulez-vous vraiment annuler cette facture ? ")) {
+            window.location.href = '/PiecesVente/Annuler?idFacture=' + idFacture;
+        }
+    }
+
+    function imprimer(idFacture) {
+        window.open('Editer?idPieceVente=' + idFacture, "_blank");
+    }
+    function ouvrir(idFacture) {
+        window.location.href = 'Saisir?identifiant=' + idFacture;
+    }
+
+    function OnDateDebutChanged(s) {
+        var idClient = '@this.Model.ClientID';
+        var dateDebut = s.value;
+        var dateFin = '@this.Model.DateFin.ToString("yyyy-MM-dd")';
+        window.location.href = 'Liste?idClient=' + idClient + '&dateDebut=' + dateDebut.toISOString() + '&dateFin=' + dateFin + '&typeListe=@this.Model.TypeListe';
+    }
+
+    function OnDateFinChanged(s) {
+        var idClient = '@this.Model.ClientID';
+        var dateDebut = '@this.Model.DateDebut.ToString("yyyy-MM-dd")';
+        var dateFin = s.value;
+        window.location.href = 'Liste?idClient=' + idClient + '&dateDebut=' + dateDebut + '&dateFin=' + dateFin.toISOString() + '&typeListe=@this.Model.TypeListe';
+    }
+
+    function OnClickNextLastMonth(e) {
+        var idClient = e.component.option("idClient");
+        var dateDebut = e.component.option("dateDebut");
+        var dateFin = e.component.option("dateFin");
+
+        if (idClient !== undefined && idClient != null)
+            window.location.href = 'Liste?idClient=' + idClient + '&dateDebut=' + dateDebut + '&dateFin=' + dateFin + '&typeListe=@this.Model.TypeListe';
+        else
+            window.location.href = 'Liste?dateDebut=' + dateDebut + '&dateFin=' + dateFin + '&typeListe=@this.Model.TypeListe';
+    }
+
+    function onRowClick(e) {
+        var component = e.component;
+        var data = e.data;
+
+        function initialClick() {
+            component.clickCount = 1;
+            component.clickKey = e.key;
+            component.clickDate = new Date();
+        }
+
+        function doubleClick() {
+            component.clickCount = 0;
+            component.clickKey = 0;
+            component.clickDate = null;
+
+            ouvrir(data.ID);
+        }
+
+        if ((!component.clickCount) || (component.clickCount != 1) || (component.clickKey != e.key)) {
+            initialClick();
+        }
+        else if (component.clickKey == e.key) {
+            if (((new Date()) - component.clickDate) <= 300)
+                doubleClick();
+            else
+                initialClick();
+        }
+    }
+
+    function menuOnItemClick(e) {
+        if (e.itemData.action !== undefined) {
+            switch (e.itemData.action) {
+                case 'Ouvrir':
+                    ouvrir(e.itemData.idFacture);
+                    break;
+                case 'Imprimer':
+                    imprimer(e.itemData.idFacture);
+                    break;
+                case 'Payer':
+                    payer(e.itemData.idFacture, e.itemData.modePaiement);
+                    break;
+                case 'Valider':
+                    validerFacture(e.itemData.idFacture);
+                    break;
+                case 'Annuler':
+                    annulerFacture(e.itemData.idFacture);
+                    break;
+                case 'GenererFacture':
+                    genererFacture(e.itemData.idDevis);
+                    break;
+                case 'Supprimer':
+                    supprimerDevis(e.itemData.idDevis);
+                    break;
+                case 'RepasserEnFacture':
+                    repasserEnFacture(e.itemData.idFacture);
+                    break;
+            }
+        }
+    }
+    function onToolbarPreparing(e) {
+        var toolbarItems = e.toolbarOptions.items;
+        toolbarItems.push({
+            widget: "dxButton",
+            options: {
+                icon: "print", onClick: function () {
+                    imprimerParLot();
+                }
+            },
+            location: "after"
+        });
+        @{
+            var isFacturesAEnvoyer = "0";
+            if (this.Model.TypeListe == "FacturesAEnvoyer")
+            {
+                isFacturesAEnvoyer = "1";
+            }
+        }
+        if ('@isFacturesAEnvoyer' == "1") {
+            toolbarItems.push({
+                widget: 'dxButton',
+                options:
+                {
+                    icon: 'email', onClick: function () {
+                        envoyerAuComptable();
+                    }
+                },
+                location: 'after'
+            });
+        }
+        
+        if ('@this.Model.TypeListe' == "Facture" || '@this.Model.TypeListe' == "Devis") {
+            toolbarItems.push({
+                widget: "dxButton",
+                options: {
+                    icon: "add", onClick: function () {
+                        window.location.href = '/PiecesVente/Saisir?typePieceVente=@this.Model.TypeListe';
+                    }
+                },
+                location: "after"
+            });
+        }
+    }
+</script>
+
+<section class="content-header">
+    @{
+        string titre = "";
+        switch (this.Model.TypeListe)
+        {
+            case "Factures":
+                titre = "Factures";
+                break;
+            case "FacturesAnnulees":
+                titre = "Factures annulées";
+                break;
+            case "Devis":
+                titre = "Devis";
+                break;
+            case "FacturesAEnvoyer":
+                titre = "Factures à envoyer";
+                break;
+        }
+        ViewBag.Title = titre;
+        Layout = "~/Views/Shared/_Layout.cshtml";
+    }
+    <h1>
+        @titre
+    </h1>
+</section>
+
+<section class="content">
+    @using (Html.BeginForm())
+    {
+        @Html.DevExtreme().Toolbar().Items(it =>
+   {
+       it.Add().Location(ToolbarItemLocation.Center).Widget(w => w.Button().OnClick("OnClickNextLastMonth").Icon("spinleft").Option("idClient", this.Model.ClientID).Option("dateDebut", this.Model.DateDebut.AddMonths(-1).ToString("yyyy-MM-dd")).Option("dateFin", (new DateTime(this.Model.DateFin.AddMonths(-1).Year, this.Model.DateFin.AddMonths(-1).Month, DateTime.DaysInMonth(this.Model.DateFin.AddMonths(-1).Year,this.Model.DateFin.AddMonths(-1).Month))).ToString("yyyy-MM-dd")));
+       it.Add().Location(ToolbarItemLocation.Center).Widget(w => w.DateBox().Name("dateDebut").Value(this.Model.DateDebut).DisplayFormat("dd/MM/yyyy").OnValueChanged("OnDateDebutChanged"));
+       it.Add().Location(ToolbarItemLocation.Center).Widget(w => w.DateBox().Name("dateFin").Value(this.Model.DateFin).DisplayFormat("dd/MM/yyyy").OnValueChanged("OnDateFinChanged"));
+       it.Add().Location(ToolbarItemLocation.Center).Widget(w => w.Button().OnClick("OnClickNextLastMonth").Icon("spinright").Option("idClient", this.Model.ClientID).Option("dateDebut", this.Model.DateDebut.AddMonths(1).ToString("yyyy-MM-dd")).Option("dateFin", (new DateTime(this.Model.DateFin.AddMonths(1).Year, this.Model.DateFin.AddMonths(1).Month, DateTime.DaysInMonth(this.Model.DateFin.AddMonths(1).Year, this.Model.DateFin.AddMonths(1).Month))).ToString("yyyy-MM-dd")));
+   });
+        <div style="width:100%;margin-top:15px;">
+            @Html.Action("GridViewListePiecesVentePartial", new { idClient = this.Model.ClientID, dateDebut = this.Model.DateDebut, dateFin = this.Model.DateFin, typeListe = this.Model.TypeListe })
+        </div>
+    }
+</section>

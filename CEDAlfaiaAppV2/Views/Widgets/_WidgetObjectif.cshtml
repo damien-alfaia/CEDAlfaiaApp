@@ -1,0 +1,79 @@
+﻿@using CEDAlfaiaApp.Core;
+@using System.Security.Claims;
+@model CEDAlfaiaApp.DAL.Widgets.WidgetUtilisateur
+
+
+@{
+    var ctx = Request.GetOwinContext();
+    var authManager = ctx.Authentication;
+    int? idUtilisateur = -1;
+    if (authManager.User != null)
+    {
+        var userInfo = authManager.User.Claims.Where(c => c.Type == ClaimTypes.Sid).FirstOrDefault();
+        if (userInfo != null)
+        {
+            idUtilisateur = Helper.GetIntFromString(userInfo.Value);
+        }
+    }
+
+    var parametrage = CEDAlfaiaApp.BLL.CEDAlfaiaAppWebService.GetService().ParametrageService.GetParametrageUtilisateur(idUtilisateur.Value);
+    int nombreJours = 0;
+
+    var factures = CEDAlfaiaApp.BLL.CEDAlfaiaAppWebService.GetService().GarageService.Factures().Where(f => !f.IsFactureAnnule).ToList();
+    if (this.Model.DateDebut != null || this.Model.DateFin != null)
+    {
+        if (this.Model.DateDebut != null)
+        {
+            factures = factures.Where(f => f.DateFacture >= this.Model.DateDebut).ToList();
+        }
+        if (this.Model.DateFin != null)
+        {
+            factures = factures.Where(f => f.DateFacture <= this.Model.DateFin).ToList();
+        }
+
+        if (this.Model.DateDebut != null && this.Model.DateFin != null)
+        {
+            nombreJours = (this.Model.DateFin - this.Model.DateDebut).Value.Days;
+        }
+    }
+    else if (this.Model.IsAnneeEnCours != null && this.Model.IsAnneeEnCours.Value)
+    {
+        DateTime dateDebutAnneeEnCours = new DateTime(DateTime.Now.Year, 1, 1);
+        DateTime dateFinAnneeEnCours = new DateTime(DateTime.Now.Year, 12, 31);
+        factures = factures.Where(f => f.DateFacture.Value.Year == DateTime.Now.Year).ToList();
+        nombreJours = (dateFinAnneeEnCours - dateDebutAnneeEnCours).Days;
+    }
+    else if (this.Model.IsMoisEnCours != null && this.Model.IsMoisEnCours.Value)
+    {
+        DateTime dateDebutMoisEnCours = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+        DateTime dateFinMoisEnCours = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month));
+        factures = factures.Where(f => f.DateFacture.Value.Year == DateTime.Now.Year && f.DateFacture.Value.Month == DateTime.Now.Month).ToList();
+        nombreJours = (dateFinMoisEnCours - dateDebutMoisEnCours).Days;
+    }
+
+    float totalTTC = factures.Sum(f => f.TotalTTC);
+    float objectifEntreDates = ((parametrage.ObjectifAnnuel != null ? parametrage.ObjectifAnnuel.Value : 1) / 365) * nombreJours;
+}
+
+@(Html.DevExtreme().CircularGauge()
+        .ID("widgetObjectif" + this.Model.ID)
+        .Scale(s => s
+            .StartValue(0)
+            .EndValue(objectifEntreDates * 1.2f)
+            .TickInterval(2000)
+            .Label(l => l.CustomizeText(@<text>
+                function (arg) {
+                    return arg.valueText + "€";
+                }
+            </text>))
+        )
+        .RangeContainer(c => c.Ranges(r =>
+        {
+            r.Add().StartValue(0).EndValue(objectifEntreDates/1.2f).Color("#CE2029");
+            r.Add().StartValue(objectifEntreDates / 1.2f).EndValue(objectifEntreDates).Color("#FFD700");
+            r.Add().StartValue(objectifEntreDates).EndValue(objectifEntreDates * 1.2f).Color("#228B22");
+        }))
+        .Size(s => s.Width(280))
+        .Export(e => e.Enabled(false))
+        .Value(totalTTC)
+)

@@ -1,0 +1,67 @@
+﻿@model CEDAlfaiaAppV2.Models.EntrepriseModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<section class="content-header">
+    <h1>
+        Saisir une entreprise
+    </h1>
+    <ol class="breadcrumb">
+        <li><a href="#"><i class="fa fa-dashboard"></i> CEDAlfaia</a></li>
+        <li><a href="@Url.Action("Liste", "Entreprise")">Entreprises</a></li>
+        <li class="active">Saisir une entreprise</li>
+    </ol>
+</section>
+
+@{
+    string titleFormulaire = "Nouvelle entreprise";
+    if (this.Model != null && this.Model.ID > 0)
+    {
+        titleFormulaire = this.Model.Nom;
+    }
+}
+
+<section class="content">
+    <div class="box box-danger">
+        <div class="box-header with-border">
+            <h3 class="box-title">@titleFormulaire</h3>
+        </div>
+
+        @Html.ValidationSummary(false, "", new { @style = "color:red;" })
+        @using (Html.BeginForm())
+        {
+            @Html.HiddenFor(m => m.ID)
+            <div class="box-body">
+                <div class="form-group">
+                    @Html.LabelFor(m => m.IsActif)
+                    @Html.CheckBoxFor(m => m.IsActif, new { style="width:15px;height:15px;display:block;" })
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m=> m.Nom)
+                    @Html.TextBoxFor(m => m.Nom, new { @class = "form-control", placeholder = "Nom" })
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.Siren)
+                    @Html.TextBoxFor(m => m.Siren, new { @class = "form-control", placeholder = "SIREN" })
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.Siren)
+                    @Html.TextBoxFor(m => m.Siret, new { @class = "form-control", placeholder = "SIRET" })
+                </div>
+                <div class="form-group">
+                    @Html.EditorFor(m => m.Adresse, "Adresse")
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.Commentaire)
+                    @Html.TextAreaFor(m => m.Commentaire, new { @class = "form-control", placeholder = "Commentaire" })
+                </div>
+            </div>
+
+            <div class="box-footer">
+                <button class="btn btn-md btn-default" type="reset">Annuler</button>
+                <button type="submit" class="btn btn-primary">Enregistrer</button>
+            </div>
+        }        
+    </div>
+</section>

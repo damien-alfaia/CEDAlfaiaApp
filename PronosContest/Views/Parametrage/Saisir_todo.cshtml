@@ -1,0 +1,355 @@
+﻿@model CEDAlfaiaApp.Models.ParametrageModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script type="text/javascript">
+    function supprimerLogo() {
+        $('#imgLogo').attr('src', '');
+        $('[role=Logo]').val('');
+        $('#imgLogo').hide();
+    }
+    function PreviewLogo() {
+        fileLogo = document.getElementById("uploadLogo").files[0];
+        file_url_logo = URL.createObjectURL(fileLogo);
+        $('#imgLogo').attr('src', file_url_logo);
+        $('#imgLogo').slideDown();
+        setBase64File(fileLogo, '[role=Logo]');
+    }
+    function supprimerEntete() {
+        $('#imgEntete').attr('src', '');
+        $('[role=Entete]').val('');
+        $('#imgEntete').hide();
+    }
+    function PreviewEntete() {
+        fileEntete = document.getElementById("uploadEntete").files[0];
+        file_url_entete = URL.createObjectURL(fileEntete);
+        $('#imgEntete').attr('src', file_url_entete);
+        $('#imgEntete').slideDown();
+        setBase64File(fileEntete, '[role=Entete]');
+    }
+    function converBase64toBlob(content, contentType) {
+        contentType = contentType || '';
+        var sliceSize = 512;
+        var byteCharacters = window.atob(content); //method which converts base64 to binary
+        var byteArrays = [
+        ];
+        for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+            var slice = byteCharacters.slice(offset, offset + sliceSize);
+            var byteNumbers = new Array(slice.length);
+            for (var i = 0; i < slice.length; i++) {
+                byteNumbers[i] = slice.charCodeAt(i);
+            }
+            var byteArray = new Uint8Array(byteNumbers);
+            byteArrays.push(byteArray);
+        }
+        var blob = new Blob(byteArrays, {
+            type: contentType
+        }); //statement which creates the blob
+        return blob;
+    }
+    function setBase64File(file, selector) {
+        var reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = function () {
+            $(selector).val(reader.result);
+        };
+        reader.onerror = function (error) {
+            console.log('Error: ', error);
+        };
+    }
+    $(document).ready(function () {
+        if ($("[role=Logo]") !== undefined && $("[role=Logo]").val() != '') {
+            var file = converBase64toBlob($("[role=Logo]").val(), 'application/img');
+            file_url_logo = URL.createObjectURL(file);
+
+            if (file_url_logo == undefined || file_url_logo == null)
+                $('imgLogo').hide();
+            else
+                $('#imgLogo').attr('src', file_url_logo);
+        }
+        if ($("[role=Entete]") !== undefined && $("[role=Entete]").val() != '') {
+            var file = converBase64toBlob($("[role=Entete]").val(), 'application/img');
+            file_url_entete = URL.createObjectURL(file);
+
+            if (file_url_entete == undefined || file_url_entete == null)
+                $('imgEntete').hide();
+            else
+                $('#imgEntete').attr('src', file_url_entete);
+        }
+    });
+</script>
+
+
+@using (Html.BeginForm())
+{
+    @Html.HiddenFor(m => m.Logo, new { role = "Logo" })
+    @Html.HiddenFor(m => m.Entete, new { role = "Entete" })
+    @Html.DevExpress().FormLayout(settings =>
+{
+    settings.Name = "formParametrage";
+    settings.SettingsAdaptivity.AdaptivityMode = FormLayoutAdaptivityMode.SingleColumnWindowLimit;
+    settings.SettingsAdaptivity.SwitchToSingleColumnAtWindowInnerWidth = 500;
+    settings.ControlStyle.CssClass = "formLayout";
+
+    settings.Items.AddGroupItem(g =>
+    {
+        g.Caption = "Société";
+        g.ColCount = 2;
+        //g.UseDefaultPaddings = false;
+        //g.Paddings.PaddingTop = System.Web.UI.WebControls.Unit.Pixel(10);
+        g.GroupBoxDecoration = GroupBoxDecoration.Default;
+        g.GroupBoxStyle.Caption.Font.Bold = true;
+        g.GroupBoxStyle.Caption.Font.Size = 16;
+
+        g.Items.Add(m => m.LibelleEntreprise, i =>
+        {
+            i.NestedExtension().TextBox(s =>
+            {
+                s.ShowModelErrors = true;
+                s.Properties.ValidationSettings.Display = Display.Dynamic;
+            });
+        });
+        g.Items.Add(m => m.Telephone, i =>
+        {
+            i.NestedExtension().TextBox(s =>
+            {
+                s.ShowModelErrors = true;
+                s.Properties.ValidationSettings.Display = Display.Dynamic;
+            });
+        });
+        g.Items.Add(m => m.Portable, i =>
+        {
+            i.NestedExtension().TextBox(s =>
+            {
+                s.ShowModelErrors = true;
+                s.Properties.ValidationSettings.Display = Display.Dynamic;
+            });
+        });
+        g.Items.Add(m => m.Email, i =>
+        {
+            i.NestedExtension().TextBox(s =>
+            {
+                s.ShowModelErrors = true;
+                s.Properties.ValidationSettings.Display = Display.Dynamic;
+            });
+        });
+        g.Items.Add(i =>
+        {
+            i.ShowCaption = DefaultBoolean.False;
+            i.Width = System.Web.UI.WebControls.Unit.Percentage(100);
+            i.HorizontalAlign = FormLayoutHorizontalAlign.Right;
+        }).SetNestedContent(() =>
+        {
+            /*<label class="btn btn-default btn-xs btn-file">
+                        Choisir <input id="uploadEntete" type="file" name="uploadEntete" accept="image/*" onchange="PreviewEntete();" style="display:none;" />
+                    </label>
+                    <a class="btn btn-danger btn-xs" onclick="supprimerEntete(); return false;">Supprimer</a>
+                    <div>
+                        <img id="imgEntete" src="" />
+                    </div>
+            ViewContext.Writer.Write("<table><tr><td style=\"padding-right:10px;\">");*/
+
+            Html.DevExpress().Button(s =>
+            {
+                s.Name = "uploadLogo";
+                s.Attributes["type"] = "file";
+                s.Attributes["accept"] = "image/*";
+                s.Attributes["onchange"] = "PreviewLogo();return false;";
+                s.Style.Add("display", "none");
+                //s.Width = System.Web.UI.WebControls.Unit.Pixel(100);
+                s.Text = "Choisir";
+            }).Render();
+            Html.DevExpress().HyperLink(s =>
+            {
+                s.Name = "uploadEntete";
+                s.Attributes["type"] = "file";
+                s.Attributes["accept"] = "image/*";
+                s.Attributes["onclick"] = "supprimerLogo();";
+                s.Style.Add("display", "none");
+                s.Properties.Text = "Supprimer";
+                //s.Width = System.Web.UI.WebControls.Unit.Pixel(100);
+            }).Render();
+            ViewContext.Writer.Write("</td><td>");
+
+            Html.DevExpress().Image(s =>
+            {
+                s.SkinID = "imgLogo";
+            });
+        });
+        /*
+        g.Items.Add(m => m.SIRET, i =>
+        {
+            i.NestedExtension().TextBox(s =>
+            {
+                s.ShowModelErrors = true;
+                s.Properties.ValidationSettings.Display = Display.Dynamic;
+            });
+        });
+        g.Items.Add(m => m.CodeAPE, i =>
+        {
+            i.NestedExtension().TextBox(s =>
+            {
+                s.ShowModelErrors = true;
+                s.Properties.ValidationSettings.Display = Display.Dynamic;
+            });
+        });
+        g.Items.Add(m => m.TVAIntraCommunautaire, i =>
+        {
+            i.NestedExtension().TextBox(s =>
+            {
+                s.ShowModelErrors = true;
+                s.Properties.ValidationSettings.Display = Display.Dynamic;
+            });
+        });*/
+    });
+    settings.Items.AddGroupItem(g =>
+    {
+        g.Caption = "Facturation";
+        g.ColCount = 2;
+        g.UseDefaultPaddings = false;
+        g.Paddings.PaddingTop = System.Web.UI.WebControls.Unit.Pixel(10);
+        g.GroupBoxDecoration = GroupBoxDecoration.HeadingLine;
+        g.GroupBoxStyle.Caption.Font.Bold = true;
+        g.GroupBoxStyle.Caption.Font.Size = 16;
+
+
+        /*g.Items.Add(m => m.Entete, i =>
+        {
+            i.NestedExtension().BinaryImage(s =>
+            {
+                s.ShowModelErrors = true;
+                s.Properties.ValidationSettings.Display = Display.Dynamic;
+            });
+        });
+        g.Items.Add(m => m.MainDOeuvreMontantHoraire, i =>
+        {
+            i.NestedExtension().TextBox(s =>
+            {
+                s.ShowModelErrors = true;
+                s.Properties.ValidationSettings.Display = Display.Dynamic;
+            });
+        });
+        g.Items.Add(m => m.TauxTVA, i =>
+        {
+            i.NestedExtension().TextBox(s =>
+            {
+                s.ShowModelErrors = true;
+                s.Properties.ValidationSettings.Display = Display.Dynamic;
+            });
+        });
+        g.Items.Add(m => m.LibelleBasDePage, i =>
+        {
+            i.NestedExtension().TextBox(s =>
+            {
+                s.ShowModelErrors = true;
+                s.Properties.ValidationSettings.Display = Display.Dynamic;
+            });
+        });
+        g.Items.Add(m => m.EmailComptable, i =>
+        {
+            i.NestedExtension().TextBox(s =>
+            {
+                s.ShowModelErrors = true;
+                s.Properties.ValidationSettings.Display = Display.Dynamic;
+            });
+        });
+        g.Items.Add(m => m.IsSavePieceVente, i =>
+        {
+            i.NestedExtension().CheckBox(s =>
+            {
+                s.ShowModelErrors = true;
+                s.Properties.ValidationSettings.Display = Display.Dynamic;
+            });
+        });*/
+    });
+    settings.Items.AddGroupItem(g =>
+    {
+        g.Caption = "SMTP";
+        g.ColCount = 2;
+        g.UseDefaultPaddings = false;
+        g.Paddings.PaddingTop = System.Web.UI.WebControls.Unit.Pixel(10);
+        g.GroupBoxDecoration = GroupBoxDecoration.HeadingLine;
+        g.GroupBoxStyle.Caption.Font.Bold = true;
+        g.GroupBoxStyle.Caption.Font.Size = 16;
+
+        /*g.Items.Add(m => m.EmailEnvoi, i =>
+        {
+            i.NestedExtension().TextBox(s =>
+            {
+                s.ShowModelErrors = true;
+                s.Properties.ValidationSettings.Display = Display.Dynamic;
+            });
+        });
+        g.Items.Add(m => m.EmailSMTP, i =>
+        {
+            i.NestedExtension().TextBox(s =>
+            {
+                s.ShowModelErrors = true;
+                s.Properties.ValidationSettings.Display = Display.Dynamic;
+            });
+        });
+        g.Items.Add(m => m.PasswordSMTP, i =>
+        {
+            i.NestedExtension().TextBox(s =>
+            {
+                s.ShowModelErrors = true;
+                s.Properties.ValidationSettings.Display = Display.Dynamic;
+            });
+        });
+        g.Items.Add(m => m.ServeurSMTP, i =>
+        {
+            i.NestedExtension().TextBox(s =>
+            {
+                s.ShowModelErrors = true;
+                s.Properties.ValidationSettings.Display = Display.Dynamic;
+            });
+        });
+        g.Items.Add(m => m.PortSMTP, i =>
+        {
+            i.NestedExtension().TextBox(s =>
+            {
+                s.ShowModelErrors = true;
+                s.Properties.ValidationSettings.Display = Display.Dynamic;
+            });
+        });
+        g.Items.Add(m => m.IsSSL, i =>
+        {
+            i.NestedExtension().CheckBox(s =>
+            {
+                s.ShowModelErrors = true;
+                s.Properties.ValidationSettings.Display = Display.Dynamic;
+            });
+        });*/
+    });
+
+    settings.Items.Add(i =>
+    {
+        i.ShowCaption = DefaultBoolean.False;
+        i.Width = System.Web.UI.WebControls.Unit.Percentage(100);
+        i.HorizontalAlign = FormLayoutHorizontalAlign.Right;
+    }).SetNestedContent(() =>
+    {
+        ViewContext.Writer.Write("<table><tr><td style=\"padding-right:10px;\">");
+
+        Html.DevExpress().Button(s =>
+        {
+            s.Name = "btnEnregistrer";
+            s.Width = System.Web.UI.WebControls.Unit.Pixel(100);
+            s.Text = "Enregistrer";
+            s.UseSubmitBehavior = true;
+        }).Render();
+
+        ViewContext.Writer.Write("</td><td>");
+
+        Html.DevExpress().HyperLink(s =>
+        {
+            s.Name = "btnAnnuler";
+            s.Properties.Text = "Annuler";
+            s.NavigateUrl = DevExpressHelper.GetUrl(new { Controller = "Home", Action = "Index" });
+        }).Render();
+
+        ViewContext.Writer.Write("</td></tr></table>");
+    });
+}).GetHtml()
+}

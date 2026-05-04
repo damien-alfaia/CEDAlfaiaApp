@@ -1,0 +1,26 @@
+﻿@model CEDAlfaiaAppV2.Models.AdresseModel
+
+@{
+    string adresseComplete = "";
+    if (Model != null)
+    {
+        adresseComplete = Model.Ligne1;
+        if (!string.IsNullOrEmpty(Model.Ligne2))
+        {
+            adresseComplete += "\n" + Model.Ligne2;
+        }
+        if (!string.IsNullOrEmpty(Model.Ligne3))
+        {
+            adresseComplete += "\n" + Model.Ligne3;
+        }
+        if (!string.IsNullOrEmpty(Model.Ville))
+        {
+            adresseComplete += "\n" + Model.CodePostal + " " + Model.Ville;
+        }
+        if (!string.IsNullOrEmpty(Model.Pays))
+        {
+            adresseComplete += "\n" + Model.Pays;
+        }
+    }
+    <span>@adresseComplete</span>
+}

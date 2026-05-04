@@ -1,0 +1,130 @@
+﻿@model CEDAlfaiaApp.Models.SearchPieceVenteModel
+@{
+    ViewBag.Title = "Liste des factures";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    $(function () {
+        $('#btnImprimer').click(function () {
+            var ids = [];
+            $("[role='IsAImprimer']:checked").each(function () {
+                ids.push($(this).closest('[data-idFacture]').attr('data-idFacture'));
+                if (this == $("[role='IsAImprimer']")[$("[role='IsAImprimer']:checked").length - 1])
+                    window.location = '@Url.Action("ImprimerParLot")?ids=' + JSON.stringify(ids);
+            });
+        });
+    });
+
+    function validerFacture(element) {
+        if (confirm("Voulez-vous vraiment valider cette facture ? ")) {
+            var idFacture = $(element).closest("[data-idFacture]").attr('data-idFacture');
+            $.ajax({
+                url: '@Url.Action("ValiderFacture")',
+                data: JSON.stringify({ idFacture: idFacture }),
+                contentType: 'application/json; charset=utf-8',
+                context: { idFacture: idFacture },
+                type: 'POST',
+                success: function (result) {
+                    if (result == "OK")
+                        $("tr[data-idFacture=" + this.idFacture + "]").remove();
+                    else
+                        alert(result);
+                },
+                error: function (err) {
+                    alert(err);
+                }
+            });
+        }
+    }
+
+    function ouvrirFacture(idFacture) {
+        window.location = 'Saisir?identifiant=' + idFacture;
+    }
+
+    function OnDateDebutChanged(s, e) {
+        var idClient = '@this.Model.ClientID';
+        var dateDebut = s.GetValue();
+        var dateFin = '@this.Model.DateFin'
+        window.location = 'Liste?idClient=' + idClient + '&dateDebut=' + dateDebut.toISOString() + '&dateFin=' + dateFin;
+    }
+
+    function OnDateFinChanged(s, e) {
+        var idClient = '@this.Model.ClientID';
+        var dateDebut = '@this.Model.DateDebut';
+        var dateFin = s.GetValue();
+        window.location = 'Liste?idClient=' + idClient + '&dateDebut=' + dateFin.toISOString() + '&dateFin=' + dateFin;
+    }
+</script>
+
+<section class="content-header">
+    <h1>
+        Liste des factures
+    </h1>
+    <ol class="breadcrumb">
+        <li><a href="#"><i class="fa fa-dashboard"></i> CEDAlfaia</a></li>
+        <li>Factures</li>
+    </ol>
+</section>
+
+@using (Html.BeginForm("Imprimer", "Facture", new { pListe = this.Model }))
+{
+    <section class="content">
+        <div class="row">
+            <div class="col-xs-12">
+                <a class="btn btn-sm btn-success pull-right" href="@Url.Action("Saisir", new { })" style="margin-bottom:10px;"><i class="fa fa-plus"></i>&nbsp;Nouvelle facture</a>
+            </div>
+        </div>
+        @using (Html.BeginForm())
+        {
+            <div class="row" style="font-size:16px;">
+                <div class="col-xs-12">
+                    @Html.DevExpress().Button(settings =>
+                    {
+                        settings.Name = "btnMoisPrecedent";
+                        settings.Text = "";
+                        settings.RouteValues = new { Controller = "Factures", Action = "Liste", idClient = this.Model.ClientID, dateDebut = this.Model.DateDebut.AddMonths(-1), dateFin = this.Model.DateFin.AddMonths(-1) };
+                        settings.Images.Image.IconID = IconID.NavigationBackward16x16gray;
+                        settings.Style.Add("display", "inline-block");
+                    }).GetHtml()
+                    @Html.DevExpress().DateEdit(settings =>
+                    {
+                        settings.Name = "dateEditDebut";
+                        settings.Properties.DisplayFormatString = "dd/MM/yyyy";
+                        settings.Date = this.Model.DateDebut;
+                        settings.Style.Add("font-size", "16px");
+                        settings.Style.Add("display", "inline-block");
+                        settings.Style.Add("vertical-align", "middle");
+                        settings.Width = System.Web.UI.WebControls.Unit.Pixel(120);
+                        settings.Properties.ClientSideEvents.DateChanged = "OnDateDebutChanged";
+                    }).GetHtml()
+                    @Html.DevExpress().DateEdit(settings =>
+                    {
+                        settings.Name = "dateEditFin";
+                        settings.Properties.DisplayFormatString = "dd/MM/yyyy";
+                        settings.Date = this.Model.DateFin;
+                        settings.Style.Add("font-size", "16px");
+                        settings.Style.Add("display", "inline-block");
+                        settings.Style.Add("vertical-align", "middle");
+                        settings.Width = System.Web.UI.WebControls.Unit.Pixel(120);
+                        settings.Properties.ClientSideEvents.DateChanged = "OnDateFinChanged";
+                    }).GetHtml()
+                    @Html.DevExpress().Button(settings =>
+                    {
+                        settings.Name = "btnMoisSuivant";
+                        settings.Text = "";
+                        settings.RouteValues = new { Controller = "Factures", Action = "Liste", idClient = this.Model.ClientID, dateDebut = this.Model.DateDebut.AddMonths(1), dateFin = this.Model.DateFin.AddMonths(1) };
+                        settings.Images.Image.IconID = IconID.NavigationForward16x16gray;
+                        settings.Style.Add("display", "inline-block");
+                    }).GetHtml()
+                </div>
+            </div>
+
+            <div class="row" style="margin-top:10px;">
+                <div class="col-xs-12">
+                    @Html.Action("GridViewListeFacturePartial", new { idClient = this.Model.ClientID, dateDebut = this.Model.DateDebut, dateFin = this.Model.DateFin })
+                </div>
+            </div>
+        }
+    </section>
+}

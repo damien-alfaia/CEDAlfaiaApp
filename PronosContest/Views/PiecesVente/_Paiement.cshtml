@@ -1,0 +1,37 @@
+﻿@model CEDAlfaiaApp.Models.SaisirPaiementPieceVenteModel
+
+@{
+
+    <td>
+        @Html.Hidden("[" + this.Model.IndexLigne + "].IndexLigne", this.Model.IndexLigne, new { role = "IndexLigne" })
+        @Html.Hidden("[" + this.Model.IndexLigne + "].IsEmpty", this.Model.IsEmpty, new { role = "IsEmpty" })
+        @Html.Hidden("[" + this.Model.IndexLigne + "].IDPaiement", this.Model.IDPaiement, new { role = "IDPaiement" })
+        @Html.Hidden("[" + this.Model.IndexLigne + "].IsSupprime", this.Model.IsSupprime, new { role = "IsSupprime" })
+        @Html.TextBox("[" + this.Model.IndexLigne + "].Date", this.Model.Date, new { @class = "form-control", role = "Date", tabindex = 1 + (4 * this.Model.IndexLigne), data_role = "datetimepicker" })
+    </td>
+    <td>
+        <div class="form-group">
+            @{
+                List<SelectListItem> listeTypePaiement = new List<SelectListItem>();
+                foreach (var value in Enum.GetValues(typeof(CEDAlfaiaApp.DAL.Garage.TypePaiement)))
+                {
+                    listeTypePaiement.Add(new SelectListItem()
+                    {
+                        Text = CEDAlfaiaApp.Core.EnumHelper<CEDAlfaiaApp.DAL.Garage.TypePaiement>.GetDisplayValue((CEDAlfaiaApp.DAL.Garage.TypePaiement)value),
+                        Value = ((int)value).ToString()
+                    });
+                }
+            }
+            @Html.DropDownList("[" + this.Model.IndexLigne + "].TypePaiement", listeTypePaiement, new { @class = "form-control", role = "TypePaiement" })
+        </div>
+    </td>
+    <td>
+        <div class="form-group has-feedback">
+            @Html.TextBox("[" + this.Model.IndexLigne + "].Montant", this.Model.Montant.ToString("n2"), new { @class = "form-control", style = "padding-right:30px;", role = "Montant" })
+            <i class="form-control-feedback" style="font-size: 0.6em">€</i>
+        </div>
+    </td>
+    <td>
+        <a href="#" onclick="supprimerPaiement(this); return false;"><i class="fa fa-times fa-2x text-danger"></i></a>
+    </td>
+}

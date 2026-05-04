@@ -1,0 +1,191 @@
+﻿@model List<CEDAlfaiaApp.Models.FactureModel>
+@{
+    ViewBag.Title = "Liste des factures";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    $(function () {
+        $('#tableFactures').DataTable({
+            'paging': true,
+            'lengthChange': true,
+            'searching': true,
+            'ordering': true,
+            'info': true,
+            'autoWidth': true,
+            'aoColumns': [
+                null,
+                null,
+                { "sType": "date-uk" },
+                null,
+                null,
+                { "sType": "num-fmt" },
+                null,
+                null
+            ],
+            'language': {
+                "lengthMenu": "Afficher _MENU_ factures par page",
+                "zeroRecords": "Aucune facture trouvée",
+                "info": "Page _PAGE_ sur _PAGES_",
+                "infoEmpty": "Aucune facture trouvée",
+                "paginate": {
+                    "previous": "Précédent",
+                    "next": "Suivant"
+                },
+                "search": "Rechercher"
+            }
+        });
+
+        $('#btnImprimer').click(function () {
+            var ids = [];
+            $("[role='IsAImprimer']:checked").each(function () {
+                ids.push($(this).closest('[data-idFacture]').attr('data-idFacture'));
+                if (this == $("[role='IsAImprimer']")[$("[role='IsAImprimer']:checked").length - 1])
+                    window.location = '@Url.Action("ImprimerParLot")?ids=' + JSON.stringify(ids);
+            });
+        });
+    })
+
+    jQuery.extend(jQuery.fn.dataTableExt.oSort, {
+        "date-uk-pre": function (a) {
+            var ukDatea = a.split('/');
+            return (ukDatea[2] + ukDatea[1] + ukDatea[0]) * 1;
+        },
+
+        "date-uk-asc": function (a, b) {
+            return ((a < b) ? -1 : ((a > b) ? 1 : 0));
+        },
+
+        "date-uk-desc": function (a, b) {
+            return ((a < b) ? 1 : ((a > b) ? -1 : 0));
+        }
+    });
+
+    function validerFacture(element) {
+        if (confirm("Voulez-vous vraiment valider cette facture ? ")) {
+            var idFacture = $(element).closest("[data-idFacture]").attr('data-idFacture');
+            $.ajax({
+                url: '@Url.Action("ValiderFacture")',
+                data: JSON.stringify({ idFacture: idFacture }),
+                contentType: 'application/json; charset=utf-8',
+                context: { idFacture: idFacture },
+                type: 'POST',
+                success: function (result) {
+                    if (result == "OK")
+                        $("tr[data-idFacture=" + this.idFacture + "]").remove();
+                    else
+                        alert(result);
+                },
+                error: function (err) {
+                    alert(err);
+                }
+            });
+        }
+    }
+</script>
+
+<section class="content-header">
+    <h1>
+        Liste des factures
+    </h1>
+    <ol class="breadcrumb">
+        <li><a href="#"><i class="fa fa-dashboard"></i> CEDAlfaia</a></li>
+        <li>Factures</li>
+    </ol>
+</section>
+
+<section class="content">
+    @{
+        if (this.Model != null && this.Model.Any())
+        {
+            <div class="box box-danger">
+                <div class="box-header">
+                    <h3 class="box-title">Liste des factures</h3>
+                    <a class="btn btn-sm btn-success pull-right" href="@Url.Action("Saisir", new { })"><i class="fa fa-plus"></i>&nbsp;Nouveau</a>
+                    <a id="btnImprimer" class="btn btn-sm btn-primary pull-right" href="#"><i class="fa fa-print"></i>&nbsp;Imprimer</a>
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body">
+                    <table id="tableFactures" class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Numéro</th>
+                                <th>Date</th>
+                                <th>Client</th>
+                                <th>Voiture</th>
+                                <th>Total</th>
+                                <th></th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var d in this.Model)
+                {
+                                <tr data-idFacture="@d.ID">
+                                    <td>
+                                        @Html.CheckBoxFor(m => d.IsAImprimer, new { role = "IsAImprimer", style = "width:20px;height:20px;" })
+                                    </td>
+                                    <td>
+                                        @d.Numero
+                                    </td>
+                                    <td>
+                                        @d.Date.ToShortDateString()
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(m => d.Client, "Client")
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(m => d.Voiture, "Voiture")
+                                    </td>
+                                    <td>
+                                        @(d.Total.ToString("F") + "€")
+                                    </td>
+                                    <td>
+                                        <a href="@Url.Action("Editer", new { idFacture = d.ID })"><i class="fa fa-file-pdf-o"></i></a>
+                                    </td>
+                                    <td>
+                                        <span class="btn-group pull-right">
+                                            <button type="button" class="btn btn-md btn-default dropdown-toggle" data-toggle="dropdown">
+                                                <span class="caret"></span>
+                                            </button>
+                                            <ul class="dropdown-menu" role="menu">
+                                                <li>
+                                                    <a href="@Url.Action("Saisir", new { identifiant = d.ID })"><i class="fa fa-edit"></i>&nbsp;Ouvrir</a>
+                                                    <a href="#" onclick="validerFacture(this);"><i class="fa fa-check"></i>&nbsp;Valider</a>
+                                                    <a href="@Url.Action("Annuler", new { idFacture = d.ID })"><i class="fa fa-times"></i>&nbsp;Annuler</a>
+                                                </li>
+                                            </ul>
+                                        </span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th></th>
+                                <th>Numéro</th>
+                                <th>Date</th>
+                                <th>Client</th>
+                                <th>Voiture</th>
+                                <th>Total</th>
+                                <th></th>
+                                <th></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                <!-- /.box-body -->
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-warning" role="alert">
+                Aucune facture ! <a href="@Url.Action("Saisir")">Cliquez ici pour ajouter une facture</a>
+            </div>
+        }
+    }
+    <div style="display:block;margin-bottom:50px;">
+        @Html.ActionLink("Afficher les factures annulées", "ListeAnnulees", null, new { @class = "btn btn-danger pull-right" })
+    </div>
+</section>

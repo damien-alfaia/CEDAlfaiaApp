@@ -1,0 +1,27 @@
+﻿@model CEDAlfaiaApp.Models.ParametrageModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@(Html.DevExtreme().DataGrid<CEDAlfaiaApp.DAL.Salaries.Salarie>()
+        .ID("gridSalaries")
+        .Paging(paging => paging.Enabled(false))
+        .ShowBorders(true)
+        .Editing(editing =>
+        {
+            editing.Mode(GridEditMode.Cell);
+            editing.AllowUpdating(true);
+        })
+        .Columns(columns =>
+        {
+            columns.AddFor(c => c.Nom);
+        })
+        .RemoteOperations(true)
+        .DataSource(d => d.WebApi()
+            .RouteName("SalariesApi")
+            .LoadAction("GetSalaries")
+            .InsertAction("PostSalarie")
+            .UpdateAction("PutSalarie")
+            .DeleteAction("DeleteSalarie")
+            .Key("ID"))
+)

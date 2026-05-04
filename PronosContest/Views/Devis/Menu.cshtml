@@ -1,0 +1,37 @@
+﻿@model int
+
+@Html.DevExpress().Menu(
+        settings =>
+        {
+
+            settings.Name = "menuDevis" + Model;
+            settings.ShowPopOutImages = DefaultBoolean.True;
+            //settings.EnableClientSideAPI = true;
+            //settings.ClientSideEvents.ItemClick = "menuDevis_menuItemClick";
+            settings.Items.Add(item =>
+            {
+                item.Text = "Actions";
+                item.Items.Add(subItem =>
+                {
+                    subItem.Text = "Ouvrir";
+                    subItem.NavigateUrl = DevExpressHelper.GetUrl(new { Controller = "Devis", Action = "Saisir", identifiant = Model, typeId = 0 });
+                });
+                item.Items.Add(subItem =>
+                {
+                    subItem.Text = "Imprimer";
+                    subItem.NavigateUrl = DevExpressHelper.GetUrl(new { Controller = "Devis", Action = "Editer", idDevis = Model });
+                });
+                item.Items.Add(subItem =>
+                {
+                    subItem.Text = "Générer facture";
+                    subItem.Name = "GenererFacture";
+                    subItem.NavigateUrl = DevExpressHelper.GetUrl(new { Controller = "Devis", Action = "GenererFacture", idDevis = Model });
+                });
+                item.Items.Add(subItem =>
+                {
+                    subItem.Text = "Supprimer";
+                    subItem.Name = "Delete";
+                    subItem.NavigateUrl = DevExpressHelper.GetUrl(new { Controller = "Devis", Action = "SupprimerDevis", idDevis = Model });
+                });
+            });
+        }).GetHtml()

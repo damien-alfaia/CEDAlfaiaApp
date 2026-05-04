@@ -1,0 +1,220 @@
+﻿@model CEDAlfaiaApp.Models.SearchPieceVenteModel
+
+@{
+    ViewBag.Title = "Liste des factures";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    $(function () {
+        $('#btnImprimer').click(function () {
+            var ids = [];
+            $("[role='IsAImprimer']:checked").each(function () {
+                ids.push($(this).closest('[data-idFacture]').attr('data-idFacture'));
+                if (this == $("[role='IsAImprimer']")[$("[role='IsAImprimer']:checked").length - 1])
+                    window.location = '@Url.Action("ImprimerParLot")?ids=' + JSON.stringify(ids);
+            });
+        });
+    });
+
+    function imprimerParLot() {
+        var ids = [];
+        var selectedRows = $("#gridListeFactures").dxDataGrid("instance").getSelectedRowsData();
+        $(selectedRows).each(function () {
+            ids.push(this.ID);
+        });
+        if (ids.length > 0)
+            window.open('ImprimerParLot?ids=' + JSON.stringify(ids), "_blank");
+    }
+    function validerFacture(idFacture) {
+        if (confirm("Voulez-vous vraiment valider cette facture ? ")) {
+            $.ajax({
+                url: '@Url.Action("ValiderFacture")',
+                data: JSON.stringify({ idFacture: idFacture }),
+                contentType: 'application/json; charset=utf-8',
+                context: { idFacture: idFacture },
+                type: 'POST',
+                success: function (result) {
+                    if (result == "OK")
+                        location.reload();
+                    else
+                        alert(result);
+                },
+                error: function (err) {
+                    alert(err);
+                }
+            });
+        }
+    }
+    
+    function payerFacture(idFacture, modePaiement) {
+        if (confirm("Voulez-vous vraiment payer cette facture ? ")) {
+            $.ajax({
+                url: '@Url.Action("PayerFacture")',
+                data: JSON.stringify({ idFacture: idFacture, modePaiement: modePaiement }),
+                contentType: 'application/json; charset=utf-8',
+                type: 'POST',
+                success: function (result) {
+                    if (result == "OK") {
+                        location.reload();
+                    }
+                    else
+                        alert(result);
+                },
+                error: function (err) {
+                    alert(err);
+                }
+            });
+        }
+    }
+
+    function annulerFacture(idFacture) {
+        if (confirm("Voulez-vous vraiment annuler cette facture ? ")) {
+            $.ajax({
+                url: '@Url.Action("AnnulerFacture")',
+                data: JSON.stringify({ idFacture: idFacture }),
+                contentType: 'application/json; charset=utf-8',
+                context: { idFacture: idFacture },
+                type: 'POST',
+                success: function (result) {
+                    if (result == "OK")
+                        location.reload();
+                    else
+                        alert(result);
+                },
+                error: function (err) {
+                    alert(err);
+                }
+            });
+        }
+    }
+
+    function imprimerFacture(idFacture) {
+        window.open('Editer?idFacture=' + idFacture, "_blank");
+    }
+    function ouvrirFacture(idFacture) {
+        window.location.href = 'Saisir?identifiant=' + idFacture;
+    }
+
+    function OnDateDebutChanged(s) {
+        var idClient = '@this.Model.ClientID';
+        var dateDebut = s.value;
+        var dateFin = '@this.Model.DateFin.ToString("yyyy-MM-dd")';
+        window.location.href = 'Liste?idClient=' + idClient + '&dateDebut=' + dateDebut.toISOString() + '&dateFin=' + dateFin;
+    }
+
+    function OnDateFinChanged(s) {
+        var idClient = '@this.Model.ClientID';
+        var dateDebut = '@this.Model.DateDebut.ToString("yyyy-MM-dd")';
+        var dateFin = s.value;
+        window.location.href = 'Liste?idClient=' + idClient + '&dateDebut=' + dateDebut + '&dateFin=' + dateFin.toISOString();
+    }
+
+    function OnClickNextLastMonth(e) {
+        var idClient = e.component.option("idClient");
+        var dateDebut = e.component.option("dateDebut");
+        var dateFin = e.component.option("dateFin");
+
+        if (idClient !== undefined && idClient != null)
+            window.location.href = 'Liste?idClient=' + idClient + '&dateDebut=' + dateDebut + '&dateFin=' + dateFin;
+        else
+            window.location.href = 'Liste?dateDebut=' + dateDebut + '&dateFin=' + dateFin;
+    }
+
+    function onRowClick(e) {
+        var component = e.component;
+        var data = e.data;
+
+        function initialClick() {
+            component.clickCount = 1;
+            component.clickKey = e.key;
+            component.clickDate = new Date();
+        }
+
+        function doubleClick() {
+            component.clickCount = 0;
+            component.clickKey = 0;
+            component.clickDate = null;
+
+            ouvrirFacture(data.ID);
+        }
+
+        if ((!component.clickCount) || (component.clickCount != 1) || (component.clickKey != e.key)) {
+            initialClick();
+        }
+        else if (component.clickKey == e.key) {
+            if (((new Date()) - component.clickDate) <= 300)
+                doubleClick();
+            else
+                initialClick();
+        }
+    }
+
+    function menuOnItemClick(e) {
+        if (e.itemData.action !== undefined) {
+            switch (e.itemData.action) {
+                case 'Ouvrir':
+                    ouvrirFacture(e.itemData.idFacture);
+                    break;
+                case 'Imprimer':
+                    imprimerFacture(e.itemData.idFacture);
+                    break;
+                case 'Payer':
+                    payerFacture(e.itemData.idFacture, e.itemData.modePaiement);
+                    break;
+                case 'Valider':
+                    validerFacture(e.itemData.idFacture);
+                    break;
+                case 'Annuler':
+                    annulerFacture(e.itemData.idFacture);
+                    break;
+            }
+        }
+    }
+    function onToolbarPreparing(e) {
+        var toolbarItems = e.toolbarOptions.items;
+        toolbarItems.push({
+            widget: "dxButton",
+            options: {
+                icon: "print", onClick: function () {
+                    imprimerParLot();
+                }
+            },
+            location: "after"
+        });
+        toolbarItems.push({
+            widget: "dxButton",
+            options: {
+                icon: "add", onClick: function () {
+                    window.location.href = '/Factures/Saisir';
+                }
+            },
+            location: "after"
+        });
+    }
+</script>
+
+<section class="content-header">
+    <h1>
+        Liste des factures
+    </h1>
+</section>
+
+@using (Html.BeginForm("Imprimer", "Facture", new { pListe = this.Model }))
+{
+    <section class="content">
+        @using (Html.BeginForm())
+        {
+            @Html.DevExtreme().Toolbar().Items(it =>
+            {
+                it.Add().Location(ToolbarItemLocation.Center).Widget(w => w.Button().OnClick("OnClickNextLastMonth").Icon("spinleft").Option("idClient", this.Model.ClientID).Option("dateDebut", this.Model.DateDebut.AddMonths(-1).ToString("yyyy-MM-dd")).Option("dateFin", this.Model.DateFin.AddMonths(-1).ToString("yyyy-MM-dd")));
+                it.Add().Location(ToolbarItemLocation.Center).Widget(w => w.DateBox().Name("dateDebut").Value(this.Model.DateDebut).DisplayFormat("dd/MM/yyyy").OnValueChanged("OnDateDebutChanged"));
+                it.Add().Location(ToolbarItemLocation.Center).Widget(w => w.DateBox().Name("dateFin").Value(this.Model.DateFin).DisplayFormat("dd/MM/yyyy").OnValueChanged("OnDateFinChanged"));
+                it.Add().Location(ToolbarItemLocation.Center).Widget(w => w.Button().OnClick("OnClickNextLastMonth").Icon("spinright").Option("idClient", this.Model.ClientID).Option("dateDebut", this.Model.DateDebut.AddMonths(1).ToString("yyyy-MM-dd")).Option("dateFin", this.Model.DateFin.AddMonths(1).ToString("yyyy-MM-dd")));
+            });
+            <div style="width:100%;margin-top:15px;">
+                @Html.Action("GridViewListeFacturePartial", new { idClient = this.Model.ClientID, dateDebut = this.Model.DateDebut, dateFin = this.Model.DateFin })
+            </div>
+        }
+    </section>
+}

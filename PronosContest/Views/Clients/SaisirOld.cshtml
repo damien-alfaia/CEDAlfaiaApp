@@ -1,0 +1,148 @@
+﻿@model CEDAlfaiaApp.Models.ClientModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@Html.Hidden("hiddenMarques", (string)ViewBag.Marques)
+
+<script type="text/javascript">
+    function alimenter() {
+        var marques = JSON.parse($("#hiddenMarques").val());
+        $("#row_voiture").find("select[name$='IDMarque']").each(function () {
+            var $selectMarque = $(this);
+            var htmlMarques = "<option value=''>-----------</option>";
+            var htmlModeles = "<option value=''>-----------</option>";
+            var $selectModeles = $selectMarque.closest("#row_voiture").find("select[name$='IDModele']").first();
+            $selectModeles.html(htmlModeles);
+
+            $(marques).each(function () {
+                htmlMarques += "<option value='" + this.IDMarque + "'>" + this.Libelle + "</option>";
+                if (parseInt($selectMarque.attr('value')) == this.IDMarque) {
+                    if ($selectModeles !== undefined) {
+                        $(this.Modeles).each(function () {
+                            htmlModeles += "<option value='" + this.IDModele + "'>" + this.Libelle + "</option>";
+                        });
+                        $selectModeles.html(htmlModeles);
+                        $selectModeles.val($selectModeles.attr('value'));
+                    }
+                }
+            });
+            $selectMarque.html(htmlMarques);
+            $selectMarque.val($selectMarque.attr('value'));
+        });
+    }
+    function selectMarqueOnChange(element) {
+        var value = $(element).val();
+        var marqueSelectionne = getMarqueByID(value);
+        if (marqueSelectionne != null && marqueSelectionne.length > 0) {
+            var $selectModeles = $(element).closest("#row_voiture").find("select[name$='IDModele']").first();
+            var htmlModeles = "<option value=''>-----------</option>";
+            if ($selectModeles !== undefined) {
+                $(marqueSelectionne[0].Modeles).each(function () {
+                    htmlModeles += "<option value='" + this.IDModele + "'>" + this.Libelle + "</option>";
+                });
+                $selectModeles.html(htmlModeles);
+                $selectModeles.val($selectModeles.attr('value'));
+            }
+        }
+    }
+    function getMarqueByID(id) {
+        var result = null;
+        var marques = JSON.parse($("#hiddenMarques").val());
+        $(marques).each(function () {
+            if (this.IDMarque == parseInt(id))
+                result = $(this);
+        });
+        return result;
+    }
+    function ajouterVoiture() {
+        var $lastRowVoiture = $("#divListeVoitures").find(".row").last();
+        var $newRow = $lastRowVoiture.clone(true);
+
+        $newRow.find("[name]").each(function () {
+            var name = $(this).attr('name');
+            var indexDebut = name.indexOf('[') + 1;
+            var indexFin = name.indexOf(']');
+            var index = parseInt(name.substring(indexDebut, indexFin));
+            $(this).attr('name', name.substring(0, indexDebut) + (index + 1) + name.substring(indexFin, name.length));
+            if ($(this).attr('data-role') == 'VoitureID')
+                $(this).val('-1');
+        });
+        $("#divListeVoitures").append($newRow);
+    }
+    function supprimerVoiture(element) {
+        if ($("#divListeVoitures").find('.row').length == 1)
+            ajouterVoiture();
+        
+        $(element).closest('.row').remove();
+    }
+    $(document).ready(function () {
+        alimenter();
+    });
+</script>
+<section class="content-header">
+    <h1>
+        Saisir un client
+    </h1>
+    <ol class="breadcrumb">
+        <li><a href="#"><i class="fa fa-dashboard"></i> CEDAlfaia</a></li>
+        <li><a href="@Url.Action("Liste", "Clients")">Clients</a></li>
+        <li class="active">Saisir un client</li>
+    </ol>
+</section>
+
+@{
+    string titleFormulaire = "Nouveau client";
+    if (this.Model != null)
+    {
+        titleFormulaire = this.Model.Prenom + " " + this.Model.Nom;
+    }
+}
+
+<section class="content">
+    <div class="box box-danger">
+        <div class="box-header with-border">
+            <h3 class="box-title">@titleFormulaire</h3>
+        </div>
+
+        @Html.ValidationSummary(false, "", new { @style = "color:red;" })
+        @using (Html.BeginForm())
+        {
+            @Html.HiddenFor(m => m.ID)
+            <div class="box-body">
+                <div class="form-group">
+                    @Html.LabelFor(m=> m.Nom)
+                    @Html.TextBoxFor(m => m.Nom, new { @class = "form-control", placeholder = "Nom" })
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.Prenom)
+                    @Html.TextBoxFor(m => m.Prenom, new { @class = "form-control", placeholder = "Prénom" })
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.Email)
+                    @Html.TextBoxFor(m => m.Email, new { @class = "form-control", placeholder = "Email", type="Email" })
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.Telephone)
+                    @Html.TextBoxFor(m => m.Telephone, new { @class = "form-control", placeholder = "Téléphone" })
+                </div>
+                <div class="form-group">
+                    @Html.EditorFor(m => m.Adresse, "Adresse")
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.Remise)
+                    @Html.TextBoxFor(m => m.Remise, new { @class = "form-control", placeholder = "Remise" })
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.Complements)
+                    @Html.TextAreaFor(m => m.Complements, new { @class = "form-control", placeholder = "Compléments" })
+                </div>
+            </div>
+
+            <div class="box-footer">
+                <button class="btn btn-md btn-default" type="reset">Annuler</button>
+                <button type="submit" class="btn btn-primary">Enregistrer</button>
+            </div>
+        }        
+    </div>
+</section>

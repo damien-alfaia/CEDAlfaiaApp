@@ -1,0 +1,110 @@
+﻿@model List<CEDAlfaiaApp.DAL.Pronos.Concours>
+@{
+    ViewBag.Title = "Vos concours";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@{
+    if (this.Model != null && this.Model.Any())
+    {
+        <div class="table-responsive hidden-xs hidden-sm">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Competition</th>
+                        <th>Début du concours</th>
+						<th>Date limite de saisie</th>
+                        <th>Etat</th>
+                        <th>Joueurs inscrits</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                @foreach (var c in this.Model)
+                {
+                    <tr>
+                        <td>
+                            @c.Competition.Libelle
+                        </td>
+                        <td>
+							@c.DateDebut.ToShortDateString()
+                        </td>
+						<td>
+							@c.DateLimiteSaisie.ToShortDateString() à @c.DateLimiteSaisie.ToShortTimeString()
+						</td>
+                        <td>
+							@{ 
+								switch (c.EtatConcours)
+								{
+									case CEDAlfaiaApp.DAL.Pronos.EtatConcours.EnCours:
+										<span>En cours</span>
+										break;
+									case CEDAlfaiaApp.DAL.Pronos.EtatConcours.Termine:
+										<span>Terminé</span>
+										break;
+								}
+							}
+                        </td>
+                        <td>
+                            @c.ConcoursCompteUtilisateurs.Where(ccu => ccu.ConcoursID == c.ID).Count()
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm" role="group" aria-label="...">
+                                @Html.ActionLink("Classement", "ClassementConcours", new { pConcoursID = c.ID }, new { @class = "btn btn-default"})
+                                @Html.ActionLink("Pronostics", "SaisirPronostics", new { pConcoursID = c.ID }, new { @class = "btn btn-default" })
+                                @Html.ActionLink("Résultats", "ScoresMatch", new { pConcoursID = c.ID }, new { @class = "btn btn-default" })
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </table>
+        </div>
+		<div class="list-group hidden-md hidden-lg">
+			@{
+				foreach (var c in this.Model)
+				{
+					string formatDate = "";
+					if (c.DateDebut > DateTime.Now)
+					{
+						formatDate = "Démarre le ";
+					}
+					else
+					{
+						formatDate = "A démarré le ";
+					}
+                    <div class="list-group-item">
+						<h4 class="list-group-item-heading">
+							@c.Competition.Libelle
+							<span class="btn-group pull-right">
+								<button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
+									<span class="caret"></span>
+								</button>
+								<ul class="dropdown-menu" role="menu">
+									<li>
+										<a href="@Url.Action("ClassementConcours", new { pConcoursID = c.ID })" ><i class="fa fa-trophy"></i>&nbsp;Classement</a>
+									</li>
+									<li>
+										<a href="@Url.Action("SaisirPronostics", new { pConcoursID = c.ID })"><i class="fa fa-pencil"></i>&nbsp;Pronostics</a>
+									</li>
+									<li>
+										<a href="@Url.Action("ScoresMatch", new { pConcoursID = c.ID })"><i class="fa fa-soccer-ball-o"></i>&nbsp;Résultats</a>
+									</li>
+								</ul>
+							</span>
+						</h4>
+						
+						<p class="list-group-item-text">
+							<span class="label label-info">@formatDate @c.DateDebut.ToShortDateString()</span>
+							<span class="label label-info">@c.ConcoursCompteUtilisateurs.Where(ccu => ccu.ConcoursID == c.ID).Count() inscrit(s)</span>
+						</p>
+					</div>
+				}
+			}
+		</div>
+    }
+    else
+    {
+		<div class="alert alert-warning" role="alert">
+			Vous ne participez à aucun concours de pronostics !
+		</div>
+	}
+}

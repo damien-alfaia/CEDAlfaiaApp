@@ -1,0 +1,226 @@
+﻿@model CEDAlfaiaAppV2.Models.ParametrageModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script type="text/javascript">
+    function supprimerLogo() {
+        $('#imgLogo').attr('src', '');
+        $('[role=Logo]').val('');
+        $('#imgLogo').hide();
+    }
+    function PreviewLogo() {
+        fileLogo = document.getElementById("uploadLogo").files[0];
+        file_url_logo = URL.createObjectURL(fileLogo);
+        $('#imgLogo').attr('src', file_url_logo);
+        $('#imgLogo').slideDown();
+        setBase64File(fileLogo, '[role=Logo]');
+    }
+    function supprimerEntete() {
+        $('#imgEntete').attr('src', '');
+        $('[role=Entete]').val('');
+        $('#imgEntete').hide();
+    }
+    function PreviewEntete() {
+        fileEntete = document.getElementById("uploadEntete").files[0];
+        file_url_entete = URL.createObjectURL(fileEntete);
+        $('#imgEntete').attr('src', file_url_entete);
+        $('#imgEntete').slideDown();
+        setBase64File(fileEntete, '[role=Entete]');
+    }
+    function converBase64toBlob(content, contentType) {
+        contentType = contentType || '';
+        var sliceSize = 512;
+        var byteCharacters = window.atob(content); //method which converts base64 to binary
+        var byteArrays = [
+        ];
+        for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+            var slice = byteCharacters.slice(offset, offset + sliceSize);
+            var byteNumbers = new Array(slice.length);
+            for (var i = 0; i < slice.length; i++) {
+                byteNumbers[i] = slice.charCodeAt(i);
+            }
+            var byteArray = new Uint8Array(byteNumbers);
+            byteArrays.push(byteArray);
+        }
+        var blob = new Blob(byteArrays, {
+            type: contentType
+        }); //statement which creates the blob
+        return blob;
+    }
+    function setBase64File(file, selector) {
+        var reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = function () {
+            $(selector).val(reader.result);
+        };
+        reader.onerror = function (error) {
+            console.log('Error: ', error);
+        };
+    }
+    $(document).ready(function () {
+
+        setTimeout(function () {
+
+            var fileUploader = $("#Logo:hidden");
+            var file = converBase64toBlob($("#Logo").val(), 'application/img');
+            file_url_logo = URL.createObjectURL(file);
+
+            if (file_url_logo == undefined || file_url_logo == null)
+                $('#imgLogo').hide();
+            else
+                $('#imgLogo').attr('src', file_url_logo);
+        },600);
+        
+        /*if ($("[role=Logo]") !== undefined && $("[role=Logo]").val() != '') {
+            var file = converBase64toBlob($("[role=Logo]").val(), 'application/img');
+            file_url_logo = URL.createObjectURL(file);
+
+            if (file_url_logo == undefined || file_url_logo == null)
+                $('imgLogo').hide();
+            else
+                $('#imgLogo').attr('src', file_url_logo);
+        }
+        if ($("[role=Entete]") !== undefined && $("[role=Entete]").val() != '') {
+            var file = converBase64toBlob($("[role=Entete]").val(), 'application/img');
+            file_url_entete = URL.createObjectURL(file);
+
+            if (file_url_entete == undefined || file_url_entete == null)
+                $('imgEntete').hide();
+            else
+                $('#imgEntete').attr('src', file_url_entete);
+        }*/
+    });
+
+    function getFileUploaderInstance() {
+        return $("#file-uploader").dxFileUploader("instance");
+    }
+
+    function fileUploader_valueChanged(e) {
+        var files = e.value;
+        if (files.length > 0) {
+            $("#selected-files .selected-item").remove();
+
+            $.each(files, function (i, file) {
+                setBase64File(file, $("#imgLogo"));
+
+                file_url_logo = URL.createObjectURL(file);
+                $('#imgLogo').attr('src', file_url_logo);
+                $('#imgLogo').slideDown();
+            });
+            $("#selected-files").show();
+        }
+        else
+            $("#selected-files").hide();
+    }
+
+    function acceptOption_changed(e) {
+        getFileUploaderInstance().option("accept", e.value);
+    }
+
+    function uploadMode_changed(e) {
+        getFileUploaderInstance().option("uploadMode", e.value);
+    }
+
+    function multipleOption_changed(e) {
+        getFileUploaderInstance().option("multiple", e.value);
+    }
+</script>
+
+
+@{
+    string titleFormulaire = "Paramètres";
+}
+
+<div class="long-title">
+    <h3>@titleFormulaire</h3>
+</div>
+
+<div id="form-container">
+    @using (Html.BeginForm())
+    {
+        using (Html.DevExtreme().ValidationGroup())
+        {
+            @Html.HiddenFor(m => m.ID)
+            @(Html.DevExtreme().Form<CEDAlfaiaAppV2.Models.ParametrageModel>()
+                .ID("formParametrage")
+                .ShowValidationSummary(true)
+                .Items(items =>
+                {
+                    items.AddTabbed()
+                        .Tabs(tab =>
+                        {
+                            tab.Add().Title("Général").ColCount(4).Items(subItems =>
+                            {
+                                subItems.AddSimpleFor(m => m.LibelleEntreprise).ColSpan(2);
+                                subItems.AddSimpleFor(m => m.SIRET);
+                                subItems.AddSimpleFor(m => m.CodeAPE);
+                                subItems.AddSimpleFor(m => m.Email);
+                                subItems.AddSimpleFor(m => m.Telephone);
+                                subItems.AddSimpleFor(m => m.Portable);
+                                subItems.AddSimpleFor(m => m.TVAIntraCommunautaire);
+                                subItems.AddSimpleFor(m => m.Logo).ColSpan(4).Template(new TemplateName("ImageSelector"));
+
+                            });
+                            tab.Add().Title("SMTP").ColCount(2).Items(subItems =>
+                            {
+                                subItems.AddSimpleFor(m => m.EmailEnvoi);
+                                subItems.AddSimpleFor(m => m.EmailSMTP);
+                                subItems.AddSimpleFor(m => m.IsSSL);
+                                subItems.AddSimpleFor(m => m.PortSMTP);
+                                subItems.AddSimpleFor(m => m.ProtocoleSMTP);
+                                subItems.AddSimpleFor(m => m.ServeurSMTP);
+                                subItems.AddSimpleFor(m => m.PasswordSMTP);
+                            });
+                            tab.Add().Title("Adresse").ColCount(3).Items(subItems =>
+                            {
+                                subItems.AddSimpleFor(m => m.Adresse.Ligne1).ColSpan(3);
+                                subItems.AddSimpleFor(m => m.Adresse.Ligne2).ColSpan(3);
+                                subItems.AddSimpleFor(m => m.Adresse.Ligne3).ColSpan(3);
+                                subItems.AddSimpleFor(m => m.Adresse.CodePostal);
+                                subItems.AddSimpleFor(m => m.Adresse.Ville).ColSpan(2);
+                                subItems.AddSimpleFor(m => m.Adresse.Pays).ColSpan(3);
+                            });
+                            tab.Add().Title("Facturation").ColCount(2).Items(subItems =>
+                            {
+                                subItems.AddSimpleFor(m => m.Entete);
+                                subItems.AddSimpleFor(m => m.LibelleBasDePage);
+                                subItems.AddSimpleFor(m => m.IsSavePieceVente).IsRequired(false);
+                            });
+                            tab.Add().Title("Financier").ColCount(2).Items(subItems =>
+                            {
+                                subItems.AddSimpleFor(m => m.EmailComptable);
+                                subItems.AddSimpleFor(m => m.MainDOeuvreMontantHoraire);
+                                subItems.AddSimpleFor(m => m.TauxTVA);
+                                subItems.AddSimpleFor(m => m.ObjectifAnnuel);
+                            });
+                        });
+                })
+                .LabelLocation(FormLabelLocation.Top)
+                .FormData(Model)
+            )
+            <div style="text-align:right;margin-top:10px;">
+                @Html.DevExtreme().Button().Text("Annuler").Icon("back").OnClick("goToLastPage")
+                @Html.DevExtreme().Button().Text("Enregistrer").Icon("save").UseSubmitBehavior(true).Type(ButtonType.Success)
+            </div>
+        }
+    }
+</div>
+
+
+@using (Html.DevExtreme().NamedTemplate("ImageSelector"))
+{
+    @(Html.DevExtreme().FileUploader()
+                .ID("file-uploader")
+                .Name("myFile")
+                .Multiple(false)
+                .Accept("*")
+                .UploadMode(FileUploadMode.Instantly)
+                //.UploadUrl(Url.Action("Upload", "FileUploader"))
+                .OnValueChanged("fileUploader_valueChanged")
+    )
+    @(Html.HiddenFor(h => h.Logo))
+    <div class="content">
+        <img id="imgLogo"/>
+    </div>
+}

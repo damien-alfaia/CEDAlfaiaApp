@@ -1,0 +1,15 @@
+﻿@model CEDAlfaiaAppV2.Models.VoitureModel
+
+@{
+    if (this.Model != null)
+    {
+        <i class="fa fa-car"></i>
+        <span>
+            @(this.Model.Marque + " " + this.Model.Modele)
+        </span>
+        <br/>
+        <span class="text-muted">
+            @(" - " + this.Model.Immatriculation)
+        </span>
+    }
+}

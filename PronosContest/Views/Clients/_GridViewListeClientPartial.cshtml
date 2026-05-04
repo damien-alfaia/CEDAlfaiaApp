@@ -1,0 +1,119 @@
+@{
+    var grid = Html.DevExpress().GridView(settings =>
+    {
+        settings.Name = "GridViewListeClients";
+        settings.CallbackRouteValues = new { Controller = "Clients", Action = "GridViewListeClientPartial" };
+        settings.SettingsBehavior.AllowGroup = true;
+        settings.SettingsBehavior.FilterRowMode = GridViewFilterRowMode.Auto;
+        settings.Settings.ShowColumnHeaders = true;
+        settings.Settings.ShowFooter = true;
+        settings.Settings.ShowGroupPanel = true;
+        settings.SettingsCookies.Enabled = true;
+        settings.ClientLayout = (s, e) =>
+        {
+            switch (e.LayoutMode)
+            {
+                case ClientLayoutMode.Loading:
+                    if (Session["LayoutClients"] != null)
+                    {
+                        e.LayoutData = Session["LayoutClients"].ToString();
+                    }
+                    break;
+                case ClientLayoutMode.Saving:
+                    Session["LayoutClients"] = e.LayoutData;
+                    break;
+            }
+        };
+
+        /*settings.SettingsExport.EnableClientSideExportAPI = true;
+        settings.SettingsExport.ExcelExportMode = DevExpress.Export.ExportType.WYSIWYG;
+        settings.Toolbars.Add(t =>
+        {
+            t.EnableAdaptivity = true;
+            t.Items.Add(GridViewToolbarCommand.ExportToPdf);
+            t.Items.Add(GridViewToolbarCommand.ExportToXls);
+            t.Items.Add(GridViewToolbarCommand.ExportToXlsx);
+            t.Items.Add(GridViewToolbarCommand.ExportToDocx);
+            t.Items.Add(GridViewToolbarCommand.ExportToRtf);
+            t.Items.Add(GridViewToolbarCommand.ExportToCsv);
+        });
+        settings.SettingsExport.RenderBrick = (sender, e) =>
+        {
+            if (e.RowType == GridViewRowType.Data && e.VisibleIndex % 2 == 0)
+                e.BrickStyle.BackColor = System.Drawing.Color.FromArgb(0xEE, 0xEE, 0xEE);
+        };*/
+
+        settings.Width = System.Web.UI.WebControls.Unit.Percentage(100);
+        settings.CommandColumn.Visible = false;
+        settings.KeyFieldName = "ID";
+
+        settings.SettingsPager.Visible = true;
+        settings.Settings.ShowFilterRow = true;
+        settings.SettingsBehavior.AllowSelectByRowClick = true;
+
+        settings.ClientSideEvents.RowDblClick = " function(s, e) { s.GetRowValues(e.visibleIndex, 'ID', function (value) { modifierClient(value); }); }";
+
+        settings.Columns.Add(column => {
+            column.FieldName = "Nom";
+            column.AdaptivePriority = 1;
+            column.SortOrder = DevExpress.Data.ColumnSortOrder.Ascending;
+        });
+
+        settings.Columns.Add(column =>
+        {
+            column.FieldName = "Prenom";
+            column.AdaptivePriority = 1;
+        });
+
+        settings.Columns.Add(column =>
+        {
+            column.Caption = "Coordonnées";
+            column.Name = "Coordonnees";
+            column.SetDataItemTemplateContent(c =>
+            {
+                var client = c.Grid.GetRow(c.VisibleIndex) as CEDAlfaiaApp.DAL.Garage.Client;
+                if (client != null)
+                {
+                    var clientModel = new CEDAlfaiaApp.Models.ClientModel(client);
+                    ViewContext.Writer.Write(Html.Partial("Coordonnees", clientModel));
+                }
+            });
+        });
+
+        settings.Columns.Add(column =>
+        {
+            column.FieldName = "Voitures";
+            column.SetDataItemTemplateContent(c =>
+            {
+                var client = c.Grid.GetRow(c.VisibleIndex) as CEDAlfaiaApp.DAL.Garage.Client;
+                if (client != null)
+                {
+                    var clientModel = new CEDAlfaiaApp.Models.ClientModel(client);
+                    ViewContext.Writer.Write(Html.Partial("Voitures", clientModel.Voitures));
+                }
+            });
+        });
+
+        settings.Columns.Add(column =>
+        {
+            column.AdaptivePriority = 1;
+            column.SetDataItemTemplateContent(c =>
+            {
+                var client = c.Grid.GetRow(c.VisibleIndex) as CEDAlfaiaApp.DAL.Garage.Client;
+                if (client != null)
+                {
+                    ViewContext.Writer.Write(Html.Partial("Menu", client.ID));
+                }
+            });
+        });
+        settings.SettingsPager.PageSize = 30;
+        settings.SettingsPager.NumericButtonCount = 6;
+        settings.Styles.Cell.Wrap = DefaultBoolean.False;
+    });
+    if (ViewData["EditError"] != null)
+    {
+        grid.SetEditErrorText((string)ViewData["EditError"]);
+    }
+}
+@grid.Bind(Model).GetHtml()
+

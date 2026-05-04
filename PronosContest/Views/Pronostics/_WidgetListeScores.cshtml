@@ -1,0 +1,35 @@
+﻿@model List<CEDAlfaiaApp.DAL.Pronos.Pronostic>
+
+@if (this.Model != null && this.Model.Any())
+{
+	<ul class="list-group" >
+		@{  foreach (var prono in this.Model)
+            {
+                if (prono.Match.ButsEquipeDomicile != null && prono.Match.ButsEquipeExterieur != null)
+                {
+                    if (prono.ButsEquipeDomicile == prono.Match.ButsEquipeDomicile && prono.ButsEquipeExterieur == prono.Match.ButsEquipeExterieur)
+                    {
+                        <li class="list-group-item list-group-item-success">
+                            <span class="badge">@prono.Score</span>
+                            @(prono.CompteUtilisateur.Prenom + " " + prono.CompteUtilisateur.Nom)
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="list-group-item ">
+                            <span class="badge">@prono.Score</span>
+                            @(prono.CompteUtilisateur.Prenom + " " + prono.CompteUtilisateur.Nom)
+                        </li>
+                    }
+                }
+                else
+                {
+                    <li class="list-group-item">
+                        <span class="badge">@prono.Score</span>
+                        @(prono.CompteUtilisateur.Prenom + " " + prono.CompteUtilisateur.Nom)
+                    </li>
+                }
+            }
+        }
+	</ul>
+}

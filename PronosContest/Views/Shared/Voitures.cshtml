@@ -1,0 +1,14 @@
+﻿@model List<CEDAlfaiaApp.Models.VoitureModel>
+
+@{
+    foreach (var voiture in this.Model)
+    {
+        <div data-idVoiture="@voiture.ID" style="width:100%;">
+            <i class="fa fa-car"></i>
+            <span>
+                @(voiture.Marque + " " + voiture.Modele + " - " + voiture.Immatriculation)
+            </span>
+            <i class="fa fa-times text-red pull-right" style="cursor: pointer; display:inline-block;" onclick="supprimerVoiture(this);"></i>
+        </div>
+    }
+}

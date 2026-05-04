@@ -1,0 +1,212 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    function onToolbarPreparingContrats(e) {
+        var toolbarItems = e.toolbarOptions.items;
+        toolbarItems.push({
+            text: " Contrats",
+            location: "before"
+        });
+    }
+    function onToolbarPreparingSalaires(e) {
+        var toolbarItems = e.toolbarOptions.items;
+        toolbarItems.push({
+            text: " Salaires",
+            location: "before"
+        });
+    }
+    function onToolbarPreparingIndisponibilites(e) {
+        var toolbarItems = e.toolbarOptions.items;
+        toolbarItems.push({
+            text: " Indisponibilités",
+            location: "before"
+        });
+    }
+</script>
+
+@(Html.DevExtreme().DataGrid<CEDAlfaiaApp.DAL.Salaries.Salarie>()
+                        .ID("gridSalaries")
+                        .Paging(paging => paging.Enabled(false))
+                        .ShowBorders(true)
+                        .Editing(e =>
+                        {
+                            e.Mode(GridEditMode.Row);
+                            e.AllowAdding(true);
+                            e.AllowDeleting(true);
+                            e.AllowUpdating(true);
+                            e.Texts(tx =>
+                            {
+                                tx.AddRow("Nouveau salarié");
+                                tx.CancelRowChanges("Annuler");
+                                tx.ConfirmDeleteMessage("Voulez-vous vraiment supprimer ce salarié ?");
+                                tx.ConfirmDeleteTitle("Suppression du salarié");
+                                tx.DeleteRow("Supprimer");
+                                tx.EditRow("Modifier");
+                                tx.SaveRowChanges("Enregistrer");
+                                tx.UndeleteRow("Annuler");
+                            });
+                        })
+                        .Columns(columns =>
+                        {
+                            columns.AddFor(c => c.Nom).DataField("Nom").ValidationRules(vr => { vr.AddRequired().Message("Nom obligatoire !"); });
+                            columns.AddFor(c => c.Prenom).ValidationRules(vr => { vr.AddRequired().Message("Prénom obligatoire !"); });
+                            columns.AddFor(c => c.Telephone);
+                            columns.AddFor(c => c.Portable);
+                            columns.AddFor(c => c.Email).ValidationRules(vr =>
+                            {
+                                vr.AddEmail().Message("Email incorrect");
+                            });
+                            columns.AddFor(c => c.DateNaissance).Option("format", "dd/MM/yyyy").DataType(GridColumnDataType.Date).ValidationRules(vr =>
+                            {
+                                vr.AddRequired().Message("Date de naissance obligatoire");
+                            });
+                        })
+                        .RemoteOperations(true)
+                        .DataSource(d => d.Mvc()
+                            .Controller("Salaries")
+                            .Key("ID")
+                            .LoadAction("GetSalaries")
+                            .InsertAction("InsertSalarie")
+                            .UpdateAction("UpdateSalarie")
+                            .DeleteAction("DeleteSalarie"))
+                        .MasterDetail(md => md
+                            .Enabled(true)
+                            .Template(@<text>
+                                @RenderGridContrats()
+                            </text>)
+                 )
+)
+
+
+@helper RenderGridContrats()
+{
+    @(Html.DevExtreme().DataGrid<CEDAlfaiaApp.DAL.Salaries.SalarieContrat>()
+                                .ID("gridSalaries" + new JS("data.ID"))
+                                .ColumnAutoWidth(true)
+                                .ShowBorders(true)
+                                .Editing(e => e.Mode(GridEditMode.Row).AllowAdding(true).AllowDeleting(true).AllowUpdating(true))
+                                .RemoteOperations(true)
+                                .OnToolbarPreparing("onToolbarPreparingContrats")
+                                .Columns(columns =>
+                                {
+                                    columns.AddFor(m => m.DateDebut).Option("format", "dd/MM/yyyy").DataType(GridColumnDataType.Date).ValidationRules(vr =>
+                                    {
+                                        vr.AddRequired().Message("Date de début de contrat obligatoire");
+                                    });
+                                    columns.AddFor(m => m.DateFin).Option("format", "dd/MM/yyyy").DataType(GridColumnDataType.Date);
+                                    columns.AddFor(m => m.TypeContrat);
+                                })
+                                .OnRowInserting(@<text>
+                                    function (e) {
+                                    e.data.SalarieID = data.ID;
+                                    }
+                                </text>)
+                                                                    .DataSource(d => d.Mvc()
+                                                                        .Controller("Salaries")
+                                                                        .Key("ID")
+                                                                        .LoadAction("GetContrats")
+                                                                        .InsertAction("InsertContrat")
+                                                                        .UpdateAction("UpdateContrat")
+                                                                        .DeleteAction("DeleteContrat")
+                                                                        .LoadParams(new { idSalarie = new JS("data.ID") })
+                                                                    )
+                                                                    .ShowBorders(true)
+                                                                    .MasterDetail(md => md
+                                                                            .Enabled(true)
+                                                                            .Template(@<text>
+                                                                                @RenderGridIndisponibilites()
+                                                                            </text>)
+                                                                                                                            )
+    )
+}
+
+
+@helper RenderGridIndisponibilites()
+{
+    @(Html.DevExtreme().DataGrid<CEDAlfaiaApp.DAL.Salaries.SalarieIndisponibilite>()
+                                .ID("gridIndisponibilites" + new JS("data.ID"))
+                                .ColumnAutoWidth(true)
+                                .ShowBorders(true)
+                                .Editing(e => e.Mode(GridEditMode.Row).AllowAdding(true).AllowDeleting(true).AllowUpdating(true).Texts(tx =>
+                                {
+                                    tx.AddRow("");
+                                }))
+                                .RemoteOperations(true)
+                                .OnToolbarPreparing("onToolbarPreparingIndisponibilites")
+                                .Columns(columns =>
+                                {
+                                    columns.AddFor(m => m.DateDebut).Option("format", "dd/MM/yyyy").DataType(GridColumnDataType.Date).ValidationRules(vr =>
+                                    {
+                                        vr.AddRequired().Message("Date de début obligatoire");
+                                    });
+                                    columns.AddFor(m => m.DateFin).Option("format", "dd/MM/yyyy").DataType(GridColumnDataType.Date).ValidationRules(vr =>
+                                    {
+                                        vr.AddRequired().Message("Date de fin obligatoire");
+                                    });
+
+                                    List<CEDAlfaiaAppV2.Models.KeyValue> typeIndisponibilites = new List<CEDAlfaiaAppV2.Models.KeyValue>();
+                                    foreach (CEDAlfaiaApp.DAL.Salaries.TypeIndisponibilite typeIndisponibilite in Enum.GetValues(typeof(CEDAlfaiaApp.DAL.Salaries.TypeIndisponibilite)))
+                                    {
+                                        typeIndisponibilites.Add(new CEDAlfaiaAppV2.Models.KeyValue((int)typeIndisponibilite, typeIndisponibilite.ToString()));
+                                    }
+
+                                    columns.AddFor(m => m.TypeIndisponibilite).Lookup(lk => lk.DataSource(typeIndisponibilites).DisplayExpr("Value").ValueExpr("Key")).ValidationRules(vr =>
+                                    {
+                                        vr.AddRequired().Message("Type d'indisponibilité obligatoire");
+                                    });
+                                    columns.AddFor(m => m.Motif);
+                                })
+                                .OnRowInserting(@<text>
+                                    function (e) {
+                                    e.data.SalarieContratID = data.ID;
+                                    }
+                                </text>)
+                                                                    .DataSource(d => d.Mvc()
+                                                                        .Controller("Salaries")
+                                                                        .Key("ID")
+                                                                        .LoadAction("GetIndisponibilites")
+                                                                        .InsertAction("InsertIndisponibilite")
+                                                                        .UpdateAction("UpdateIndisponibilite")
+                                                                        .DeleteAction("DeleteIndisponibilite")
+                                                                        .LoadParams(new { idSalarieContrat = new JS("data.ID") })
+                                                                    )
+                                                                    .ShowBorders(true)
+    )
+}
+
+@helper RenderGridSalaires()
+{
+    @(Html.DevExtreme().DataGrid<CEDAlfaiaApp.DAL.Salaries.SalarieSalaire>()
+                                .ID("gridSalaires" + new JS("data.ID"))
+                                .ColumnAutoWidth(true)
+                                .ShowBorders(true)
+                                .Editing(e => e.Mode(GridEditMode.Row).AllowAdding(true).AllowDeleting(true).AllowUpdating(true))
+                                .RemoteOperations(true)
+                                .OnToolbarPreparing("onToolbarPreparingSalaires")
+                                .Columns(columns =>
+                                {
+                                    columns.AddFor(m => m.DateDebut);
+                                    columns.AddFor(m => m.DateFin);
+                                    columns.AddFor(m => m.DatePaiement);
+                                    columns.AddFor(m => m.SalaireNet);
+                                })
+                                .OnRowInserting(@<text>
+                                    function (e) {
+                                    e.data.SalarieContratID = data.ID;
+                                    }
+                                </text>)
+                                                                    .DataSource(d => d.Mvc()
+                                                                        .Controller("Salaries")
+                                                                        .Key("ID")
+                                                                        .LoadAction("GetSalaires")
+                                                                        .InsertAction("InsertSalaire")
+                                                                        .UpdateAction("UpdateSalaire")
+                                                                        .DeleteAction("DeleteSalaire")
+                                                                        .LoadParams(new { idSalarieContrat = new JS("data.ID") })
+                                                                    )
+                                                                    .ShowBorders(true)
+    )
+}
+

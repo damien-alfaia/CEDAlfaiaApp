@@ -1,0 +1,97 @@
+﻿
+@{
+    ViewBag.Title = "Liste des devis";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    $(function () {
+        $('#btnImprimer').click(function () {
+            var ids = [];
+            $("[role='IsAImprimer']:checked").each(function () {
+                ids.push($(this).closest('[data-idDevis]').attr('data-idDevis'));
+                if (this == $("[role='IsAImprimer']")[$("[role='IsAImprimer']:checked").length - 1])
+                    window.location = '@Url.Action("ImprimerParLot")?ids=' + JSON.stringify(ids);
+            });
+        });
+    });
+
+    function menuDevis_menuItemClick(s, e) {
+        if (e.item.name == 'Delete') {
+            s.GetRowValues(e.visibleIndex, 'ID', function (value) {
+                supprimerDevis(value, e.item);
+            });
+        }
+        else if (e.item.name == 'GenererFacture') {
+            s.GetRowValues(e.visibleIndex, 'ID', function (value) {
+                genererFacture(value, e.item);
+            });
+        }
+    }
+
+    function supprimerDevis(idDevis, element) {
+        if (confirm("Voulez-vous vraiment supprimer ce devis ? ")) {
+            $.ajax({
+                url: '@Url.Action("SupprimerDevis")',
+                data: JSON.stringify({ idDevis: idDevis }),
+                contentType: 'application/json; charset=utf-8',
+                context: { element: element },
+                type: 'POST',
+                success: function (result) {
+                    if (result == "OK")
+                        $(e.item).closest('tr').remove();
+                    else
+                        alert(result);
+                },
+                error: function (err) {
+                    alert(err);
+                }
+            });
+        }
+    }
+    function genererFacture(idDevis, element) {
+        if (confirm("Voulez-vous vraiment générer ce devis en facture ? ")) {
+            $.ajax({
+                url: '@Url.Action("GenererFacture")',
+                data: JSON.stringify({ idDevis: idDevis }),
+                contentType: 'application/json; charset=utf-8',
+                context: { element: element },
+                type: 'POST',
+                success: function (result) {
+                    if (result == "OK")
+                        $(e.item).closest('tr').remove();
+                    else
+                        alert(result);
+                },
+                error: function (err) {
+                    alert(err);
+                }
+            });
+        }
+    }
+
+    function ouvrirDevis(idDevis) {
+        window.location = 'Saisir?identifiant=' + idDevis;
+    }
+</script>
+
+<section class="content-header">
+    <h1>
+        Liste des devis
+    </h1>
+    <ol class="breadcrumb">
+        <li><a href="#"><i class="fa fa-dashboard"></i> CEDAlfaia</a></li>
+        <li>Devis</li>
+    </ol>
+</section>
+
+@using (Html.BeginForm("Imprimer", "Devis", new { pListe = this.Model }))
+{
+    <section class="content">
+        <a class="btn btn-sm btn-success pull-right" href="@Url.Action("Saisir", new { })" style="margin-bottom:10px;"><i class="fa fa-plus"></i>&nbsp;Nouveau devis</a>
+        @using (Html.BeginForm())
+        {
+            @Html.Action("GridViewListeDevisPartial", new { ViewBag.ClientID })
+        }
+    </section>
+}

@@ -1,0 +1,49 @@
+﻿@model CEDAlfaiaApp.Models.LogInModel
+@{
+    Layout = "~/Views/Shared/_LayoutPublic.cshtml";
+    ViewBag.Title = "Connectez-vous";
+}
+<div id="popup">
+    @(Html.DevExtreme().Popup()
+        .ID("login")
+        .ElementAttr("class", "popup")
+        .Width(350)
+        .Height(300)
+        .ShowTitle(true)
+        .Title("Connectez-vous")
+        .Visible(true)
+        .ShowCloseButton(false)
+        .DragEnabled(false)
+        .ContentTemplate(@<text>
+            @using (Html.BeginForm())
+            {
+                @Html.ValidationSummary();
+                using (Html.DevExtreme().ValidationGroup())
+                {
+                @(Html.DevExtreme().Form<CEDAlfaiaApp.Models.LogInModel>()
+                            .ID("formLogin")
+                            .ColCount(1)
+                            .ShowValidationSummary(true)
+                            .Items(items =>
+                            {
+                                items.AddSimpleFor(m => m.Email).ValidationRules(vr => {
+                                    vr.AddEmail().Message("Email invalide");
+                                    vr.AddRequired().Message("Email obligatoire");
+                                });
+                                items.AddSimpleFor(m => m.Password).ValidationRules(vr => {
+                                    vr.AddRequired().Message("Mot de passe obligatoire");
+                                }).Editor(ed => ed.TextBox().Mode(TextBoxMode.Password));
+                            })
+                            .LabelLocation(FormLabelLocation.Top)
+                            .FormData(Model)
+                )
+
+                <div style="text-align:right;margin-top:20px;">
+                    @Html.DevExtreme().Button().Text("Annuler").Icon("remove")
+                    @Html.DevExtreme().Button().Text("Login").Icon("check").UseSubmitBehavior(true).Type(ButtonType.Success)
+                </div>
+                }
+            }
+        </text>)
+)
+</div>

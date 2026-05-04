@@ -1,0 +1,95 @@
+﻿@model CEDAlfaiaApp.Models.SaisirLignesPieceVenteModel
+
+@{
+    /*if (this.Model.IsReadOnly)
+    {
+        <td>
+            @Html.Hidden("[" + this.Model.IndexLigne + "].IndexLigne", this.Model.IndexLigne, new { role = "IndexLigne" })
+            @Html.Hidden("[" + this.Model.IndexLigne + "].IsEmpty", this.Model.IsEmpty, new { role = "IsEmpty" })
+            @Html.Hidden("[" + this.Model.IndexLigne + "].IDLigne", this.Model.IDLigne, new { role = "IDLigne" })
+            @Html.Hidden("[" + this.Model.IndexLigne + "].IsSupprime", this.Model.IsSupprime, new { role = "IsSupprime" })
+            @Html.TextArea("[" + this.Model.IndexLigne + "].Libelle", this.Model.Libelle, new { @class = "form-control", rows = "3", role = "Libelle", tabindex = 1 + (4 * this.Model.IndexLigne), disabled="disabled" })
+        </td>
+        <td>
+            <div class="form-group">
+                @Html.TextBox("[" + this.Model.IndexLigne + "].Quantite", this.Model.Quantite, new { @class = "form-control text-right", style = "margin-bottom:5px;", role = "Quantite", onchange = "ligneFactureOnChange(this);", tabindex = 2 + (4 * this.Model.IndexLigne), disabled = "disabled" })
+            </div>
+        </td>
+        <td>
+            <div class="form-group has-feedback">
+                @Html.TextBox("[" + this.Model.IndexLigne + "].Remise", this.Model.Remise, new { @class = "form-control text-right", style = "margin-bottom:5px;padding-right:23px;", role = "Remise", onchange = "ligneFactureOnChange(this);", tabindex = 3 + (4 * this.Model.IndexLigne), disabled = "disabled" })
+                <i class="form-control-feedback" style="font-size: 0.6em">%</i>
+            </div>
+        </td>
+        <td>
+            <div class="form-group has-feedback">
+                @Html.TextBox("[" + this.Model.IndexLigne + "].PrixGarageHT", this.Model.PrixGarageHT, new { @class = "form-control text-right", style = "margin-bottom:5px;padding-right:28px;", role = "PrixGarageHT", onchange = "ligneFactureOnChange(this);", tabindex = 4 + (4 * this.Model.IndexLigne), disabled = "disabled" })
+                <i class="form-control-feedback" style="font-size: 0.6em">€ HT</i>
+            </div>
+            <div class="form-group has-feedback">
+                @Html.TextBox("[" + this.Model.IndexLigne + "].PrixGarageTTC", this.Model.PrixGarageTTC.ToString("n2"), new { @class = "form-control text-right disabled", style = "margin-bottom:5px;padding-right:30px;", role = "PrixGarageTTC", disabled = true })
+                <i class="form-control-feedback" style="font-size: 0.6em">€ TTC</i>
+            </div>
+        </td>
+        <td>
+            <div class="form-group has-feedback">
+                @Html.TextBox("[" + this.Model.IndexLigne + "].PrixClientHT", this.Model.PrixClientHT.ToString("n2"), new { @class = "form-control text-right", style = "margin-bottom:5px;padding-right:28px;", role = "PrixClientHT", disabled = true })
+                <i class="form-control-feedback" style="font-size: 0.6em">€ HT</i>
+            </div>
+            <div class="form-group has-feedback">
+                @Html.TextBox("[" + this.Model.IndexLigne + "].PrixClientTTC", this.Model.PrixClientTTC.ToString("n2"), new { @class = "form-control text-right", style = "margin-bottom:5px;padding-right:30px;", role = "PrixClientTTC", disabled = true })
+                <i class="form-control-feedback" style="font-size: 0.6em">€ TTC</i>
+            </div>
+            <span class="text-muted pull-right" role="BeneficeTotal">@(((this.Model.PrixClientTTC - this.Model.PrixGarageTTC) * this.Model.Quantite) + " €")</span>
+        </td>
+        <td>
+
+        </td>
+    }
+    else
+    {
+        <td>
+            @Html.Hidden("[" + this.Model.IndexLigne + "].IndexLigne", this.Model.IndexLigne, new { role = "IndexLigne" })
+            @Html.Hidden("[" + this.Model.IndexLigne + "].IsEmpty", this.Model.IsEmpty, new { role = "IsEmpty" })
+            @Html.Hidden("[" + this.Model.IndexLigne + "].IDLigne", this.Model.IDLigne, new { role = "IDLigne" })
+            @Html.Hidden("[" + this.Model.IndexLigne + "].IsSupprime", this.Model.IsSupprime, new { role = "IsSupprime" })
+            @Html.TextArea("[" + this.Model.IndexLigne + "].Libelle", this.Model.Libelle, new { @class = "form-control", rows = "3", role = "Libelle", tabindex = 1 + (4 * this.Model.IndexLigne) })
+        </td>
+        <td>
+            <div class="form-group">
+                @Html.TextBox("[" + this.Model.IndexLigne + "].Quantite", this.Model.Quantite, new { @class = "form-control text-right", style = "margin-bottom:5px;", role = "Quantite", onchange = "ligneFactureOnChange(this);", tabindex = 2 + (4 * this.Model.IndexLigne) })
+            </div>
+        </td>
+        <td>
+            <div class="form-group has-feedback">
+                @Html.TextBox("[" + this.Model.IndexLigne + "].Remise", this.Model.Remise, new { @class = "form-control text-right", style = "margin-bottom:5px;padding-right:23px;", role = "Remise", onchange = "ligneFactureOnChange(this);", tabindex = 3 + (4 * this.Model.IndexLigne) })
+                <i class="form-control-feedback" style="font-size: 0.6em">%</i>
+            </div>
+        </td>
+        <td>
+            <div class="form-group has-feedback">
+                @Html.TextBox("[" + this.Model.IndexLigne + "].PrixGarageHT", this.Model.PrixGarageHT, new { @class = "form-control text-right", style = "margin-bottom:5px;padding-right:28px;", role = "PrixGarageHT", onchange = "ligneFactureOnChange(this);", tabindex = 4 + (4 * this.Model.IndexLigne) })
+                <i class="form-control-feedback" style="font-size: 0.6em">€ HT</i>
+            </div>
+            <div class="form-group has-feedback">
+                @Html.TextBox("[" + this.Model.IndexLigne + "].PrixGarageTTC", this.Model.PrixGarageTTC.ToString("n2"), new { @class = "form-control text-right disabled", style = "margin-bottom:5px;padding-right:30px;", role = "PrixGarageTTC", disabled = true })
+                <i class="form-control-feedback" style="font-size: 0.6em">€ TTC</i>
+            </div>
+        </td>
+        <td>
+            <div class="form-group has-feedback">
+                @Html.TextBox("[" + this.Model.IndexLigne + "].PrixClientHT", this.Model.PrixClientHT.ToString("n2"), new { @class = "form-control text-right", style = "margin-bottom:5px;padding-right:28px;", role = "PrixClientHT", disabled = true })
+                <i class="form-control-feedback" style="font-size: 0.6em">€ HT</i>
+            </div>
+            <div class="form-group has-feedback">
+                @Html.TextBox("[" + this.Model.IndexLigne + "].PrixClientTTC", this.Model.PrixClientTTC.ToString("n2"), new { @class = "form-control text-right", style = "margin-bottom:5px;padding-right:30px;", role = "PrixClientTTC", disabled = true })
+                <i class="form-control-feedback" style="font-size: 0.6em">€ TTC</i>
+            </div>
+            <span class="text-muted pull-right" role="BeneficeTotal">@(((this.Model.PrixClientTTC - this.Model.PrixGarageTTC) * this.Model.Quantite) + " €")</span>
+        </td>
+        <td>
+            <a href="#" onclick="supprimerLigne(this); return false;"><i class="fa fa-times fa-2x text-danger"></i></a>
+        </td>
+    }*/
+
+}

@@ -1,0 +1,77 @@
+﻿@model List<CEDAlfaiaApp.DAL.Garage.BalanceAgee>
+
+<section class="content-header">
+    @{
+        ViewBag.Title = "Balance âgée";
+        Layout = "~/Views/Shared/_Layout.cshtml";
+    }
+    <h1>
+        Balance âgée
+    </h1>
+</section>
+
+<section class="content">
+
+    @(Html.DevExtreme().DataGrid<CEDAlfaiaApp.DAL.Garage.Client>()
+.ID("gridBalanceAgee")
+.AllowColumnResizing(true)
+.ColumnMinWidth(50)
+.ColumnAutoWidth(true)
+.DataSource(this.Model)
+.AllowColumnReordering(true)
+.RowAlternationEnabled(true)
+.FilterRow(fr => fr.Visible(true))
+.StateStoring(s => s
+    .Enabled(true)
+    .Type(StateStoringType.LocalStorage)
+    .StorageKey("gridBalanceAgee")
+)
+.ShowBorders(true)
+.Paging(p => p.PageSize(25))
+.Pager(p => p
+    .ShowPageSizeSelector(true)
+    .AllowedPageSizes(new int[] { 10, 25, 50, 100 })
+)
+.SearchPanel(s => s
+    .Visible(true)
+    .HighlightSearchText(true)
+    .Placeholder("Rechercher...")
+)
+.GroupPanel(g => g.Visible(true))
+.Grouping(g => g.AutoExpandAll(true))
+.Columns(columns =>
+{
+    columns.Add()
+        .DataField("NomClient")
+        .Caption("Client");
+
+    columns.Add()
+        .DataField("SeptJours")
+        .Caption("< 7 jours")
+        .Format("#0.00€");
+    columns.Add()
+        .DataField("QuinzeJours")
+        .Caption("< 15 jours")
+        .Format("#0.00€");
+    columns.Add()
+        .DataField("UnMois")
+        .Caption("< 1 mois")
+        .Format("#0.00€");
+    columns.Add()
+        .DataField("DeuxMois")
+        .Caption("< 2 mois")
+        .Format("#0.00€");
+    columns.Add()
+        .DataField("TroisMois")
+        .Caption("< 3 mois")
+        .Format("#0.00€");
+    columns.Add()
+        .DataField("Plus")
+        .Caption("> 3 mois")
+        .Format("#0.00€");
+    columns.Add()
+        .DataField("Total")
+        .Caption("Total")
+        .Format("#0.00€");
+}))
+</section>

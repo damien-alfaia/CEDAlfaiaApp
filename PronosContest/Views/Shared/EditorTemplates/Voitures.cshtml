@@ -1,0 +1,30 @@
+﻿@model List<CEDAlfaiaApp.Models.VoitureModel>
+
+<label>Voitures</label>
+<i class="fa fa-plus text-success" style="cursor: pointer;" onclick="ajouterVoiture();"></i>
+
+<div id="divListeVoitures">
+    @{
+        if (this.Model != null)
+        {
+            for (var i = 0; i < this.Model.Count(); i++)
+            {
+                <div class="row" id="row_voiture">
+                    @Html.HiddenFor(m => this.Model[i].ID, new { data_role = "VoitureID" })
+                    @Html.HiddenFor(m => this.Model[i].Marque)
+                    @Html.HiddenFor(m => this.Model[i].Modele)
+                    <div class="col-xs-4" style="margin-bottom:10px;">
+                        @Html.DropDownListFor(m => this.Model[i].IDMarque, new List<SelectListItem>(), new { @class = "form-control", value = this.Model[i].IDMarque, onchange = "selectMarqueOnChange(this)" })
+                    </div>
+                    <div class="col-xs-4" style="margin-bottom:10px;">
+                        @Html.DropDownListFor(m => this.Model[i].IDModele, new List<SelectListItem>(), new { @class = "form-control", value = this.Model[i].IDModele })
+                    </div>
+                    <div class="col-xs-4" style="margin-bottom:10px;">
+                        @Html.TextBoxFor(m => this.Model[i].Immatriculation, new { @class = "form-control", style="width:85%;display:inline-block;" })
+                        <i class="fa fa-times fa-2x text-red pull-right" style="cursor: pointer; display:inline-block;" onclick="supprimerVoiture(this);"></i>
+                    </div>
+                </div>
+            }
+        }
+    }
+</div>

@@ -1,0 +1,40 @@
+﻿@model CEDAlfaiaApp.DAL.Widgets.WidgetUtilisateur
+
+
+@{ 
+    var factures = CEDAlfaiaApp.BLL.CEDAlfaiaAppWebService.GetService().GarageService.Factures().Where(f => !f.IsFactureAnnule).ToList();
+    if (this.Model.DateDebut != null || this.Model.DateFin != null)
+    {
+        if (this.Model.DateDebut != null)
+        {
+            factures = factures.Where(f => f.DateFacture >= this.Model.DateDebut).ToList();
+        }
+        if (this.Model.DateFin != null)
+        {
+            factures = factures.Where(f => f.DateFacture <= this.Model.DateFin).ToList();
+        }
+    }
+    else if (this.Model.IsAnneeEnCours != null && this.Model.IsAnneeEnCours.Value)
+    {
+        factures = factures.Where(f => f.DateFacture.Value.Year == DateTime.Now.Year).ToList();
+    }
+    else if (this.Model.IsMoisEnCours != null && this.Model.IsMoisEnCours.Value)
+    {
+        factures = factures.Where(f => f.DateFacture.Value.Year == DateTime.Now.Year && f.DateFacture.Value.Month == DateTime.Now.Month).ToList();
+    }
+
+    Html.DevExpress().Label(settings =>
+    {
+        if (factures.Any())
+        {
+            settings.Text = factures.Sum(f => f.TotalTTC).ToString("c2");
+        }
+        else
+        {
+            settings.Text = 0.ToString("c2");
+        }
+        settings.Style.Add("font-size", "32px");
+        settings.Width = System.Web.UI.WebControls.Unit.Parse("100%");
+        settings.Style.Add("text-align", "right");
+    }).GetHtml();
+}

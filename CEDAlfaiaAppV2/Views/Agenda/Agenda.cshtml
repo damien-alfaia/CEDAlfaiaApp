@@ -1,0 +1,83 @@
+﻿@model List<CEDAlfaiaAppV2.Models.RendezVousCalendarModel>
+@{
+    ViewBag.Title = "Agenda";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script type="text/javascript">
+
+</script>
+
+
+<section class="content-header">
+    <h1>
+        Agenda
+    </h1>
+</section>
+
+<section class="content">
+    @(Html.DevExtreme().Scheduler()
+        .DataSource(Model)
+        .TextExpr("Text")
+        .StartDateExpr("DateDebut")
+        .EndDateExpr("DateFin")
+        .Views(new SchedulerViewType[] {
+            SchedulerViewType.Agenda,
+            SchedulerViewType.Day,
+            SchedulerViewType.Month,
+            SchedulerViewType.Week
+        })
+        .CurrentView(SchedulerViewType.Month)
+        .CurrentDate(DateTime.Now)
+        .FirstDayOfWeek(FirstDayOfWeek.Monday)
+        .StartDayHour(8)
+        .EndDayHour(21)
+        .ShowAllDayPanel(false)
+        .Height(600)
+    /*.Groups(new string[] { "EmployeeID" })
+    .Resources(res =>
+    {
+        res.Add()
+            .FieldExpr("EmployeeID")
+            .ColorExpr("Color")
+            .DisplayExpr("Text")
+            .ValueExpr("Id")
+            .AllowMultiple(false)
+            .Label("Employee")
+            .DataSource(new object[] {
+               new {
+                   Id = 1,
+                   Text = "John Heart",
+                   Color = "#56ca85",
+                   Avatar = "../../Content/images/gym/coach-man.png",
+                   Age = 27,
+                   Discipline = "ABS, Fitball, StepFit"
+               },
+               new {
+                   Id = 2,
+                   Text = "Sandra Johnson",
+                   Color = "#ff9747",
+                   Avatar = "../../Content/images/gym/coach-woman.png",
+                   Age = 25,
+                   Discipline = "ABS, Fitball, StepFit"
+               }
+            });
+    })*/
+    /*.DataCellTemplate(new JS(@"
+        function dataCellTemplate(cellData, index, container) {
+            var employeeID = cellData.groups.EmployeeID,
+                currentTraining = getCurrentTraining(cellData.startDate.getDate(), employeeID);
+
+            var wrapper = $('<div>')
+                .toggleClass('employee-weekend-' + employeeID, isWeekEnd(cellData.startDate)).appendTo(container)
+                .addClass('employee-' + employeeID)
+                .addClass('dx-template-wrapper');
+
+            wrapper.append($('<div>')
+                .text(cellData.text)
+                .addClass(currentTraining)
+                .addClass('day-cell')
+            );
+    }"))*/
+    )
+</section>

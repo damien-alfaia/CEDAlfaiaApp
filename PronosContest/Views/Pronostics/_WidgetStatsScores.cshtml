@@ -1,0 +1,19 @@
+﻿@model CEDAlfaiaApp.Models.InformationsPronosticViewModel
+
+@{
+    if (this.Model != null)
+    {
+        <div id="chartStatsScores" style="height: 200px;"></div>
+    }
+}
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $.getJSON("/Pronostics/GetStatsScoresJson?pIdConcours=" + @this.Model.ConcoursID + "&pIdMatch=" + @this.Model.MatchID + "&pIsNewProno=@this.Model.IsNewProno", function (data) {
+            new Morris.Donut({
+                element: 'chartStatsScores',
+                data: JSON.parse(data)
+            });
+        });
+    });
+</script>
