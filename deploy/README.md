@@ -1,76 +1,89 @@
 # Déploiement VPS — CEDAlfaiaApp v3
 
-Templates et scripts pour déployer l'app `web/` sur le VPS.
+L'app est déployée en **conteneur Docker** sur le VPS, **derrière le Traefik existant** (Hostinger), avec Let's Encrypt automatique via le challenge ACME HTTP de Traefik.
 
 ## Setup initial du VPS (une fois)
 
+Le VPS Hostinger arrive avec Docker + Traefik déjà installés. Il reste juste à cloner le repo et configurer l'env :
+
 ```bash
-# Sur Ubuntu/Debian récent
-sudo apt update && sudo apt install -y curl git nginx certbot python3-certbot-nginx
-
-# Node 22 LTS via NodeSource
-curl -fsSL https://deb.nodesource.com/setup_22.x | sudo bash -
-sudo apt install -y nodejs
-
-# PM2 global
-sudo npm install -g pm2
-
-# Cloner le repo
-sudo mkdir -p /var/www/cedalfaia /var/log/cedalfaia
-sudo chown -R "$USER:$USER" /var/www/cedalfaia /var/log/cedalfaia
+# SSH root@<vps>
+mkdir -p /var/www
 git clone https://github.com/damien-alfaia/CEDAlfaiaApp.git /var/www/cedalfaia
 cd /var/www/cedalfaia
 git checkout modernization
 
-# Variables d'environnement de production
-cd web
-cp .env.example .env.local
-# remplir avec les credentials Supabase prod
+# Variables d'environnement de prod
+cp deploy/.env.example deploy/.env
+# Renseigner DOMAIN, NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY
+nano deploy/.env
+chmod 600 deploy/.env
 ```
 
-## Setup nginx + HTTPS
+## DNS
 
-```bash
-# Copier le vhost
-sudo cp /var/www/cedalfaia/deploy/nginx.conf.example /etc/nginx/sites-available/cedalfaia.conf
-# Adapter le server_name (remplacer garage.exemple.fr)
-sudo nano /etc/nginx/sites-available/cedalfaia.conf
-sudo ln -sf /etc/nginx/sites-available/cedalfaia.conf /etc/nginx/sites-enabled/
-sudo nginx -t && sudo systemctl reload nginx
+L'enregistrement A du domaine doit pointer vers l'IP publique du VPS :
 
-# Cert HTTPS Let's Encrypt
-sudo certbot --nginx -d garage.exemple.fr
 ```
+toniauto.dalfaia.fr.   A   187.124.42.207
+```
+
+À configurer chez le registrar / DNS provider du domaine.
 
 ## Premier déploiement
 
 ```bash
 cd /var/www/cedalfaia
 bash deploy/deploy.sh
-pm2 save
-pm2 startup    # suivre la commande retournée pour activer le démarrage auto
 ```
 
+Au premier démarrage, Traefik négocie un certificat Let's Encrypt (HTTP-01) — ça peut prendre 30-60 secondes.
+
 ## Déploiements suivants
+
+Pareil :
 
 ```bash
 cd /var/www/cedalfaia
 bash deploy/deploy.sh
 ```
 
-Pour automatiser via GitHub Actions plus tard : ajouter une étape `Deploy to VPS` qui SSH sur le VPS et lance `bash /var/www/cedalfaia/deploy/deploy.sh` (avec `BRANCH` en variable). Secrets nécessaires : `SSH_PRIVATE_KEY`, `SSH_HOST`, `SSH_USER`. À ajouter en Phase 8 (cutover) ou plus tôt si on veut du déploiement continu.
+`docker compose up -d --build` rebuild l'image et redéploie sans coupure (rolling update simple).
 
-## Vérification post-déploiement
+## Vérification
 
 ```bash
-# Status PM2
-pm2 status cedalfaia-web
+# Conteneur sain ?
+docker ps --filter name=cedalfaia-web --format "{{.Names}}\t{{.Status}}"
 
 # Logs en direct
-pm2 logs cedalfaia-web
+docker logs -f cedalfaia-web
 
 # Test HTTP
-curl -I https://garage.exemple.fr
+curl -I https://toniauto.dalfaia.fr
+```
+
+## Stack en place
+
+```
+Internet
+   │
+   ├─ :80  ──┐
+   │         ├─→ Traefik (network_mode: host, conteneur Docker préconfiguré Hostinger)
+   ├─ :443 ──┘                │
+                              │ rule: Host(`toniauto.dalfaia.fr`)
+                              │ tls: letsencrypt
+                              ↓
+                         127.0.0.1:3000
+                              │
+                              ↓
+                  cedalfaia-web (conteneur Docker)
+                  • Next.js 16 standalone
+                  • Healthcheck /login
+                  • restart: unless-stopped
+                              │
+                              ↓
+                          Supabase (Postgres + Auth + Storage)
 ```
 
 ## Rollback rapide
@@ -79,6 +92,21 @@ curl -I https://garage.exemple.fr
 cd /var/www/cedalfaia
 git log --oneline -5    # repérer le commit précédent
 git checkout <hash>
-cd web && npm ci && npm run build
-pm2 reload cedalfaia-web --update-env
+bash deploy/deploy.sh
 ```
+
+Ou directement sur l'image Docker précédente si elle est en cache local :
+
+```bash
+docker tag cedalfaia-web:latest cedalfaia-web:rolling-back  # backup
+# checkout commit précédent puis rebuild
+```
+
+## Auto-deploy depuis GitHub Actions (à venir, Phase 8)
+
+Pour automatiser : ajouter une étape `Deploy` dans `.github/workflows/ci.yml` qui SSH sur le VPS et lance `bash /var/www/cedalfaia/deploy/deploy.sh`. Secrets nécessaires :
+- `SSH_PRIVATE_KEY` (clé dédiée au déploiement)
+- `SSH_HOST=187.124.42.207`
+- `SSH_USER=root` (ou un user dédié au déploiement)
+
+À mettre en place quand on aura suffisamment de cycles de déploiement pour que l'investissement soit rentable.

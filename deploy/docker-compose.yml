@@ -1,0 +1,41 @@
+# =============================================================================
+# CEDAlfaiaApp v3 — Stack Docker pour le VPS (Traefik existant)
+# =============================================================================
+# Lancer depuis /var/www/cedalfaia/deploy :
+#   docker compose up -d --build
+#
+# Suppose que Traefik tourne déjà en network_mode: host avec :
+#   - providers.docker activé
+#   - certificatesresolvers.letsencrypt configuré
+#
+# Variables attendues (via .env à côté de ce fichier) :
+#   DOMAIN                       (ex: toniauto.dalfaia.fr)
+#   NEXT_PUBLIC_SUPABASE_URL     (Supabase prod)
+#   NEXT_PUBLIC_SUPABASE_ANON_KEY (Supabase prod)
+# =============================================================================
+
+services:
+  web:
+    build:
+      context: ../web
+      dockerfile: Dockerfile
+      args:
+        # Inlinées au build (les NEXT_PUBLIC_* sont injectées dans le bundle JS).
+        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+    image: cedalfaia-web:latest
+    container_name: cedalfaia-web
+    restart: unless-stopped
+    environment:
+      NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+    # Publication sur 127.0.0.1 uniquement : Traefik (en network_mode host)
+    # peut taper sur 127.0.0.1:3000, mais le port n'est PAS exposé publiquement.
+    ports:
+      - "127.0.0.1:3000:3000"
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.cedalfaia.entrypoints=websecure
+      - traefik.http.routers.cedalfaia.rule=Host(`${DOMAIN}`)
+      - traefik.http.routers.cedalfaia.tls.certresolver=letsencrypt
+      - traefik.http.services.cedalfaia.loadbalancer.server.port=3000

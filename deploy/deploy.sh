@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
-# Déploiement CEDAlfaiaApp v3 sur le VPS.
-# Lancer DEPUIS le VPS, dans /var/www/cedalfaia (chemin à adapter).
-# Suppose un git clone initial : git clone <repo> /var/www/cedalfaia
+# Déploiement CEDAlfaiaApp v3 sur le VPS via Docker + Traefik.
+# Lancer DEPUIS le VPS : bash /var/www/cedalfaia/deploy/deploy.sh
 set -euo pipefail
 
 REPO_DIR="/var/www/cedalfaia"
@@ -14,22 +13,27 @@ git fetch origin
 git checkout "$BRANCH"
 git pull --ff-only origin "$BRANCH"
 
-cd "$REPO_DIR/web"
+cd "$REPO_DIR/deploy"
 
-echo "→ Install dépendances (production)"
-npm ci
+if [ ! -f .env ]; then
+  echo "✗ deploy/.env manquant. Copier deploy/.env.example et remplir." >&2
+  exit 1
+fi
 
-echo "→ Build Next.js (standalone)"
-npm run build
+echo "→ Build + (re)start du conteneur"
+docker compose up -d --build
 
-# Next standalone: copier les fichiers statiques et public au bon endroit
-echo "→ Copie public/ et .next/static dans .next/standalone"
-mkdir -p .next/standalone/.next
-cp -r public .next/standalone/public 2>/dev/null || true
-cp -r .next/static .next/standalone/.next/static
+echo "→ Status :"
+docker compose ps
 
-echo "→ Reload PM2"
-pm2 reload cedalfaia-web --update-env || pm2 start ../deploy/ecosystem.config.js --env production
+echo "→ Healthcheck (peut prendre quelques secondes au premier démarrage)..."
+for i in 1 2 3 4 5 6; do
+  status=$(docker inspect -f '{{.State.Health.Status}}' cedalfaia-web 2>/dev/null || echo "starting")
+  echo "  [${i}/6] health=$status"
+  if [ "$status" = "healthy" ]; then
+    break
+  fi
+  sleep 5
+done
 
-echo "→ OK. Status :"
-pm2 status cedalfaia-web
+echo "→ OK"
