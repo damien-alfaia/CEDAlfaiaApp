@@ -70,7 +70,7 @@ export default async function DashboardPage() {
           <p>✅ Phase 2 — Infra Next.js + Docker + Traefik</p>
           <p>✅ Phase 3 — Auth + layout</p>
           <p>✅ Phase 4 — Module Clients + Voitures</p>
-          <p className="text-neutral-400">⏳ Phase 5 — Module Devis + Factures</p>
+          <p>✅ Phase 5 — Module Devis + Factures + PDFs</p>
           <p className="text-neutral-400">⏳ Phase 6 — Modules secondaires</p>
           <p className="text-neutral-400">
             ⏳ Phase 7 — Migration des données SQL Server → Postgres
