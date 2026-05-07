@@ -34,7 +34,7 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   // Public routes — anyone, signed in or not, may access.
-  const publicPaths = ["/login", "/auth"];
+  const publicPaths = ["/login", "/signup", "/auth"];
   const isPublic = publicPaths.some((p) => request.nextUrl.pathname.startsWith(p));
 
   if (!user && !isPublic) {

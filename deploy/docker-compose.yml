@@ -12,6 +12,7 @@
 #   DOMAIN                       (ex: toniauto.dalfaia.fr)
 #   NEXT_PUBLIC_SUPABASE_URL     (Supabase prod)
 #   NEXT_PUBLIC_SUPABASE_ANON_KEY (Supabase prod)
+#   SIGNUP_CODE                  (code d'inscription pour /signup)
 # =============================================================================
 
 services:
@@ -29,6 +30,8 @@ services:
     environment:
       NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+      # Variable serveur uniquement (jamais inlinée au build).
+      SIGNUP_CODE: ${SIGNUP_CODE}
     # Publication sur 127.0.0.1 uniquement : Traefik (en network_mode host)
     # peut taper sur 127.0.0.1:3000, mais le port n'est PAS exposé publiquement.
     ports:

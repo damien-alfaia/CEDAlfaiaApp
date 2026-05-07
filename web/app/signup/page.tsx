@@ -1,32 +1,32 @@
 import Link from "next/link";
-import { LoginForm } from "./login-form";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { redirect } from "next/navigation";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { createClient } from "@/lib/supabase/server";
+import { SignUpForm } from "./signup-form";
 
-export default async function LoginPage() {
+export default async function SignUpPage() {
   // Si déjà connecté, on redirige vers le dashboard.
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (user) {
-    redirect("/");
-  }
+  if (user) redirect("/");
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-neutral-50 p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl">CEDAlfaiaApp</CardTitle>
-          <CardDescription>Connectez-vous pour accéder à la gestion du garage.</CardDescription>
+          <CardTitle className="text-2xl">Créer un compte</CardTitle>
+          <CardDescription>
+            L&apos;inscription est protégée par un code fourni par l&apos;administrateur.
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <LoginForm />
+          <SignUpForm />
           <p className="text-center text-sm text-neutral-500">
-            Pas encore de compte ?{" "}
-            <Link href="/signup" className="font-medium underline">
-              S&apos;inscrire
+            Vous avez déjà un compte ?{" "}
+            <Link href="/login" className="font-medium underline">
+              Se connecter
             </Link>
           </p>
         </CardContent>
