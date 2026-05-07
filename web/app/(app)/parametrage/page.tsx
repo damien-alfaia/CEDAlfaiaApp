@@ -18,8 +18,9 @@ export default async function ParametragePage() {
       href: "/parametrage/entreprise",
       icon: Cog,
       title: "Entreprise & SMTP",
-      description: "Coordonnées, TVA, montant horaire, logo et configuration SMTP pour l'envoi.",
-      ready: false,
+      description:
+        "Coordonnées, TVA, montant horaire, mentions PDF et configuration SMTP de l'envoi.",
+      ready: true,
     },
   ];
 

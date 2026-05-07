@@ -225,7 +225,38 @@ export type FournisseurRow = Adresse & {
 };
 
 // =============================================================================
-// Parametrage (lecture seule pour le moment ; module Phase 6)
+// Salariés
+// =============================================================================
+
+export type SalarieRow = Adresse & {
+  id: number;
+  nom: string | null;
+  prenom: string | null;
+  date_naissance: string;
+  telephone: string | null;
+  portable: string | null;
+  email: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+// =============================================================================
+// Rendez-vous
+// =============================================================================
+
+export type RendezVousRow = {
+  id: number;
+  sujet: string | null;
+  date_heure_debut: string | null;
+  date_heure_fin: string | null;
+  duree: number | null;
+  commentaire: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+// =============================================================================
+// Parametrage
 // =============================================================================
 
 export type ParametrageRow = {
