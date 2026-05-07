@@ -35,9 +35,14 @@ begin
   end loop;
 end $$;
 
--- Truncate toutes les tables de données métier (sans toucher à profiles
--- ou auth.users). Utilise CASCADE+RESTART IDENTITY pour repartir propre.
--- À appeler avant l'ETL pour garantir l'idempotence.
+-- Vide toutes les tables de données métier sans toucher à profiles ni à
+-- auth.users.
+--
+-- Pourquoi pas TRUNCATE CASCADE : `profiles` a une FK vers `entreprises`
+-- (entreprise_id), donc TRUNCATE CASCADE sur entreprises wipe profiles
+-- et casse l'auth des utilisateurs déjà inscrits (incident vécu lors du
+-- 1er ETL prod). On utilise DELETE chirurgical à la place.
+-- Ordre inverse des FK pour respecter les contraintes sans CASCADE.
 create or replace function etl_truncate_all_data()
 returns void
 language plpgsql
@@ -45,28 +50,28 @@ security definer
 set search_path = public
 as $$
 begin
-  -- Ordre inverse des FK (juste pour la lisibilité ; CASCADE s'en charge).
-  truncate table
-    pieces_vente_paiements,
-    pieces_vente_services,
-    pieces_vente_lignes,
-    documents,
-    pieces_vente,
-    voitures,
-    clients,
-    fournisseurs,
-    rendez_vous,
-    modeles,
-    marques,
-    salarie_indisponibilites,
-    salarie_salaires,
-    salarie_contrats,
-    salaries,
-    widgets_utilisateurs,
-    widgets,
-    entreprises,
-    parametrages
-  restart identity cascade;
+  delete from pieces_vente_paiements;
+  delete from pieces_vente_services;
+  delete from pieces_vente_lignes;
+  delete from documents;
+  delete from pieces_vente;
+  delete from voitures;
+  delete from clients;
+  delete from fournisseurs;
+  delete from rendez_vous;
+  delete from modeles;
+  delete from marques;
+  delete from salarie_indisponibilites;
+  delete from salarie_salaires;
+  delete from salarie_contrats;
+  delete from salaries;
+  delete from widgets_utilisateurs;
+  delete from widgets;
+  -- Détacher profiles.entreprise_id avant de vider entreprises pour
+  -- préserver les comptes utilisateurs déjà inscrits.
+  update profiles set entreprise_id = null where entreprise_id is not null;
+  delete from entreprises;
+  delete from parametrages;
 end $$;
 
 -- Verrouille les fonctions pour qu'elles ne soient pas appelables par
