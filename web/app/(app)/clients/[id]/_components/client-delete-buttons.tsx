@@ -11,7 +11,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { ArchiveRestore, Trash2 } from "lucide-react";
+import { ArchiveRestore, Trash2 } from "@/components/icons";
 import { restoreClientAction, softDeleteClientAction } from "../../actions";
 
 type Props = {

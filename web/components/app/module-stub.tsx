@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Construction } from "lucide-react";
+import { Construction } from "@/components/icons";
 
 type Props = {
   title: string;

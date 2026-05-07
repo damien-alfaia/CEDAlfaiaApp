@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Plus, Search, Check, X } from "lucide-react";
+import { Plus, Search, Check, X } from "@/components/icons";
 import { listDevis } from "@/lib/data/pieces-vente";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";

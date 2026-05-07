@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, FileDown, ArrowRight } from "lucide-react";
+import { ArrowLeft, FileDown, ArrowRight } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { PieceVenteForm } from "../../_components/piece-vente-form";

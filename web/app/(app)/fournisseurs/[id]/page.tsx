@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ArchiveRestore, Trash2 } from "lucide-react";
+import { ArrowLeft, ArchiveRestore, Trash2 } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FournisseurForm } from "../_components/fournisseur-form";

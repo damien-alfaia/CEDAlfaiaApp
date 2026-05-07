@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Plus, Search } from "lucide-react";
+import { Plus, Search } from "@/components/icons";
 import { listClients, type ClientFilter, type ClientProspectFilter } from "@/lib/data/clients";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";

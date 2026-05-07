@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Send } from "lucide-react";
+import { ArrowRight, Send } from "@/components/icons";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireProfile, displayName } from "@/lib/auth";
 import { fmtEuro } from "@/lib/format";

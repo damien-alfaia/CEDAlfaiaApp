@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { FournisseurForm } from "../_components/fournisseur-form";
 import { createFournisseurAction } from "../actions";

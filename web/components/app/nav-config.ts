@@ -9,7 +9,7 @@ import {
   Calculator,
   Settings,
   type LucideIcon,
-} from "lucide-react";
+} from "@/components/icons";
 import type { UserRole } from "@/lib/auth";
 
 export type NavItem = {

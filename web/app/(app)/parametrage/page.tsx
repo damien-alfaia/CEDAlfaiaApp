@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ChevronRight, Cog, Database } from "lucide-react";
+import { ChevronRight, Cog, Database } from "@/components/icons";
 import { Card, CardContent } from "@/components/ui/card";
 import { requireRole } from "@/lib/auth";
 

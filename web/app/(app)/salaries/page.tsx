@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Plus } from "lucide-react";
+import { Plus } from "@/components/icons";
 import { requireRole } from "@/lib/auth";
 import { listSalaries } from "@/lib/data/salaries";
 import { Button } from "@/components/ui/button";
