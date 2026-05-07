@@ -18,7 +18,7 @@ export function SidebarNav({ sections, onNavigate }: Props) {
       {sections.map((section, idx) => (
         <div key={idx} className="space-y-1">
           {section.label && (
-            <h3 className="px-3 text-xs font-semibold uppercase tracking-wider text-neutral-500">
+            <h3 className="px-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               {section.label}
             </h3>
           )}
@@ -36,8 +36,8 @@ export function SidebarNav({ sections, onNavigate }: Props) {
                     className={cn(
                       "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
                       isActive
-                        ? "bg-neutral-900 text-white"
-                        : "text-neutral-700 hover:bg-neutral-100",
+                        ? "bg-primary text-primary-foreground"
+                        : "text-foreground hover:bg-muted",
                     )}
                   >
                     <Icon className="h-4 w-4" />

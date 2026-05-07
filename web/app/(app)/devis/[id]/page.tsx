@@ -118,11 +118,11 @@ export default async function DevisDetailPage({ params }: { params: Promise<{ id
       <Card>
         <CardContent className="flex flex-wrap items-center gap-4 p-4">
           <div className="flex-1">
-            <p className="text-sm text-neutral-500">Devis n°</p>
+            <p className="text-sm text-muted-foreground">Devis n°</p>
             <p className="font-mono text-2xl font-bold">{fmtNumero(piece.num_devis)}</p>
           </div>
           <div className="text-right">
-            <p className="text-sm text-neutral-500">Date</p>
+            <p className="text-sm text-muted-foreground">Date</p>
             <p>{fmtDate(piece.date_devis)}</p>
           </div>
         </CardContent>

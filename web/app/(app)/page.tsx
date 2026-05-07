@@ -12,7 +12,7 @@ export default async function DashboardPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Tableau de bord</h1>
-        <p className="text-sm text-neutral-500">Bienvenue, {displayName(profile)}.</p>
+        <p className="text-sm text-muted-foreground">Bienvenue, {displayName(profile)}.</p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -53,10 +53,10 @@ export default async function DashboardPage() {
           <p>✅ Phase 4 — Module Clients + Voitures</p>
           <p>✅ Phase 5 — Module Devis + Factures + PDFs</p>
           <p>✅ Phase 6 — Modules secondaires</p>
-          <p className="text-neutral-400">
+          <p className="text-muted-foreground">
             ⏳ Phase 7 — Migration des données SQL Server → Postgres
           </p>
-          <p className="text-neutral-400">⏳ Phase 8 — Cutover</p>
+          <p className="text-muted-foreground">⏳ Phase 8 — Cutover</p>
         </CardContent>
       </Card>
     </div>
@@ -76,9 +76,9 @@ function KpiCard({
 }) {
   const color = emphasis === "ok" ? "text-green-700" : emphasis === "warn" ? "text-amber-700" : "";
   const inner = (
-    <Card className={href ? "transition-colors hover:border-neutral-400" : ""}>
+    <Card className={href ? "transition-colors hover:border-border" : ""}>
       <CardHeader className="pb-2">
-        <CardTitle className="text-xs font-medium uppercase tracking-wider text-neutral-500">
+        <CardTitle className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
           {label}
         </CardTitle>
       </CardHeader>
@@ -108,7 +108,7 @@ function ActionCard({
           {icon}
           <div className="flex-1">
             <p className="text-sm font-medium">{label}</p>
-            <p className="text-xs text-neutral-500">Aucune action requise.</p>
+            <p className="text-xs text-muted-foreground">Aucune action requise.</p>
           </div>
         </CardContent>
       </Card>
@@ -116,12 +116,12 @@ function ActionCard({
   }
   return (
     <Link href={href}>
-      <Card className="transition-colors hover:border-neutral-400">
+      <Card className="transition-colors hover:border-border">
         <CardContent className="flex items-center gap-3 p-4">
           {icon}
           <div className="flex-1">
             <p className="text-sm font-medium">{label}</p>
-            <p className="text-xs text-neutral-500">
+            <p className="text-xs text-muted-foreground">
               {count} {count > 1 ? "à traiter" : "à traiter"}
             </p>
           </div>

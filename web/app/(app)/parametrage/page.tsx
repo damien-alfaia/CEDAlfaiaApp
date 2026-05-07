@@ -28,7 +28,9 @@ export default async function ParametragePage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Paramétrage</h1>
-        <p className="text-sm text-neutral-500">Configuration globale de l&apos;application.</p>
+        <p className="text-sm text-muted-foreground">
+          Configuration globale de l&apos;application.
+        </p>
       </div>
 
       <div className="grid gap-3 md:grid-cols-2">
@@ -38,11 +40,11 @@ export default async function ParametragePage() {
             return (
               <Card key={s.href} className="opacity-60">
                 <CardContent className="flex items-start gap-4 p-4">
-                  <Icon className="mt-1 h-5 w-5 text-neutral-400" />
+                  <Icon className="mt-1 h-5 w-5 text-muted-foreground" />
                   <div className="flex-1">
                     <p className="font-medium">{s.title}</p>
-                    <p className="text-sm text-neutral-500">{s.description}</p>
-                    <p className="mt-1 text-xs text-neutral-400">à venir en Phase 6</p>
+                    <p className="text-sm text-muted-foreground">{s.description}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">à venir en Phase 6</p>
                   </div>
                 </CardContent>
               </Card>
@@ -50,14 +52,14 @@ export default async function ParametragePage() {
           }
           return (
             <Link key={s.href} href={s.href} className="group">
-              <Card className="transition-colors hover:border-neutral-400">
+              <Card className="transition-colors hover:border-border">
                 <CardContent className="flex items-start gap-4 p-4">
                   <Icon className="mt-1 h-5 w-5" />
                   <div className="flex-1">
                     <p className="font-medium">{s.title}</p>
-                    <p className="text-sm text-neutral-500">{s.description}</p>
+                    <p className="text-sm text-muted-foreground">{s.description}</p>
                   </div>
-                  <ChevronRight className="h-4 w-4 self-center text-neutral-400 transition-transform group-hover:translate-x-0.5" />
+                  <ChevronRight className="h-4 w-4 self-center text-muted-foreground transition-transform group-hover:translate-x-0.5" />
                 </CardContent>
               </Card>
             </Link>

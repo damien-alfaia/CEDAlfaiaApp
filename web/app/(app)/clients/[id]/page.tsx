@@ -86,7 +86,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
         </CardHeader>
         <CardContent>
           {voitures.length === 0 ? (
-            <div className="rounded-md border border-dashed p-8 text-center text-sm text-neutral-500">
+            <div className="rounded-md border border-dashed p-8 text-center text-sm text-muted-foreground">
               Aucune voiture enregistrée pour ce client.
             </div>
           ) : (

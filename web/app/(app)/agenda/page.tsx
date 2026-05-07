@@ -27,7 +27,7 @@ export default async function AgendaPage() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Agenda</h1>
-          <p className="text-sm text-neutral-500">{aVenir.length} rendez-vous à venir</p>
+          <p className="text-sm text-muted-foreground">{aVenir.length} rendez-vous à venir</p>
         </div>
         <RdvDialog
           trigger={
@@ -47,7 +47,7 @@ export default async function AgendaPage() {
         </CardHeader>
         <CardContent className="space-y-2">
           {aVenir.length === 0 ? (
-            <p className="text-sm text-neutral-500">Aucun rendez-vous à venir.</p>
+            <p className="text-sm text-muted-foreground">Aucun rendez-vous à venir.</p>
           ) : (
             aVenir.map((rdv) => {
               const update = updateRendezVousAction.bind(null, rdv.id);
@@ -55,16 +55,16 @@ export default async function AgendaPage() {
               return (
                 <div
                   key={rdv.id}
-                  className="flex items-start justify-between gap-3 rounded-md border p-3 hover:bg-neutral-50"
+                  className="flex items-start justify-between gap-3 rounded-md border p-3 hover:bg-muted/40"
                 >
                   <div className="flex-1">
                     <p className="font-medium">{rdv.sujet}</p>
-                    <p className="text-sm text-neutral-500">
+                    <p className="text-sm text-muted-foreground">
                       {fmtDateTime(rdv.date_heure_debut)}
                       {rdv.date_heure_fin && ` → ${fmtDateTime(rdv.date_heure_fin)}`}
                     </p>
                     {rdv.commentaire && (
-                      <p className="mt-1 text-xs text-neutral-500">{rdv.commentaire}</p>
+                      <p className="mt-1 text-xs text-muted-foreground">{rdv.commentaire}</p>
                     )}
                   </div>
                   <div className="flex items-center gap-1">
@@ -99,13 +99,13 @@ export default async function AgendaPage() {
       {passes.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-base text-neutral-500">Passés</CardTitle>
+            <CardTitle className="text-base text-muted-foreground">Passés</CardTitle>
           </CardHeader>
           <CardContent className="space-y-1">
             {passes.map((rdv) => (
               <div
                 key={rdv.id}
-                className="flex items-center justify-between rounded-md py-1 text-sm text-neutral-500"
+                className="flex items-center justify-between rounded-md py-1 text-sm text-muted-foreground"
               >
                 <span>{rdv.sujet}</span>
                 <span className="text-xs">{fmtDateTime(rdv.date_heure_debut)}</span>

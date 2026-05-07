@@ -22,7 +22,7 @@ export default async function NewFacturePage() {
       </div>
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Nouvelle facture</h1>
-        <p className="text-sm text-neutral-500">
+        <p className="text-sm text-muted-foreground">
           Le numéro de facture sera généré automatiquement à l&apos;enregistrement.
         </p>
       </div>

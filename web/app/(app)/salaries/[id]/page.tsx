@@ -48,7 +48,7 @@ export default async function SalarieDetailPage({ params }: { params: Promise<{ 
         <CardHeader>
           <CardTitle className="text-base">Contrats &amp; indisponibilités</CardTitle>
         </CardHeader>
-        <CardContent className="text-sm text-neutral-500">
+        <CardContent className="text-sm text-muted-foreground">
           Gestion détaillée des contrats, indisponibilités et bulletins de salaire à étendre
           ultérieurement (selon usage réel).
         </CardContent>

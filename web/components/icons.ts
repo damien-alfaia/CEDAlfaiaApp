@@ -52,6 +52,9 @@ export {
   Search,
   Send,
   Star,
+  Sun,
+  Moon,
+  Monitor,
   Trash2,
   X,
 } from "lucide-react";

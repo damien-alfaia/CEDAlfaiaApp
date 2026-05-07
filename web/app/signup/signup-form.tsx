@@ -83,7 +83,7 @@ export function SignUpForm() {
           autoComplete="off"
         />
         {fe.code && <p className="text-xs text-red-600">{fe.code}</p>}
-        <p className="text-xs text-neutral-500">
+        <p className="text-xs text-muted-foreground">
           Le code vous a été communiqué par l&apos;administrateur.
         </p>
       </div>

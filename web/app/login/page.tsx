@@ -15,7 +15,7 @@ export default async function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-neutral-50 p-4">
+    <main className="flex min-h-screen items-center justify-center bg-muted/40 p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl">CEDAlfaiaApp</CardTitle>
@@ -23,7 +23,7 @@ export default async function LoginPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <LoginForm />
-          <p className="text-center text-sm text-neutral-500">
+          <p className="text-center text-sm text-muted-foreground">
             Pas encore de compte ?{" "}
             <Link href="/signup" className="font-medium underline">
               S&apos;inscrire

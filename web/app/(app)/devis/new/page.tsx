@@ -24,7 +24,7 @@ export default async function NewDevisPage() {
       </div>
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Nouveau devis</h1>
-        <p className="text-sm text-neutral-500">
+        <p className="text-sm text-muted-foreground">
           Le numéro de devis sera généré automatiquement à l&apos;enregistrement.
         </p>
       </div>

@@ -12,7 +12,7 @@ export function ModuleStub({ title, description, phase }: Props) {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
-        {description && <p className="text-sm text-neutral-500">{description}</p>}
+        {description && <p className="text-sm text-muted-foreground">{description}</p>}
       </div>
 
       <Card>
@@ -25,7 +25,7 @@ export function ModuleStub({ title, description, phase }: Props) {
             </div>
           </div>
         </CardHeader>
-        <CardContent className="text-sm text-neutral-500">
+        <CardContent className="text-sm text-muted-foreground">
           La navigation et l&apos;auth sont en place ; le module métier sera développé
           ultérieurement selon la feuille de route.
         </CardContent>

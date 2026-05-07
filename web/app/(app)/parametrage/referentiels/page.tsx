@@ -25,7 +25,7 @@ export default async function ReferentielsPage() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Référentiels — Marques & modèles</h1>
-          <p className="text-sm text-neutral-500">
+          <p className="text-sm text-muted-foreground">
             Catalogue utilisé pour rattacher les voitures clients à un modèle.
           </p>
         </div>
@@ -43,7 +43,7 @@ export default async function ReferentielsPage() {
 
       {marques.length === 0 ? (
         <Card>
-          <CardContent className="p-8 text-center text-sm text-neutral-500">
+          <CardContent className="p-8 text-center text-sm text-muted-foreground">
             Aucune marque — commencez par en ajouter une.
           </CardContent>
         </Card>
@@ -55,9 +55,7 @@ export default async function ReferentielsPage() {
               <Card key={m.id}>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0">
                   <CardTitle className="flex items-center gap-3 text-base">
-                    <span className="rounded bg-neutral-100 px-2 py-0.5 font-mono text-xs">
-                      {m.code}
-                    </span>
+                    <span className="rounded bg-muted px-2 py-0.5 font-mono text-xs">{m.code}</span>
                     {m.libelle}
                   </CardTitle>
                   <div className="flex items-center gap-1">
@@ -81,14 +79,14 @@ export default async function ReferentielsPage() {
                   <Separator />
                   <div className="space-y-1">
                     {m.modeles.length === 0 ? (
-                      <p className="text-sm text-neutral-400">Aucun modèle.</p>
+                      <p className="text-sm text-muted-foreground">Aucun modèle.</p>
                     ) : (
                       m.modeles.map((mo) => {
                         const updateModeleBound = updateModeleAction.bind(null, mo.id);
                         return (
                           <div
                             key={mo.id}
-                            className="flex items-center justify-between rounded-md py-1 hover:bg-neutral-50"
+                            className="flex items-center justify-between rounded-md py-1 hover:bg-muted/40"
                           >
                             <span className="text-sm">{mo.libelle}</span>
                             <div className="flex items-center">

@@ -21,7 +21,7 @@ export default async function ParametrageEntreprisePage() {
       </div>
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Entreprise &amp; SMTP</h1>
-        <p className="text-sm text-neutral-500">
+        <p className="text-sm text-muted-foreground">
           Ces paramètres sont utilisés en entête des PDFs de devis et factures.
         </p>
       </div>

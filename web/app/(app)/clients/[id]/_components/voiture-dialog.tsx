@@ -69,7 +69,7 @@ export function VoitureDialog({ trigger, title, clientId, voiture, modeles, acti
               </SelectTrigger>
               <SelectContent>
                 {modeles.length === 0 && (
-                  <div className="px-2 py-3 text-sm text-neutral-500">
+                  <div className="px-2 py-3 text-sm text-muted-foreground">
                     Aucun modèle. Ajoutez-en dans Paramétrage → Référentiels.
                   </div>
                 )}

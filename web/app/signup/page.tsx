@@ -13,7 +13,7 @@ export default async function SignUpPage() {
   if (user) redirect("/");
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-neutral-50 p-4">
+    <main className="flex min-h-screen items-center justify-center bg-muted/40 p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl">Créer un compte</CardTitle>
@@ -23,7 +23,7 @@ export default async function SignUpPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <SignUpForm />
-          <p className="text-center text-sm text-neutral-500">
+          <p className="text-center text-sm text-muted-foreground">
             Vous avez déjà un compte ?{" "}
             <Link href="/login" className="font-medium underline">
               Se connecter

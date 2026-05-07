@@ -42,8 +42,8 @@ export function UserMenu({ name, email, role, initials }: Props) {
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium">{name}</p>
-            <p className="text-xs text-neutral-500">{email}</p>
-            <p className="text-xs text-neutral-400">{roleLabels[role] ?? role}</p>
+            <p className="text-xs text-muted-foreground">{email}</p>
+            <p className="text-xs text-muted-foreground">{roleLabels[role] ?? role}</p>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />

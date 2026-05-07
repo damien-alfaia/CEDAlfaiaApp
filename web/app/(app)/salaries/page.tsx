@@ -22,7 +22,7 @@ export default async function SalariesPage() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Salariés</h1>
-          <p className="text-sm text-neutral-500">
+          <p className="text-sm text-muted-foreground">
             {rows.length} {rows.length > 1 ? "résultats" : "résultat"}
           </p>
         </div>
@@ -37,7 +37,7 @@ export default async function SalariesPage() {
       <Card>
         <CardContent className="p-4">
           {rows.length === 0 ? (
-            <div className="rounded-md border border-dashed p-8 text-center text-sm text-neutral-500">
+            <div className="rounded-md border border-dashed p-8 text-center text-sm text-muted-foreground">
               Aucun salarié à afficher.
             </div>
           ) : (

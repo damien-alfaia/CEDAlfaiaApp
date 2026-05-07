@@ -36,7 +36,7 @@ export function Pagination({ page, pageCount, q, filter, prospect }: Props) {
   const next = Math.min(pageCount, page + 1);
   return (
     <div className="flex items-center justify-between gap-2 text-sm">
-      <p className="text-neutral-500">
+      <p className="text-muted-foreground">
         Page {page} / {pageCount}
       </p>
       <div className="flex gap-2">

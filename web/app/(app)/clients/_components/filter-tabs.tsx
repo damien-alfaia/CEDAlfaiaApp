@@ -39,8 +39,8 @@ export function FilterTabs({ current, prospect, q }: Props) {
             className={cn(
               "rounded-md px-3 py-1.5",
               current === t.key
-                ? "bg-neutral-900 text-white"
-                : "text-neutral-700 hover:bg-neutral-100",
+                ? "bg-primary text-primary-foreground"
+                : "text-foreground hover:bg-muted",
             )}
           >
             {t.label}
@@ -55,8 +55,8 @@ export function FilterTabs({ current, prospect, q }: Props) {
             className={cn(
               "rounded-md px-3 py-1.5",
               prospect === t.key
-                ? "bg-neutral-900 text-white"
-                : "text-neutral-700 hover:bg-neutral-100",
+                ? "bg-primary text-primary-foreground"
+                : "text-foreground hover:bg-muted",
             )}
           >
             {t.label}
@@ -69,8 +69,8 @@ export function FilterTabs({ current, prospect, q }: Props) {
 
 function ButtonGroup({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="flex items-center gap-1 rounded-md border bg-white p-1">
-      <span className="px-2 text-xs uppercase tracking-wider text-neutral-400">{label}</span>
+    <div className="flex items-center gap-1 rounded-md border bg-card p-1">
+      <span className="px-2 text-xs uppercase tracking-wider text-muted-foreground">{label}</span>
       {children}
     </div>
   );

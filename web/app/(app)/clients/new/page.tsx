@@ -17,7 +17,7 @@ export default function NewClientPage() {
       </div>
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Nouveau client</h1>
-        <p className="text-sm text-neutral-500">
+        <p className="text-sm text-muted-foreground">
           Renseignez au minimum le nom. Les autres champs sont optionnels.
         </p>
       </div>

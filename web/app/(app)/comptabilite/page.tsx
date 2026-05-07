@@ -47,7 +47,7 @@ export default async function ComptabilitePage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Comptabilité</h1>
-        <p className="text-sm text-neutral-500">
+        <p className="text-sm text-muted-foreground">
           Vue agrégée de l&apos;activité (factures non annulées uniquement).
         </p>
       </div>
@@ -75,15 +75,17 @@ export default async function ComptabilitePage() {
           <div className="space-y-1">
             {caParMois.map((m) => (
               <div key={m.mois} className="flex items-center gap-3 text-sm">
-                <div className="w-12 shrink-0 text-right text-neutral-500">{moisLabel(m.mois)}</div>
-                <div className="flex-1 rounded bg-neutral-100">
+                <div className="w-12 shrink-0 text-right text-muted-foreground">
+                  {moisLabel(m.mois)}
+                </div>
+                <div className="flex-1 rounded bg-muted">
                   <div
-                    className="h-5 rounded bg-neutral-900"
+                    className="h-5 rounded bg-primary"
                     style={{ width: `${(m.caTtc / maxCa) * 100}%` }}
                   />
                 </div>
                 <div className="w-28 shrink-0 text-right tabular-nums">{fmtEuro(m.caTtc)}</div>
-                <div className="w-20 shrink-0 text-right tabular-nums text-neutral-500">
+                <div className="w-20 shrink-0 text-right tabular-nums text-muted-foreground">
                   {m.nbFactures} fac.
                 </div>
               </div>
@@ -98,7 +100,7 @@ export default async function ComptabilitePage() {
         </CardHeader>
         <CardContent>
           {balance.length === 0 ? (
-            <p className="text-sm text-neutral-500">Aucun reste à payer ouvert. 🎉</p>
+            <p className="text-sm text-muted-foreground">Aucun reste à payer ouvert. 🎉</p>
           ) : (
             <div className="overflow-x-auto rounded-md border">
               <Table>
@@ -135,9 +137,11 @@ export default async function ComptabilitePage() {
 
 function Kpi({ label, value, link }: { label: string; value: string; link?: string }) {
   const inner = (
-    <Card className={link ? "transition-colors hover:border-neutral-400" : ""}>
+    <Card className={link ? "transition-colors hover:border-border" : ""}>
       <CardContent className="p-4">
-        <p className="text-xs font-medium uppercase tracking-wider text-neutral-500">{label}</p>
+        <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+          {label}
+        </p>
         <p className="mt-1 text-2xl font-bold tabular-nums">{value}</p>
       </CardContent>
     </Card>

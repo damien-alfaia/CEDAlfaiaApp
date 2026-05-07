@@ -151,7 +151,7 @@ export function ParametrageForm({ parametrage, action }: Props) {
               Activer SSL
             </Label>
           </div>
-          <p className="md:col-span-2 text-xs text-neutral-500">
+          <p className="md:col-span-2 text-xs text-muted-foreground">
             Le mot de passe SMTP n&apos;est pas géré ici (à passer en variable d&apos;env si envoi
             automatique nécessaire). Pour l&apos;instant, l&apos;envoi se fait via le client mail
             local de l&apos;utilisateur (mailto:).

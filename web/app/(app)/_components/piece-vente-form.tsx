@@ -202,7 +202,7 @@ export function PieceVenteForm({
               </SelectTrigger>
               <SelectContent>
                 {voitures.length === 0 && (
-                  <div className="px-2 py-2 text-sm text-neutral-500">
+                  <div className="px-2 py-2 text-sm text-muted-foreground">
                     Aucune voiture pour ce client.
                   </div>
                 )}
@@ -264,7 +264,7 @@ export function PieceVenteForm({
           </div>
           <div className="space-y-2">
             <Label>Total main d&apos;œuvre</Label>
-            <div className="flex h-9 items-center rounded-md border bg-neutral-50 px-3 text-sm tabular-nums">
+            <div className="flex h-9 items-center rounded-md border bg-muted/40 px-3 text-sm tabular-nums">
               {fmtEuro(moMontant * moDuree)}
             </div>
           </div>
@@ -360,8 +360,8 @@ function Stat({
           ? "text-amber-600"
           : "";
   return (
-    <div className="flex items-center justify-between rounded-md px-3 py-1.5 hover:bg-neutral-50">
-      <dt className="text-neutral-500">{label}</dt>
+    <div className="flex items-center justify-between rounded-md px-3 py-1.5 hover:bg-muted/40">
+      <dt className="text-muted-foreground">{label}</dt>
       <dd className={`tabular-nums ${bold ? "font-semibold" : ""} ${color}`}>{value}</dd>
     </div>
   );
@@ -396,12 +396,12 @@ function LignesSection({
       </CardHeader>
       <CardContent>
         {lignes.length === 0 ? (
-          <p className="text-sm text-neutral-500">Aucune ligne.</p>
+          <p className="text-sm text-muted-foreground">Aucune ligne.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-xs uppercase text-neutral-500">
+                <tr className="text-left text-xs uppercase text-muted-foreground">
                   <th className="px-2 py-1">Libellé</th>
                   <th className="px-2 py-1">Fournisseur</th>
                   <th className="px-2 py-1 text-right">Qté</th>
@@ -544,12 +544,12 @@ function ServicesSection({
       </CardHeader>
       <CardContent>
         {services.length === 0 ? (
-          <p className="text-sm text-neutral-500">Aucun service.</p>
+          <p className="text-sm text-muted-foreground">Aucun service.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-xs uppercase text-neutral-500">
+                <tr className="text-left text-xs uppercase text-muted-foreground">
                   <th className="px-2 py-1">Libellé</th>
                   <th className="px-2 py-1 text-right">Qté</th>
                   <th className="px-2 py-1 text-right">PU HT</th>
@@ -646,12 +646,12 @@ function PaiementsSection({
       </CardHeader>
       <CardContent>
         {paiements.length === 0 ? (
-          <p className="text-sm text-neutral-500">Aucun paiement.</p>
+          <p className="text-sm text-muted-foreground">Aucun paiement.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-xs uppercase text-neutral-500">
+                <tr className="text-left text-xs uppercase text-muted-foreground">
                   <th className="px-2 py-1">Mode</th>
                   <th className="px-2 py-1">Date</th>
                   <th className="px-2 py-1 text-right">Montant</th>

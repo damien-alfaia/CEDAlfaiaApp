@@ -7,7 +7,7 @@ export default function ForbiddenPage() {
       <div className="max-w-md space-y-4 text-center">
         <p className="text-sm font-semibold uppercase tracking-wider text-amber-600">403</p>
         <h1 className="text-2xl font-bold">Accès refusé</h1>
-        <p className="text-sm text-neutral-500">
+        <p className="text-sm text-muted-foreground">
           Vous n&apos;avez pas les permissions nécessaires pour accéder à cette page.
         </p>
         <Button asChild>

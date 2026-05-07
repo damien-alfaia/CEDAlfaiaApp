@@ -37,7 +37,7 @@ export default async function ClientsPage({ searchParams }: { searchParams: Sear
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Clients</h1>
-          <p className="text-sm text-neutral-500">
+          <p className="text-sm text-muted-foreground">
             {result.total} {result.total > 1 ? "résultats" : "résultat"}
           </p>
         </div>
@@ -53,7 +53,7 @@ export default async function ClientsPage({ searchParams }: { searchParams: Sear
         <CardContent className="space-y-4 p-4">
           <form className="flex flex-wrap items-center gap-2">
             <div className="relative flex-1 min-w-[200px]">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 name="q"
                 defaultValue={q}
@@ -90,7 +90,7 @@ export default async function ClientsPage({ searchParams }: { searchParams: Sear
 function ClientsTable({ rows }: { rows: Awaited<ReturnType<typeof listClients>>["rows"] }) {
   if (rows.length === 0) {
     return (
-      <div className="rounded-md border border-dashed p-8 text-center text-sm text-neutral-500">
+      <div className="rounded-md border border-dashed p-8 text-center text-sm text-muted-foreground">
         Aucun client à afficher.
       </div>
     );
@@ -116,7 +116,7 @@ function ClientsTable({ rows }: { rows: Awaited<ReturnType<typeof listClients>>[
                   <Link href={`/clients/${c.id}`} className="hover:underline">
                     {fullName || c.nom}
                   </Link>
-                  {c.code && <span className="ml-2 text-xs text-neutral-400">{c.code}</span>}
+                  {c.code && <span className="ml-2 text-xs text-muted-foreground">{c.code}</span>}
                 </TableCell>
                 <TableCell className="hidden sm:table-cell">{c.telephone ?? "—"}</TableCell>
                 <TableCell className="hidden md:table-cell">{c.email ?? "—"}</TableCell>

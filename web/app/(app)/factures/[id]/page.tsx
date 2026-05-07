@@ -162,19 +162,19 @@ export default async function FactureDetailPage({ params }: { params: Promise<{ 
       <Card>
         <CardContent className="flex flex-wrap items-center gap-6 p-4">
           <div className="flex-1 min-w-[160px]">
-            <p className="text-sm text-neutral-500">Facture n°</p>
+            <p className="text-sm text-muted-foreground">Facture n°</p>
             <p className="font-mono text-2xl font-bold">{fmtNumero(piece.num_facture)}</p>
           </div>
           <div>
-            <p className="text-sm text-neutral-500">Date</p>
+            <p className="text-sm text-muted-foreground">Date</p>
             <p>{fmtDate(piece.date_facture)}</p>
           </div>
           <div>
-            <p className="text-sm text-neutral-500">État</p>
+            <p className="text-sm text-muted-foreground">État</p>
             <PieceVenteStateBadge piece={piece} />
           </div>
           <div>
-            <p className="text-sm text-neutral-500">Paiement</p>
+            <p className="text-sm text-muted-foreground">Paiement</p>
             <PaiementBadge reste={piece.reste_a_payer} total={piece.total_ttc} />
           </div>
         </CardContent>
