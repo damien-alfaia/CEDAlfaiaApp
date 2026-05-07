@@ -68,8 +68,8 @@ export default async function DashboardPage() {
         <CardContent className="space-y-2 text-sm">
           <p>✅ Phase 1 — Schéma Postgres</p>
           <p>✅ Phase 2 — Infra Next.js + Docker + Traefik</p>
-          <p>🚧 Phase 3 — Auth + layout (en cours)</p>
-          <p className="text-neutral-400">⏳ Phase 4 — Module Clients + Voitures</p>
+          <p>✅ Phase 3 — Auth + layout</p>
+          <p>✅ Phase 4 — Module Clients + Voitures</p>
           <p className="text-neutral-400">⏳ Phase 5 — Module Devis + Factures</p>
           <p className="text-neutral-400">⏳ Phase 6 — Modules secondaires</p>
           <p className="text-neutral-400">
