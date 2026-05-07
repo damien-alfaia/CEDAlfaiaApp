@@ -87,4 +87,5 @@ next-env.d.ts
 .env.production.local
 .env.test.local
 deploy/.env
+etl/.env
 

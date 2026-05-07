@@ -1,0 +1,21 @@
+{
+  "name": "cedalfaiaapp-etl",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "migrate": "tsx migrate.ts",
+    "migrate:dry": "tsx migrate.ts --dry-run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.105.1",
+    "dotenv": "^17.0.0",
+    "mssql": "^11.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.7.0"
+  }
+}
