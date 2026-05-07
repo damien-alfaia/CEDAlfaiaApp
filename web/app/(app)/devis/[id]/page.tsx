@@ -14,8 +14,11 @@ import {
   listClientsForSelect,
   listFournisseursActifs,
 } from "@/lib/data/pieces-vente";
+import { getSignedDownloadUrl, listDocumentsForPiece } from "@/lib/data/documents";
 import { fmtNumero, fmtDate } from "@/lib/format";
 import { ConfirmActionButton } from "../../_components/confirm-action-button";
+import { DocumentsSection } from "../../_components/documents-section";
+import { deleteDocumentAction } from "../../_actions/documents";
 import type { PieceVenteWriteInput } from "@/lib/schemas/pieces-vente";
 
 export default async function DevisDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -23,11 +26,18 @@ export default async function DevisDetailPage({ params }: { params: Promise<{ id
   const devisId = Number(id);
   if (!Number.isInteger(devisId) || devisId <= 0) notFound();
 
-  const [piece, clients, fournisseurs] = await Promise.all([
+  const [piece, clients, fournisseurs, docsRaw] = await Promise.all([
     getPieceVenteFull(devisId),
     listClientsForSelect(),
     listFournisseursActifs(),
+    listDocumentsForPiece(devisId),
   ]);
+  const docs = await Promise.all(
+    docsRaw.map(async (d) => ({
+      ...d,
+      signedUrl: d.storage_path ? await getSignedDownloadUrl(d.storage_path) : null,
+    })),
+  );
   if (!piece) notFound();
   if (piece.date_facture !== null) {
     // déjà transformé en facture → rediriger pour cohérence
@@ -135,6 +145,13 @@ export default async function DevisDetailPage({ params }: { params: Promise<{ id
         initial={initial}
         action={update}
         submitLabel="Enregistrer"
+      />
+
+      <DocumentsSection
+        pieceVenteId={devisId}
+        variant="devis"
+        documents={docs}
+        onDelete={deleteDocumentAction}
       />
     </div>
   );

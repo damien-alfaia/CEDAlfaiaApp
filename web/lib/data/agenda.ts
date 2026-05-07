@@ -39,3 +39,21 @@ export async function getRendezVous(id: number): Promise<RendezVousRow | null> {
   if (error) throw new Error(`getRendezVous: ${error.message}`);
   return (data as RendezVousRow | null) ?? null;
 }
+
+/**
+ * Tous les RDV qui chevauchent le mois donné (year + month 1-12), avec un peu
+ * de marge pour capter les semaines qui débordent côté grille calendrier.
+ */
+export async function listRendezVousMois(year: number, month: number): Promise<RendezVousRow[]> {
+  const supabase = await createClient();
+  const start = new Date(year, month - 2, 1, 0, 0, 0, 0);
+  const end = new Date(year, month + 1, 1, 0, 0, 0, 0);
+  const { data, error } = await supabase
+    .from("rendez_vous")
+    .select("*")
+    .gte("date_heure_debut", start.toISOString())
+    .lt("date_heure_debut", end.toISOString())
+    .order("date_heure_debut", { ascending: true });
+  if (error) throw new Error(`listRendezVousMois: ${error.message}`);
+  return (data ?? []) as RendezVousRow[];
+}

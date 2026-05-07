@@ -17,8 +17,11 @@ import {
   listClientsForSelect,
   listFournisseursActifs,
 } from "@/lib/data/pieces-vente";
+import { getSignedDownloadUrl, listDocumentsForPiece } from "@/lib/data/documents";
 import { fmtNumero, fmtDate } from "@/lib/format";
 import { ConfirmActionButton } from "../../_components/confirm-action-button";
+import { DocumentsSection } from "../../_components/documents-section";
+import { deleteDocumentAction } from "../../_actions/documents";
 import { PaiementBadge, PieceVenteStateBadge } from "@/components/app/piece-vente-state";
 import { AnnulerFactureDialog } from "./_components/annuler-dialog";
 import type { PieceVenteWriteInput } from "@/lib/schemas/pieces-vente";
@@ -28,12 +31,19 @@ export default async function FactureDetailPage({ params }: { params: Promise<{ 
   const factId = Number(id);
   if (!Number.isInteger(factId) || factId <= 0) notFound();
 
-  const [piece, clients, fournisseurs, parametrage] = await Promise.all([
+  const [piece, clients, fournisseurs, parametrage, docsRaw] = await Promise.all([
     getPieceVenteFull(factId),
     listClientsForSelect(),
     listFournisseursActifs(),
     getParametrage(),
+    listDocumentsForPiece(factId),
   ]);
+  const docs = await Promise.all(
+    docsRaw.map(async (d) => ({
+      ...d,
+      signedUrl: d.storage_path ? await getSignedDownloadUrl(d.storage_path) : null,
+    })),
+  );
   if (!piece) notFound();
   if (piece.date_facture === null) {
     return (
@@ -196,6 +206,13 @@ export default async function FactureDetailPage({ params }: { params: Promise<{ 
         initial={initial}
         action={update}
         submitLabel="Enregistrer"
+      />
+
+      <DocumentsSection
+        pieceVenteId={factId}
+        variant="facture"
+        documents={docs}
+        onDelete={deleteDocumentAction}
       />
     </div>
   );

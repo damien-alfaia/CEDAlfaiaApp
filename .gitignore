@@ -88,4 +88,5 @@ next-env.d.ts
 .env.test.local
 deploy/.env
 etl/.env
+e2e/.env
 

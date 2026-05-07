@@ -1,19 +1,11 @@
 import Link from "next/link";
-import { Plus, Search, Check, X } from "@/components/icons";
+import { Plus, Search } from "@/components/icons";
 import { listDevis } from "@/lib/data/pieces-vente";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { fmtDate, fmtEuro, fmtNumero } from "@/lib/format";
 import { ListPagination } from "@/components/app/list-pagination";
+import { DevisListTable } from "./_components/devis-list-table";
 
 type SearchParams = Promise<{
   q?: string;
@@ -67,69 +59,7 @@ export default async function DevisListPage({ searchParams }: { searchParams: Se
 
           <EnvoyeTabs current={envoye} q={q} />
 
-          {result.rows.length === 0 ? (
-            <div className="rounded-md border border-dashed p-8 text-center text-sm text-muted-foreground">
-              Aucun devis à afficher.
-            </div>
-          ) : (
-            <div className="overflow-x-auto rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>N°</TableHead>
-                    <TableHead className="hidden sm:table-cell">Date</TableHead>
-                    <TableHead>Client</TableHead>
-                    <TableHead className="hidden md:table-cell">Voiture</TableHead>
-                    <TableHead className="text-right">Total TTC</TableHead>
-                    <TableHead className="text-center">Envoyé</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {result.rows.map((d) => {
-                    const fullName = [d.client?.prenom, d.client?.nom]
-                      .filter(Boolean)
-                      .join(" ")
-                      .trim();
-                    const voiture =
-                      d.voiture?.modele?.marque?.libelle && d.voiture?.modele?.libelle
-                        ? `${d.voiture.modele.marque.libelle} ${d.voiture.modele.libelle}`
-                        : "—";
-                    return (
-                      <TableRow key={d.id}>
-                        <TableCell className="font-mono">
-                          <Link href={`/devis/${d.id}`} className="hover:underline">
-                            {fmtNumero(d.num_devis)}
-                          </Link>
-                        </TableCell>
-                        <TableCell className="hidden sm:table-cell">
-                          {fmtDate(d.date_devis)}
-                        </TableCell>
-                        <TableCell>{fullName || "—"}</TableCell>
-                        <TableCell className="hidden md:table-cell">
-                          {voiture}
-                          {d.voiture?.immatriculation && (
-                            <span className="ml-1 font-mono text-xs text-muted-foreground">
-                              {d.voiture.immatriculation}
-                            </span>
-                          )}
-                        </TableCell>
-                        <TableCell className="text-right tabular-nums">
-                          {fmtEuro(d.total_ttc)}
-                        </TableCell>
-                        <TableCell className="text-center">
-                          {d.is_devis_envoye ? (
-                            <Check className="mx-auto h-4 w-4 text-green-600" />
-                          ) : (
-                            <X className="mx-auto h-4 w-4 text-muted-foreground/50" />
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </div>
-          )}
+          <DevisListTable rows={result.rows} />
 
           <ListPagination
             page={result.page}

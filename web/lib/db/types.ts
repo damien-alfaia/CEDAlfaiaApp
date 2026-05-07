@@ -240,6 +240,34 @@ export type SalarieRow = Adresse & {
   updated_at: string;
 };
 
+export type SalarieContratRow = {
+  id: number;
+  date_debut: string;
+  date_fin: string | null;
+  type_contrat: string | null;
+  salarie_id: number | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type SalarieIndisponibiliteRow = {
+  id: number;
+  date_debut: string;
+  date_fin: string;
+  type_indisponibilite: TypeIndisponibilite;
+  motif: string | null;
+  salarie_contrat_id: number | null;
+};
+
+export type SalarieSalaireRow = {
+  id: number;
+  date_debut: string;
+  date_fin: string;
+  date_paiement: string;
+  salaire_net: number;
+  salarie_contrat_id: number | null;
+};
+
 // =============================================================================
 // Rendez-vous
 // =============================================================================
