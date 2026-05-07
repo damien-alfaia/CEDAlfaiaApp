@@ -15,8 +15,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <aside className="hidden w-64 shrink-0 border-r border-border bg-card md:flex md:flex-col">
         <div className="flex h-14 items-center border-b border-border px-4">
           <span className="text-lg font-semibold tracking-tight">
-            <span className="text-primary">CED</span>
-            <span>Alfaia</span>
+            <span className="text-primary">TONI</span>
+            <span>Auto</span>
             <span className="text-accent">App</span>
           </span>
         </div>
@@ -32,7 +32,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           <div className="flex items-center gap-2">
             <MobileSidebar sections={sections} />
             <span className="text-base font-semibold tracking-tight md:hidden">
-              <span className="text-primary">CED</span>Alfaia
+              <span className="text-primary">TONI</span>Auto
               <span className="text-accent">App</span>
             </span>
           </div>

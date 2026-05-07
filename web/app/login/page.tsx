@@ -18,7 +18,11 @@ export default async function LoginPage() {
     <main className="flex min-h-screen items-center justify-center bg-muted/40 p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl">CEDAlfaiaApp</CardTitle>
+          <CardTitle className="text-2xl">
+            <span className="text-primary">TONI</span>
+            <span>Auto</span>
+            <span className="text-accent">App</span>
+          </CardTitle>
           <CardDescription>Connectez-vous pour accéder à la gestion du garage.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">

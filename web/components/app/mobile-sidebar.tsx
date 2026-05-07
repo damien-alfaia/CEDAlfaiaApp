@@ -23,7 +23,11 @@ export function MobileSidebar({ sections }: Props) {
       </SheetTrigger>
       <SheetContent side="left" className="w-72 p-0">
         <SheetHeader className="border-b p-4">
-          <SheetTitle className="text-left">CEDAlfaiaApp</SheetTitle>
+          <SheetTitle className="text-left">
+            <span className="text-primary">TONI</span>
+            <span>Auto</span>
+            <span className="text-accent">App</span>
+          </SheetTitle>
         </SheetHeader>
         <div className="p-4">
           <SidebarNav sections={sections} onNavigate={() => setOpen(false)} />

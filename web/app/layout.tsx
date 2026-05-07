@@ -3,7 +3,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 
 export const metadata: Metadata = {
-  title: "CEDAlfaiaApp",
+  title: "TONIAutoApp",
   description: "Gestion garage automobile",
 };
 
